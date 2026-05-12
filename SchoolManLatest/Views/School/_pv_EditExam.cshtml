@@ -1,0 +1,104 @@
+﻿
+
+@model TrackTap.Models.ExamsModel
+@{
+    var circular = new TrackTap.DataLibrary.Data.School(Model.SchoolId);
+}
+
+@using (Ajax.BeginForm("SubmitEditExam", "School", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "ExamEditSuccess",
+    OnFailure = "ExamEditFailed"
+}, new { id = "form-exam-edit" }))
+{
+    @Html.HiddenFor(z => z.ExamId, new { Value = @Model.ExamId })
+    @Html.HiddenFor(z => z.SchoolId, new { Value = @Model.SchoolId })
+    @Html.HiddenFor(z => z.DivisionId, new { Value = @Model.DivisionId })
+    @Html.HiddenFor(z => z.ClassId)
+    <div class="col-md-4 col-md-offset-4 " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel3">Add New Exams</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Class</label>
+                            @Html.DropDownListFor(m => m.ClassId, new TrackTap.DataLibrary.Data.DropdownData().GetFreeClasses(Model.SchoolId), "--Choose--", new { @class = "form-control slct-alldivisions-dropdwn", @data_live_search = "true" })
+                            @Html.ValidationMessageFor(z => z.ClassId)
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Division</label>
+                            <select class="form-control slct-free-div-dropdown" disabled></select>
+                            <span id="division-required-exam-edit" style="display:none; color:red;"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Exam Date</label>
+                            @Html.TextBoxFor(m => m.ExamDate, new { autocomplete = "off", placeholder = "Select Date", @class = "form-control" })
+                            @Html.ValidationMessageFor(z => z.ExamDate)
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    @Html.TextBoxFor(m => m.ExamName, new { autocomplete = "off", placeholder = "Name", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.ExamName)
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button class="btn pay-now-btn" style="display:none;" id="btn-editExam">Save</button>
+                <button type="button" id="btn-dummy-editExam" class="btn pay-now-btn">Save</button>
+            </div>
+        </div>
+
+
+    </div>
+}
+<script>
+    $('#ExamDate').datepicker({
+        format: 'mm-dd-yyyy',
+        autoclose: true,
+        todayHighlight: true
+    });
+    $(document).ready(function () {
+        //debugger;
+        var id = $('#ClassId').val();
+        var divId = $('#DivisionId').val();
+
+
+        $.ajax({
+            url: '/Data/LoadAllSchoolDivision?id=' + id + '&schoolid=' + $('#SchoolId').val(),
+            type: "GET",
+            success: function (result) {
+                //debugger;
+                if (result.list.length > 0) {
+                    $(".slct-free-div-dropdown").html("");
+                    $(".slct-free-div-dropdown").append($('<option></option>').val("0").html('-- Select Division --'));
+                    $.each(result.list, function (i, item) {
+                        $(".slct-free-div-dropdown").append($('<option></option>').val(item.Value).html(item.Text));
+                        $(".slct-free-div-dropdown").val(divId);
+                        var Id = $('.slct-free-div-dropdown').val();
+                        $('.slct-free-div-dropdown').val(Id);
+                    });
+                    $(".slct-free-div-dropdown").prop("disabled", false);
+                }
+                else {
+                    $(".slct-free-div-dropdown").html("");
+                    $(".slct-free-div-dropdown").append($('<option></option>').val("0").html('-- No Division Found --'));
+                    $(".slct-free-div-dropdown").prop("disabled", true);
+                    $('#DivisionId').val("0");
+                }
+            }
+        });
+    });
+   
+</script>

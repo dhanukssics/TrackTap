@@ -1,0 +1,56 @@
+﻿@model TrackTap.Models.SMTPDetailsModel
+
+<div class="col-md-4 col-md-offset-4">
+    <div class="email-setup-main">
+        @using (Ajax.BeginForm("AddEmailerSetup", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddEmailerSetupSuccess",
+            OnFailure = "AddEmailerSetupFailed"
+            //OnComplete = "perm Loader"
+        }, new { id = "form-login" }))
+        {
+
+        
+            <div class="form-group">
+                <span class="col-md-12">
+                    <label class="cust-label">Email</label>
+                    @Html.TextBoxFor(m => m.email, new { @class = "form-control cust-inp", placeholder = "Email" })
+                    @Html.ValidationMessageFor(m => m.email)
+                </span>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12">
+                    <label class="cust-label">Password</label>
+                    @Html.TextBoxFor(m => m.password, new { @class = "form-control cust-inp", type = "password", placeholder = "Password" })
+                    @Html.ValidationMessageFor(m => m.password)
+                </span>
+            </div>
+        
+            <div class="form-group">
+                <span class="col-md-12" style="float: left; margin-top:15px;">
+                    @*  <input type="button" class="add-form-btn" value="Send Test Mail" />*@
+                    <button type="submit" class="btn pay-now-btn">Add </button>
+                </span>
+            </div>
+
+        }
+    </div>
+</div><!-- end of col-md-12 -->
+<script>
+    function AddEmailerSetupSuccess(result) {
+        if (result.status) {
+            toastrSuccess(result.msg);
+            location.reload();
+        }
+        else {
+            toastrError(result.msg);
+            location.reload();
+        }
+    }
+
+    function AddEmailerSetupFailed() {
+        toastrError("Failed");
+        location.reload();
+    }
+</script>

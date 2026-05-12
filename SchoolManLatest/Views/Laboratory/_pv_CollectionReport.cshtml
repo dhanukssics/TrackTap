@@ -1,0 +1,68 @@
+﻿
+    <table class="table table-bordered table-striped" id="collection-grid" style="border: 0.5px solid #d2cece;">
+        <thead>
+            <tr>
+                <th>SL NO </th>
+                <th>ITEM </th>
+                <th>STOCK ID</th>
+                <th>PRICE</th>
+                <th>SCHOOL ID</th>
+                <th> STOCK</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @{
+
+                List<TrackTap.DataLibrary.Data.StockSales> PurchaseDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
+                //  var PurchaseDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
+                //  var PurchaseDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
+                var index = 1;
+
+                var total = PurchaseDetails.Sum(x => x.Price);
+            }
+
+            @foreach (var PurchaseDetail in PurchaseDetails)
+            {
+                <tr class="bill-click" style="cursor:pointer" data-id="@PurchaseDetail.SchoolId" data-studId="@PurchaseDetail.SchoolId">
+                    <td>@index</td>
+                    <td>@PurchaseDetail.Item</td>
+
+                    <td>@PurchaseDetail.StockId</td>
+                    <td>@PurchaseDetail.Price </td>
+                    <td>@PurchaseDetail.SchoolId </td>
+                    @*<td>@PurchaseDetail.Date.ToString("dd-MM-yyyy")</td>*@
+                    <td>@PurchaseDetail.StockQuantity </td>
+                </tr>
+                index++;
+
+            }
+
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td style="font-weight:bold">
+                    Total
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                
+                <td style="font-weight:bold">
+                    @total
+                </td>
+                <td>
+
+                </td>
+                <td>
+
+                </td>
+               
+            </tr>
+        </tfoot>
+    </table>
+
+
+

@@ -1,0 +1,44 @@
+﻿
+
+@model TrackTap.Models.LibraryModels
+
+<div class="modal-dialog modal-sm" role="document">
+
+    <style>
+        span {
+            color: red;
+        }
+    </style>
+
+    @using (Ajax.BeginForm("IssueLibraryBook", "School", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "BookIssueSuccess",
+        OnFailure = "ajaxFailure",
+    }, new { id = "form-issue-add" }))
+    {
+        @*@Html.HiddenFor(m => m.categoryId)*@
+        @Html.HiddenFor(m => m.bookId)
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Enter Student Admission </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Admission Number</label>
+                    @Html.TextBoxFor(m => m.admissionNumber, new { autocomplete = "off", placeholder = "Admission Number", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.admissionNumber)
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" id="btn-addteacher" class="btn pay-now-btn">Save</button>
+            </div>
+        </div>
+    }
+</div>
+<script>
+
+
+</script>

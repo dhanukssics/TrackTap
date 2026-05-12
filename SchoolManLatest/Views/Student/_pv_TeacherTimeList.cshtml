@@ -1,0 +1,28 @@
+﻿
+
+@model TrackTap.Models.TimetableModel
+@{
+
+}
+@using (Ajax.BeginForm("SubmitTimetable", "Student", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddTimetableSuccess",
+    OnFailure = "AddTimetableFailed"
+}, new { id = "form-add-exam" }))
+{
+    @Html.HiddenFor(z => z.DivisonId, new { Value = 0 })
+    <div class="row" style="width:100%; padding-left: 10px;">
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Teacher : </label>
+                <br />
+                @Html.DropDownListFor(m => m.TeacherId, TrackTap.DataLibrary.Data.DropdownData.GetTeachers(Model.SchoolId), "-- Select --", new { @class = "form-control",id="teacher-drop-Id", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                @Html.ValidationMessageFor(z => z.TeacherId)
+            </div>
+        </div>
+    </div>
+}
+
+
+

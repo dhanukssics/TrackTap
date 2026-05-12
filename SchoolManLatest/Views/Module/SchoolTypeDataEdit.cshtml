@@ -1,0 +1,213 @@
+﻿@model TrackTap.Models.SchoolModuleModel
+@{
+    ViewBag.Title = "SchoolTypeDataEdit";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .full-loader-dev {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 19999;
+        background: url(/Content/img/preloader.gif) center no-repeat rgb(255, 255, 255) !important;
+        /*background: url(/Content/img/school.png) !important;*/
+        background-size: 350px;
+        background-position: center;
+        content: '';
+    }
+</style>
+
+@*@Html.HiddenFor(z => z.SchoolId, new { Value = @Model.SchoolId })*@
+<div class="se-pre-con"></div>
+<div class="full-loader-dev"></div>
+<div class="row">
+    <div class="col-md-12">
+        <h3 style="margin-top: 5px;">SCHOOL MODULE EDIT</h3>
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label>School Name </label>
+                    <br />
+                    @*@Html.EnumDropDownListFor(m => m.userType, new { @class = "form-control", id = "user-type-type" })
+                    @Html.ValidationMessageFor(m => m.userType)*@
+                    @Html.DropDownListFor(m => m.SchoolId, TrackTap.DataLibrary.Data.DropdownData.GetSchoolList(), new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.SchoolId)
+                </div>
+            </div>          
+        </div>
+        <div id="list-ouut-allusertypes">
+
+        </div>
+    </div>
+</div>
+<script>
+
+    var array = [];
+
+    //function AddRemoveUser(source) {
+    //    var typeId = $(source).attr("data-id");
+    //    if ($(source).is(":checked")) {
+    //        array.push(typeId);
+    //    }
+    //    else {
+    //        for (var i = array.length - 1; i >= 0; i--) {
+    //            if (array[i] === typeId) {
+    //                array.splice(i, 1);
+    //            }
+    //        }
+    //    }
+    //}
+
+    $(document).on('change', '#SchoolId', function () {
+        $('#list-ouut-allusertypes').html('');
+        var id = $(this).val();
+         if (id != '') {
+            $.ajax({
+                url: '/Module/EditListOfSchoolType/' + id,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                    $('#list-ouut-allusertypes').html('');
+                    $('#list-ouut-allusertypes').html(data);
+                }
+            });
+        }
+        else {
+            $('#list-ouut-all usertypes').html('');
+        }
+    });       
+
+    $(document).on('click', '#editUserType-data-id', function () {
+
+        $('.chk').each(function () {
+            var typeId = $(this).attr("data-id");
+            if ($(this).is(":checked")) {
+              //  alert(typeId);
+            array.push(typeId);
+        }
+        else {
+            for (var i = array.length - 1; i >= 0; i--) {
+                if (array[i] === typeId) {
+                    array.splice(i, 1);
+                }
+            }
+        }
+        });
+
+        $('#editUserType-data-id').prop('disabled', true);
+
+        var schoolid = document.getElementById("SchoolId");
+        var schoolname = schoolid.options[schoolid.selectedIndex].text;
+        ajaxLoaderStart();
+       
+            if (array.length > 0) {
+                var ob = new Object();
+                ob.SchoolId = $('#SchoolId').val();
+                ob.SchoolName = schoolname;
+                ob.subListOnly = [];
+                $.each(array, function (key, value) {
+                    var data = new Object();
+                    data.Id = value;
+                    ob.subListOnly.push(data);
+                });
+                
+                $.ajax({
+                    url: "/Module/SubmitEditSchoolModule",
+                    type: "POST",
+                    dataType: 'json',
+                    data: ob,
+                    global: false,
+                    success: function (response) {
+                        if (response.status) {
+                            toastrSuccess(response.msg);
+                            window.location.href = '/Module/SchoolTypeDataEdit/';
+                        }
+                        else {
+                            toastrError(response.msg);
+                            window.location.href = '/Module/SchoolTypeDataEdit/';
+                        }
+                    },
+                });
+            }
+            else {
+                toastrWarning("Please select new Modules ");
+                $('#editUserType-data-id').prop('disabled', false);
+                }
+
+      
+        ajaxLoaderStop();
+    });
+    
+    function AddOrRemoveAllCheckBoxDetails() {
+        array = [];
+        $('.chk').each(function () {
+            var typeId = $(this).attr("data-id");
+            if ($(this).is(":checked")) {
+                array.push(typeId);
+            }
+            else {
+                for (var i = array.length - 1; i >= 0; i--) {
+                    if (array[i] === typeId) {
+                        array.splice(i, 1);
+                    }
+                }
+            }
+        });
+    };
+
+    $(window).load(function () {
+        $(".se-pre-con").fadeOut("slow");
+        $(".full-loader-dev").hide();
+
+    });
+
+    function ajaxLoaderStart() {
+        $(".se-pre-con").show();
+    }
+
+    function ajaxLoaderStop() {
+        $(".se-pre-con").hide()
+
+    }
+
+    $(document).ajaxStart(function () {
+        $(":submit").attr("disabled", true);
+        ajaxLoaderStart();
+    });
+    $(document).ajaxComplete(function () {
+        $(":submit").attr("disabled", false);
+        ajaxLoaderStop();
+    }); 
+    
+    $(document).ready(function () {       
+        $('#list-ouut-allusertypes').html('');       
+        var id = $(' #SchoolId').val();
+        if (id != '') {
+            $.ajax({
+                url: '/Module/EditListOfSchoolType/' + id,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                    $('#list-ouut-allusertypes').html('');
+                    $('#list-ouut-allusertypes').html(data);
+                }
+            });
+        }
+        else {
+            $('#list-ouut-all usertypes').html('');
+        }
+       
+    });
+
+
+
+
+
+
+
+</script>
+
+

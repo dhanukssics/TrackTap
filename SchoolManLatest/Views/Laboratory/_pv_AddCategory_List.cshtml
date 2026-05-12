@@ -1,0 +1,77 @@
+﻿@model TrackTap.Models.StockUpdateModel
+@{
+    var Categorydetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetLaboratoryCategory(Model.SchoolId);
+    var categorynames = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCategorynames();
+
+}
+
+    <thead>
+        <tr>
+            <th>
+                Slno
+            </th>
+            <th>
+                Category Id
+            </th>
+            <th>
+                Item
+            </th>
+
+            <th>
+                Unit
+            </th>
+            @*<th>
+                Id
+            </th>*@
+            <th>
+                Timestamp
+            </th>
+            <th>
+
+            </th>
+           
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int i = 1;
+            foreach (var account in Categorydetails)
+            {
+
+                <tr>
+                    <td class="ng-teacherDetails-click" data-catid="@account.Id">
+                        @i
+                    </td>
+                   @foreach (var cat in categorynames)
+                   {
+                       if (account.CategoryId == cat.CategoryId)
+                       {
+                    <td class="ng-teacherDetails-click" data-catid="@account.Id">
+
+                        @cat.LaboratoryName
+
+                    </td>
+                       }
+                   }
+                    <td class="ng-teacherDetails-click" data-catid="@account.Id">
+                        @account.Item
+                    </td>
+                    <td class="ng-teacherDetails-click" data-catid="@account.Id">
+                        @account.Unit
+                    </td>
+                    @*<td class="ng-teacherDetails-click" data-catid="@account.Id">
+            @account.Id
+        </td>*@
+                    <td class="ng-teacherDetails-click" data-catid="@account.Id">
+                        @account.TimeStamp
+                    </td>
+
+                    <td data-teacherid="@account.Id">
+                        <button class="delete-CategoryId-tr btn-peek" data-catid="@account.Id"><i class="fa fa-trash "></i></button>
+                        <button class="edit-CategoryId-tr pay-now-btn" data-catid="@account.Id"><i class="fa fa-edit "></i></button>
+                    </td>
+                </tr>
+                i++;
+            }
+        }
+    </tbody>

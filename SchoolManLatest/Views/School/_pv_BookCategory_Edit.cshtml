@@ -1,0 +1,68 @@
+﻿
+@model TrackTap.Models.LibraryModels
+
+<div class="modal-dialog modal-sm" role="document">
+
+    <style>
+        span {
+            color: red;
+        }
+    </style>
+
+    @using (Ajax.BeginForm("EditBookCategory", "School", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "EditCategorySuccess",
+        OnFailure = "ajaxFailure",
+    }, new { id = "form-teacher-add" }))
+    {
+        @Html.HiddenFor(m => m.schoolId)
+        @Html.HiddenFor(m => m.categoryId)
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Book Category</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    @Html.TextBoxFor(m => m.categoryName, new { autocomplete = "off", placeholder = "name", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.categoryName)
+                    @*<input class="form-control" placeholder="Name" type="text" />*@
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit"  id="btn-addteacher" class="btn pay-now-btn">Save</button>
+            </div>
+        </div>
+    }
+</div>
+<script>
+
+    $(document).on('blur', '#Email', function () {
+      //  debugger;
+        var source = $(this);
+        $.ajax({
+            url: '/School/CheckEmail?text=' + $(source).val(),
+            type: "GET",
+            dataType: 'json',
+            success: function (data) {
+                if (data.Status) {
+                    $('#spn-error-email-teacher').text(data.Message);
+                    $('#spn-error-email-teacher').show();
+                    $('#btn-dummy-addteacher').css({ 'cursor': 'default', 'pointer-events': 'none', 'opacity': '.8' });
+                }
+                else {
+                    $('#spn-error-email-teacher').hide();
+                    $('#btn-dummy-addteacher').css({ 'cursor': 'pointer', 'pointer-events': 'initial', 'opacity': '1' });
+                }
+            }
+        });
+    });
+
+</script>
+

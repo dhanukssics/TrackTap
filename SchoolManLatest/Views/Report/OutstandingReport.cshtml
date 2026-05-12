@@ -1,0 +1,562 @@
+﻿@model TrackTap.Models.OutstandingReportModel
+@{
+    ViewBag.Title = "StudentMarks";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+}
+@Html.HiddenFor(z => z.SchoolId, new { Value = @Model.SchoolId })
+@Html.HiddenFor(z => z.ClassId, new { Value = 0 })
+@Html.HiddenFor(z => z.DivisionId, new { Value = 0 })
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label>Academic Year : </label>
+                    <br />
+                    @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.DataLibrary.Data.DropdownData.GetOtherAcademicYear(), "All", new { @class = "form-control slct-academic-year-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                    @Html.ValidationMessageFor(z => z.AcademicYearId)
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label>Class :</label>
+                    <select class="form-control slct-mark-dropdwn1" disabled id="classListId"></select>
+                    <span id="class-required-exam-add" style="display:none; color:red;"></span>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label>Division :</label>
+                    <select class="form-control slct-free-div-dropdown" disabled></select>
+                    <span id="division-required-exam-add" style="display:none; color:red;"></span>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label>Fees : </label>
+                    <br />
+                    @Html.DropDownListFor(m => m.FeeId, TrackTap.DataLibrary.Data.DropdownData.GetFeeses(Model.SchoolId), "All", new { @class = "form-control slct-fee-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                    @Html.ValidationMessageFor(z => z.FeeId)
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-sm-2">
+                <div class="form-group" id="chkDiv">
+                    @Html.CheckBoxFor(m => m.IsSummary, new { @class = "", id = "report-IsSummary-Id" })
+                    <span>Report Summary</span>
+                </div>
+            </div>
+            <div class="form-group col-sm-3 isHidden report-view">
+                <div class="with-icon">
+                    <input type="text" style="height:40px;" class="form-control user-collection-start-date" data-date-end-date="0d">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+            <div class="form-group col-sm-3 isHidden report-view">
+                <div class="with-icon">
+                    <input type="text" style="height:40px;" class="form-control user-collection-end-date" data-date-end-date="0d">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <button class="btn pay-now-btn" id="btn-Print-bill" onclick="printContent('print-trial-bal')"><i class="fa fa-print"></i> Print</button>
+                <button class="btn pay-now-btn" id="btn-excel-trial-bal"><i class="fa fa-table"></i> Excel</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <div class="col-md-12" id="print-trial-bal">
+                <h3 style="text-align:center;">Outstanding Report</h3><h5 style="text-align:center;"></h5>
+                <table class="table custome-table" id="outstanding-report-list"></table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+
+    $(document).ready(function () {
+        //$('.report-view').datepicker({
+        //    format: 'dd-mm-yyyy',
+        //    autoclose: true,
+        //    keepOpen:false,
+        //    todayHighlight: true
+        //});
+       // debugger;
+        $('.report-view').datepicker({
+            format: "dd-mm-yyyy",
+            todayHighlight: false
+        }).on('change', function () {
+            $('.datepicker').hide();
+        });
+        $('.report-view').datepicker('setDate', '');
+       // start();
+    });
+
+    $(document).on('change', '.slct-mark-dropdwn1', function () {
+       // debugger;
+        $('#ClassId').val($(this).val());
+        var id = $(this).val();
+        if (id != '') {
+            $.ajax({
+                url: '/Data/LoadAllSchoolDivision?id=' + id + '&schoolid=' + $('#SchoolId').val(),
+                type: "GET",
+                success: function (result) {
+                    //debugger;
+                    if (result.list.length > 0) {
+                        $(".slct-free-div-dropdown").html("");
+                        $(".slct-free-div-dropdown").append($('<option></option>').val("0").html('-- Select Division --'));
+                        $.each(result.list, function (i, item) {
+                            $(".slct-free-div-dropdown").append($('<option></option>').val(item.Value).html(item.Text));
+                        });
+                        $(".slct-free-div-dropdown").prop("disabled", false);
+                       // ListAllData();
+                    }
+                    else {
+                        $(".slct-free-div-dropdown").html("");
+                        $(".slct-free-div-dropdown").append($('<option></option>').val("0").html('-- No Division Found --'));
+                        $(".slct-free-div-dropdown").prop("disabled", true);
+                        $('#DivisionId').val("0");
+                       // ListAllData();
+                    }
+                }
+            });
+        }
+        else {
+            $(".slct-free-div-dropdown").html("");
+            $(".slct-free-div-dropdown").append($('<option></option>').val("0").html('-- Select Division --'));
+            $(".slct-free-div-dropdown").prop("disabled", true);
+            //start();
+        }
+    });
+
+    //ok
+
+    $(document).on('change', '.slct-free-div-dropdown', function () {
+        debugger;
+        var classId = $('#ClassId').val();
+        $('#DivisionId').val($(this).val());
+        var divisionId = $(this).val();
+        var feeId = $(".slct-fee-dropdwn1 option:selected").val();
+        if (feeId == "")
+            feeId = 0;
+        if (classId != '' && divisionId != '') {
+            var dataId = classId + '~' + divisionId + '~' + feeId;
+            if ($('#report-IsSummary-Id').is(":checked")) {
+                dataId = dataId + '~' + 1;
+            }
+            else {
+                dataId = dataId + '~' + 0;
+            }
+            if ($('.user-collection-start-date').val() != '') {
+                var xx = $('.user-collection-start-date').val().replace("/", "-");
+                xx = xx.replace("/","-")
+                dataId = dataId + '~' + xx;
+            }
+            if ($('.user-collection-end-date').val() != '') {
+               var xx= $('.user-collection-end-date').val().replace("/", "-");
+                xx = xx.replace("/", "-")
+                dataId = dataId + '~' + xx;
+            }
+            $.ajax({
+                url: '/Report/DatatableOutStandingReport/' + dataId,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+
+                    //ViewDatePickers(); this to start.... 21-Nov-2020
+
+                    $('#outstanding-report-list').html("");
+
+                    $('#outstanding-report-list').html(data);
+                
+                    //$("#outstanding-report-list").dataTable();
+                }
+            });
+        }
+        else {
+            var dataId = 0 + '~' + 0 + '~' + feeId;
+            if ($('#report-IsSummary-Id').is(":checked")) {
+                dataId = dataId + '~' + 1;
+            }
+            else {
+                dataId = dataId + '~' + 0;
+            }
+            $.ajax({
+                url: '/Report/DatatableOutStandingReport/' + dataId,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                    $('#outstanding-report-list').html(data);
+                    //$("#outstanding-report-list").dataTable();
+                
+                }
+            });
+        }
+    });
+
+    function ListAllData() {
+       // debugger;
+        var classId = $('#ClassId').val();
+        var feeId = $(".slct-fee-dropdwn1 option:selected").val();
+        if (feeId == "")
+            feeId = 0;
+        var dataId = classId + '~' + 0 + '~' + feeId;
+        if ($('#report-IsSummary-Id').is(":checked")) {
+            dataId = dataId + '~' + 1;
+        }
+        else {
+            dataId = dataId + '~' + 0;
+        }
+        if ($('.user-collection-start-date').val() != '') {
+            var xx= $('.user-collection-start-date').val().replace("/", "-");
+            xx = xx.replace("/", "-")
+            dataId = dataId + '~' + xx;
+        }
+        if ($('#user-collection-end-date').val() != '') {
+            var xx=$('.user-collection-end-date').val().replace("/", "-");
+            xx = xx.replace("/", "-")
+            dataId = dataId + '~' + xx;
+        }
+        $.ajax({
+            url: '/Report/DatatableOutStandingReport/' + dataId,
+            type: "GET",
+            dataType: 'html',
+            success: function (data) {
+                //$("#outstanding-report-list").dataTable().fnDestroy()
+                $('#outstanding-report-list').html(data);
+                //$("#outstanding-report-list").dataTable();
+               
+            }
+        });
+    }
+
+    
+
+    function start() {
+        //debugger;
+        var dataId = 0 + '~' + 0 + '~' + 0;
+        if ($('#report-IsSummary-Id').is(":checked")) {
+            dataId = dataId + '~' + 1;
+        }
+        else {
+            dataId = dataId + '~' + 0;
+        }
+        $.ajax({
+            url: '/Report/DatatableOutStandingReport/' + dataId,
+            type: "GET",
+            dataType: 'html',
+            success: function (data) {
+                $('#outstanding-report-list').html(data);
+              
+            }
+        });
+    }
+
+    $(document).on('change', '.slct-fee-dropdwn1', function () {
+        //debugger;
+        var classId = $('#ClassId').val();
+        $('#FeeId').val($(this).val());
+        var feeId = $(this).val();
+        var divisionId = $(".slct-free-div-dropdown option:selected").val();
+        if (divisionId == "")
+            divisionId = 0;
+        if (classId != '' && divisionId != '') {
+            var dataId = classId + '~' + divisionId + '~' + feeId;
+            if ($('#report-IsSummary-Id').is(":checked")) {
+                dataId = dataId + '~' + 1;
+            }
+            else {
+                dataId = dataId + '~' + 0;
+            }
+            if ($('.user-collection-start-date').val() != '') {
+                var xx= $('.user-collection-start-date').val().replace("/", "-");
+                xx = xx.replace("/", "-")
+                dataId = dataId + '~' + xx;
+            }
+            if ($('.user-collection-end-date').val() != '') {
+               var xx= $('.user-collection-end-date').val().replace("/", "-");
+                xx = xx.replace("/", "-")
+                dataId = dataId + '~' + xx;
+            }
+            $.ajax({
+                url: '/Report/DatatableOutStandingReport/' + dataId,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                    $('#outstanding-report-list').html(data);
+                    //$("#outstanding-report-list").dataTable();
+                   
+                }
+            });
+        }
+        else {
+
+            var dataId = 0 + '~' + 0 + '~' + feeId;
+            if ($('#report-IsSummary-Id').is(":checked")) {
+                dataId = dataId + '~' + 1;
+            }
+            else {
+                dataId = dataId + '~' + 0;
+            }
+            $.ajax({
+                url: '/Report/DatatableOutStandingReport/' + dataId,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                    $('#outstanding-report-list').html(data);
+                    //$("#outstanding-report-list").dataTable();
+                  
+                }
+            });
+        }
+    });
+
+    function printContent(el) {
+        var restorepage = document.body.innerHTML;
+        var printcontent = document.getElementById(el).innerHTML;
+        document.body.innerHTML = printcontent;
+        window.print();
+        document.body.innerHTML = restorepage;
+        //window.location.href = '/Report/OutstandingReport';
+    }
+
+    $(document).on('click', '#btn-excel-trial-bal', function () {
+        $("#outstanding-report-list").table2excel({
+            name: "Table2Excel",
+            filename: "Outstanding Report",
+            fileext: ".xls"
+        });
+    });
+
+
+    $(document).on('change', '.slct-academic-year-dropdwn1', function () {
+        //debugger;
+        $('#outstanding-report-list').html('');
+        $('#AcademicYearId').val($(this).val());
+        var id = $(this).val();
+        if (id != '') {
+            $.ajax({
+                url: '/Data/LoadAllSchoolClassWithAcademicYear?academicYear=' + id + '&schoolid=' + $('#SchoolId').val(),
+                type: "GET",
+                success: function (result) {
+                    if (result.list.length > 0) {
+                        $(".slct-mark-dropdwn1").html("");
+                        $(".slct-mark-dropdwn1").append($('<option></option>').val("0").html('-- Select Class --'));
+                        $.each(result.list, function (i, item) {
+                            $(".slct-mark-dropdwn1").append($('<option></option>').val(item.Value).html(item.Text));
+                        });
+                        $(".slct-mark-dropdwn1").prop("disabled", false);
+                        //ViewDatePickers();
+                    }
+                    else {
+                        $(".slct-mark-dropdwn1").html("");
+                        $(".slct-mark-dropdwn1").append($('<option></option>').val("0").html('-- No Class Found --'));
+                        $(".slct-mark-dropdwn1").prop("disabled", true);
+                        $('#DivisionId').val("0");
+                        HideDatePickers();
+                    }
+                }
+            });
+        }
+        else {
+            $(".slct-mark-dropdwn1").html("");
+            $(".slct-mark-dropdwn1").append($('<option></option>').val("0").html('-- Select Class --'));
+            $(".slct-mark-dropdwn1").prop("disabled", true);
+            //start();
+            HideDatePickers();
+        }
+    });
+
+    $('#report-IsSummary-Id').change(function () {
+        //debugger;
+        var $dd = $('#slct-mark-dropdwn1');
+        var length = document.getElementById("classListId").options.length;
+        var classId = $(".slct-mark-dropdwn1 option:selected").val();
+        var divId = $(".slct-free-div-dropdown option:selected").val();
+        var feeId = $(".slct-fee-dropdwn1 option:selected").val();
+        if (feeId == "")
+            feeId = 0;
+        //if ($dd.find('option').length >= 1) {
+        if (length >= 2) {
+            var dataId = classId + '~' + divId + '~' + feeId;
+            if ($('#report-IsSummary-Id').is(":checked")) {
+                dataId = dataId + '~' + 1;
+            }
+            else {
+                dataId = dataId + '~' + 0;
+            }
+            if ($('.user-collection-start-date').val() != '') {
+                var xx= $('.user-collection-start-date').val().replace("/", "-");
+                xx = xx.replace("/", "-")
+                dataId = dataId + '~' + xx;
+            }
+            if ($('.user-collection-end-date').val() != '') {
+                var xx= $('.user-collection-end-date').val().replace("/", "-");
+                xx = xx.replace("/", "-")
+                dataId = dataId + '~' + xx;
+            }
+            $.ajax({
+                url: '/Report/DatatableOutStandingReport/' + dataId,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                    $('#outstanding-report-list').html(data);
+                   
+                }
+            });
+        }
+        else {
+            start();
+        }
+    });
+
+    function ViewDatePickers() {
+       // debugger;
+        var year = $(".slct-academic-year-dropdwn1 option:selected").text();
+        var currentdate = new Date();
+        var dd = currentdate.getDate();
+        var mm = currentdate.getMonth();
+        var yy = currentdate.getFullYear();
+        var today = dd + '-' + mm + '-' + yy;
+        if (year != '') {
+            var years = year.split("-");
+            var statYear = years[0].trim();
+            var endYear = years[1].trim();
+            var startate = new Date(statYear, 1, 1);
+            var enddate = new Date(endYear, 12, 31);
+            $('.report-view').removeClass('isHidden');
+            //---------------------------------------------------------------
+            var d = startate.getDate();
+            var m = startate.getMonth();
+            var y = startate.getFullYear();
+            var day = d + '-' + m + '-' + y;
+            if (Date.parse(today) > Date.parse(day)) {
+                $('.user-collection-start-date').datepicker('setDate', day);
+            }
+            else {
+                $('.user-collection-start-date').datepicker('setDate', today);
+            }
+            $('.user-collection-start-date').datepicker({
+                format: "dd-mm-yyyy",
+                todayHighlight: false
+            }).on('change', function () {
+                $('.datepicker').hide();
+            });
+            //---------------------------------------------------------------
+            var d1 = enddate.getDate();
+            var m1 = enddate.getMonth();
+            var y1 = enddate.getFullYear();
+            var day1 = d1 + '-' + m1 + '-' + y1;
+            if (Date.parse(today) > Date.parse(day1)) {
+                $('.user-collection-end-date').datepicker('setDate', day1);
+            }
+            else {
+                $('.user-collection-end-date').datepicker('setDate', today);
+            }
+            $('.user-collection-end-date').datepicker({
+                format: "dd-mm-yyyy",
+                todayHighlight: false
+            }).on('change', function () {
+                $('.datepicker').hide();
+            });
+
+        }
+    }
+    function HideDatePickers() {
+        $('.report-view').addClass('isHidden');
+        $('.report-view').datepicker('setDate', '');
+    }
+
+    $('.user-collection-end-date').datepicker().on('changeDate', function (ev) {
+        if ($('.user-collection-start-date').val() != '' && $('.user-collection-end-date').val() != '') {
+            var $dd = $('#slct-mark-dropdwn1');
+            var length = document.getElementById("classListId").options.length;
+            var classId = $(".slct-mark-dropdwn1 option:selected").val();
+            var divId = $(".slct-free-div-dropdown option:selected").val();
+            var feeId = $(".slct-fee-dropdwn1 option:selected").val();
+            if (feeId == "")
+                feeId = 0;
+            if (length >= 2) {
+                var dataId = classId + '~' + divId + '~' + feeId;
+                if ($('#report-IsSummary-Id').is(":checked")) {
+                    dataId = dataId + '~' + 1;
+                }
+                else {
+                    dataId = dataId + '~' + 0;
+                }
+                if ($('.user-collection-start-date').val() != '') {
+                    var xx = $('.user-collection-start-date').val().replace("/", "-");
+                    xx = xx.replace("/", "-")
+                    dataId = dataId + '~' + xx;
+                }
+                if ($('.user-collection-end-date').val() != '') {
+                    var xx = $('.user-collection-end-date').val().replace("/", "-");
+                    xx = xx.replace("/", "-")
+                    dataId = dataId + '~' + xx;
+                }
+                $.ajax({
+                    url: '/Report/DatatableOutStandingReport/' + dataId,
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (data) {
+                        $('#outstanding-report-list').html(data);
+
+                    }
+                });
+            }
+            else {
+                //start();
+            }
+        }
+    });
+
+
+    $('.user-collection-start-date').datepicker().on('changeDate', function (ev) {
+        if ($('.user-collection-start-date').val() != '' && $('.user-collection-end-date').val() != '') {
+            var $dd = $('#slct-mark-dropdwn1');
+            var length = document.getElementById("classListId").options.length;
+            var classId = $(".slct-mark-dropdwn1 option:selected").val();
+            var divId = $(".slct-free-div-dropdown option:selected").val();
+            var feeId = $(".slct-fee-dropdwn1 option:selected").val();
+            if (feeId == "")
+                feeId = 0;
+            if (length >= 2) {
+                var dataId = classId + '~' + divId + '~' + feeId;
+                if ($('#report-IsSummary-Id').is(":checked")) {
+                    dataId = dataId + '~' + 1;
+                }
+                else {
+                    dataId = dataId + '~' + 0;
+                }
+                if ($('.user-collection-start-date').val() != '') {
+                    var xx = $('.user-collection-start-date').val().replace("/", "-");
+                    xx = xx.replace("/", "-")
+                    dataId = dataId + '~' + xx;
+                }
+                if ($('.user-collection-end-date').val() != '') {
+                    var xx = $('.user-collection-end-date').val().replace("/", "-");
+                    xx = xx.replace("/", "-")
+                    dataId = dataId + '~' + xx;
+                }
+                $.ajax({
+                    url: '/Report/DatatableOutStandingReport/' + dataId,
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (data) {
+                        $('#outstanding-report-list').html(data);
+
+                    }
+                });
+            }
+            else {
+                //start();
+            }
+        }
+    });
+
+
+
+
+</script>

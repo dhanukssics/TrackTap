@@ -1,0 +1,63 @@
+﻿@model TrackTap.Models.OutstandingReportModel
+@using System.Threading.Tasks;
+@{
+    
+
+
+
+}
+
+@*<style>
+    .numbCenter {
+        text-align: center;
+    }
+
+    .noBorder td {
+        border: none !important;
+    }
+
+    .tableHead {
+        font-weight: bold;
+        font-size: 20px;
+    }
+</style>*@
+
+
+    <table class="table custome-table" id="example">
+        <thead>
+            <tr>
+                <th>Sl.No</th>
+                <th>AdmissionID</th>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>Fee</th>
+                <th>PaymentDate</th>
+                <th>Amount</th>
+                <th>Payment Status</th>
+
+            </tr>
+        </thead>
+        @{
+            int i = 1;
+            foreach (var one in Model.ReportList_one)
+            {
+                <tbody>
+                    <tr>
+                        <td>@i</td>
+                        <td>@one.StudentSpecialId</td>
+                        <td>@one.StudentName</td>
+                        <td>@one.ClassName</td>
+                        <td>@one.feename</td>
+                        <td>@one.PaymentDate</td>
+                        <td>@one.Amount</td>
+                        <td>@one.paidstatus</td>
+
+                    </tr>
+                </tbody>
+                i = i + 1;
+            }
+        }
+
+</table>
+
+

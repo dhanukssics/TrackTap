@@ -1,0 +1,133 @@
+﻿@model TrackTap.Models.FeeModel
+@{
+
+    var student = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId);
+    var paymentList = student.GetStudentAdvancePaymentFees().OrderBy(z => z.DueDate).ToList();
+    var discountFee = student.Discount.ToList();
+
+
+}
+<div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Advance Payment</h4>
+    </div>
+</div>
+
+<div class="modal-body">
+    <div class="form-group isHidden">
+        <h4 style="text-align: right;"><span style="float: left;">Payment Details</span> <button class="btn pay-now-btn" data-toggle="modal" data-target="#modalPayment"><i class="fa fa-plus"></i> Add Payment</button></h4>
+    </div>
+    @if (paymentList.Count >= 1)
+    {
+        <div>
+            <div class="table-responsive">
+                <table class="table account-table" id="tbAcBill1">
+                    <tr id="thead">
+                        <th colspan="2">
+                           Category
+                        </th>
+                        <th>
+                            Discount
+                        </th>
+                        <th></th>
+                        <th style="width:20%; text-align: right;">
+                            Amount
+                        </th>
+                    </tr>
+                    <tbody id="bodyTableAdv">
+                        @foreach (var fee in paymentList)
+                        {
+                            <tr data-id="tbRowAmountAdvance" id="advTr">
+                                <td style="width: 10px;">
+                                    @{
+                                        var isAny1 = 0;
+                                        foreach (var discount in discountFee)
+                                        {
+                                            if (discount.feeId == fee.FeeId)
+                                            {
+                                                decimal feeAmount = fee.Amount;
+                                                decimal dis = discount.discountAmount;
+                                                decimal afterDisc = feeAmount - dis;
+                                                <label>
+                                                    <input type="checkbox" class="checkbox-input" data-amount="@afterDisc" data-fee="@afterDisc^@fee.FeeId^@fee.FeeGuid^@fee.Amount^@discount.discountAmount^0^0" data-id="chekIps" />
+                                                    <span class="checkbox-virtual"></span>
+                                                </label>
+                                                isAny1 = 1;
+                                            }
+
+                                        }
+                                        if (isAny1 == 0)
+                                        {
+                                            <label>
+                                                <input type="checkbox" class="checkbox-input" data-amount="@fee.Amount" data-fee="@fee.Amount^@fee.FeeId^@fee.FeeGuid^@fee.Amount^0^0^0" data-id="chekIps" />
+                                                <span class="checkbox-virtual"></span>
+                                            </label>
+                                        }
+                                    }
+                                </td>
+
+                                <td>
+                                    @fee.FeeName
+                                </td>
+
+                                <td>
+                                    @foreach (var discount in discountFee)
+                                    {
+                                        if (discount.feeId == fee.FeeId)
+                                        {
+
+                                            @String.Format("{0:0.00}", discount.discountAmount)
+
+                                        }
+
+                                    }
+                                </td>
+
+                                <td> @String.Format("{0:y}", fee.DueDate) </td>
+
+                                <td style="width:20%; text-align: right;">
+                                    @{
+                                        var isAny = 0;
+
+                                        foreach (var discount in discountFee)
+                                        {
+
+                                            if (discount.feeId == fee.FeeId)
+                                            {
+                                                <s>@String.Format("{0:0.00}", fee.Amount)</s>
+                                                decimal feeAmount = fee.Amount;
+                                                decimal dis = discount.discountAmount;
+                                                decimal afterDisc = feeAmount - dis;
+                                                <div><label>After Discount: </label><input id="txt-amount" type="text" style="border: none;pointer-events: none; text-align: right;" value="@String.Format("{0:0.00}", afterDisc)" /></div>
+                                                isAny = 1;
+                                            }
+
+                                        }
+                                        if (isAny == 0)
+                                        {
+
+                                            <div>
+                                                <input id="txt-amount" type="text" style="border: none;pointer-events: none; text-align: right;" value="@String.Format("{0:0.00}", fee.Amount)" />
+                                            </div>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>}
+    else
+    {
+        <label>NO FEE DUES</label>
+    }
+
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" id="colse-advPayment" data-dismiss="modal">Cancel</button>
+    <button class="btn pay-now-btn isDisabled" id="advanceFeeAdd">Save</button>
+</div>

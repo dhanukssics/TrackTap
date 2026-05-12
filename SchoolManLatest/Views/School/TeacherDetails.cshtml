@@ -1,0 +1,65 @@
+﻿@model TrackTap.Models.SingleTeacherDetails
+@{
+    ViewBag.Title = "TeacherDetails";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+
+}
+<div class="form-group">
+    <a href="/School/TeacherList" class="btn btn-peek"><i class="fa fa-arrow-left"></i> Back</a>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="student_info_sec">
+            <div class="student_info">
+                <h4>
+                    <span>Name</span>
+                    <i>:</i>
+                    <b>@Model.TeacherName</b>
+                </h4>
+                <h4>
+                    <span>Email</span>
+                    <i>:</i>
+                    <b>@Model.EmailId </b>
+                </h4>
+                <h4>
+                    <span>Contact Number</span>
+                    <i>:</i>
+                    <b>@Model.ContactNo</b>
+                </h4>
+                <h4>
+                    <span>Special Id</span>
+                    <i>:</i>
+                    <b>@Model.SpecialId</b>
+                </h4>
+                <h4>
+                    <span>Class & Division</span>
+                    <i>:</i>
+                    <b>@Model.ClassDivision</b>
+                </h4>
+                <h4>
+                    <span>Documents</span>
+                    <i>:</i>
+                    <a class="btn pay-now-btn" data-toggle="model" data-value="@Model.TeacherId" id="btn-teacher-FileUpload">File Upload</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).on('click', '#btn-teacher-FileUpload', function () {
+        var teacherId = $(this).attr('data-value');
+        if (teacherId != '') {
+            var id = teacherId;
+            window.location.href = '/School/TeacherFileUploadHome/' + id;
+        }
+    });
+
+
+
+
+
+
+
+</script>

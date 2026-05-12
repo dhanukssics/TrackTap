@@ -1,0 +1,79 @@
+﻿@model TrackTap.Models.SalaryReportModel
+   
+            <div class="table-responsive">
+                <table class="table custome-table table-staff-teacher-list">
+                    <thead>
+                        <tr>
+                            <th>Sl.No</th>
+                            <th>Name</th>
+                            <th>Staff or Teacher</th>
+                            <th>Contact Number</th>
+                            <th>Salary</th>
+                            <th>PF</th>
+                            <th>ESI</th>
+                            <th>Permanent / Wages</th>
+                        </tr>
+                    </thead>
+                    
+                        
+                        <tbody>
+                            @{
+                                int i = 1;
+                                foreach (var one in Model.SalaryReportModelList)
+                                {
+
+                                    if (one.RoleId == 3) // Is a Teacher......
+                                    {
+                                        <tr style="cursor: pointer !important;">
+                                            <td class="student-row" data-id="@one.UserId">@i</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.TeacherName</td>
+                                            <td class="student-row" data-id="@one.UserId">Teacher</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.ContactNumber</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.SalaryAmount</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.PFPercentage</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.ESIPercentage</td>
+                                            @if (one.IsPermanent == true)
+                                            {
+                                                <td class="student-row" data-id="@one.UserId">Permanent</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="student-row" data-id="@one.UserId">Wages</td>
+                                            }
+                                           
+                                        </tr>
+                                    }
+                                    else if (one.RoleId == 2)// Is a Staff......
+                                    {
+                                        <tr style="cursor: pointer !important;">
+                                            <td class="student-row" data-id="@one.UserId">@i</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.StaffName</td>
+                                            <td class="student-row" data-id="@one.UserId">Staff</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.ContactNumber</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.SalaryAmount</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.PFPercentage</td>
+                                            <td class="student-row" data-id="@one.UserId">@one.ESIPercentage</td>
+                                            @if (one.IsPermanent == true)
+                                            {
+                                                <td class="student-row" data-id="@one.UserId">Permanent</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="student-row" data-id="@one.UserId">Wages</td>
+                                            }
+
+                                        </tr>
+
+                                    }
+                            
+                                    i = i + 1;
+                                }
+                            }
+                        </tbody>
+                    
+                </table>
+            </div>
+        @*</div>
+    </div>*@
+
+@*<h1>Test sibi</h1>*@

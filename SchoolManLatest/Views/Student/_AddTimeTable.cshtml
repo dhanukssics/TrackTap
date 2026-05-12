@@ -1,0 +1,77 @@
+﻿
+@model TrackTap.Models.TimetableModel
+@{
+
+}
+@using (Ajax.BeginForm("SubmitTimetable", "Student", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddTimetableSuccess",
+    OnFailure = "AddTimetableFailed"
+}, new { id = "form-add-exam" }))
+{
+    @Html.HiddenFor(z => z.DivisonId, new { Value = 0 })
+<div class="row" style="width:100%; padding-left: 10px;">
+    <div class="form-group col-sm-3">
+        <div class="form-group">
+            <label style="color:black;">Class : </label>
+            <br />
+            @Html.DropDownListFor(m => m.ClassId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.SchoolId), new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+            @Html.ValidationMessageFor(z => z.ClassId)
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <div class="form-group">
+            <label style="color:black;">Division : </label>
+            <br />
+            <select class="form-control slct-free-div-dropdown" disabled></select>
+            <span id="division-required-exam-add" style="display:none; color:red;"></span>
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <div class="form-group">
+            <label style="color:black;">Teacher : </label>
+            <br />
+            @Html.DropDownListFor(m => m.TeacherId, TrackTap.DataLibrary.Data.DropdownData.GetTeachers(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+            @Html.ValidationMessageFor(z => z.TeacherId)
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <div class="form-group">
+            <label style="color:black;">Subject : </label>
+            <br />
+            @Html.DropDownListFor(m => m.SubjectId, TrackTap.DataLibrary.Data.DropdownData.GetSubjectss(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+            @Html.ValidationMessageFor(z => z.SubjectId)
+        </div>
+    </div>
+</div>
+<div class="row" style="width:100%; padding-left: 10px;">
+    <div class="form-group col-sm-3">
+        <div class="form-group">
+            <label style="color:black;">Periods : </label>
+            <br />
+            @Html.EnumDropDownListFor(m => m.Period, new { @class = "form-control", id = "day-period-id" })
+            @Html.ValidationMessageFor(m => m.Period)
+        </div>
+    </div>
+    <div class="form-group col-sm-3">
+        <div class="form-group">
+            <label style="color:black;">Day : </label>
+            <br />
+            @Html.EnumDropDownListFor(m => m.DayId,  new { @class = "form-control", id = "day-type-id" })
+            @Html.ValidationMessageFor(m => m.DayId)
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div style="padding: 26px;">
+            <button type="submit" style="display:none;" class="btn pay-now-btn" id="btn-timetable">Save</button>
+            <button type="button" id="btn-dummy-timeTable" class="btn pay-now-btn">Save</button>
+            @*<button type="button" id="btn-print-timeTable" class="btn pay-now-btn">Print</button>*@
+        </div>
+    </div>
+
+</div>
+}
+
+
+

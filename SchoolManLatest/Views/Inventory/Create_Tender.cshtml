@@ -1,0 +1,82 @@
+﻿
+@{
+    ViewBag.Title = "Create_Tender";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+}
+
+
+<div class="inv-title">
+    <h3>Create Tender</h3>
+</div>
+
+<div class="row">
+
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="form-group school-form">
+            <label>Last date</label>
+            <div class="school-form-icon">
+                <input type="text" class="form-control" id="datelast" name="date">
+                <i class="date-icon1 fa fa-calendar"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="form-group school-form">
+            <label>Time of Submission</label>
+            <div class="school-form-icon">
+                <input type="text" class="form-control" id="datesub" name="date">
+                <i class="date-icon2 fa fa-calendar"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="form-group school-form">
+            <label>Tender creation date</label>
+            <div class="school-form-icon">
+                <input type="text" class="form-control" id="datecreate" name="date">
+                <i class="date-icon3 fa fa-calendar"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <div class="form-group school-form">
+            <label>Add items</label>
+            <input type="text" class="form-control">
+        </div>
+    </div>
+    
+
+    <div class="col-lg-12">
+        <div class="school-form-buttons">
+            <button class="btn blue-btn">Save</button>
+            <button class="btn grey-btn">Update Stock</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#datelast").datepicker({
+            dateFormat: 'dd/mm/yy'
+        });
+        $("#datecreate").datepicker({
+            dateFormat: 'dd/mm/yy'
+        });
+        $("#datesub").datepicker({
+            dateFormat: 'dd/mm/yy'
+        });
+    
+    });
+    $('.date-icon1').on('click', function () {
+        $('#datelast').focus();
+    })
+    $('.date-icon2').on('click', function () {
+        $('#datesub').focus();
+    })
+    $('.date-icon3').on('click', function () {
+        $('#datecreate').focus();
+    })
+</script>

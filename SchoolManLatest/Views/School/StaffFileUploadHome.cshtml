@@ -1,0 +1,101 @@
+﻿@model TrackTap.Models.StaffFileUploadModel
+@{
+    ViewBag.Title = "StudentDetailedView";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+}
+<style>
+    .gap_bottom {
+        padding-bottom: 35px;
+    }
+
+        .gap_bottom label {
+            padding-top: 8px;
+        }
+
+    .textboxStyle {
+        border: solid 1px #3a3232  !important;
+    }
+
+    .styleset {
+        display: table-cell;
+    }
+</style>
+<div>
+    <span>
+        <a href="/School/StaffDetails/@Model.StaffId" class="btn btn-peek styleset"><i class="fa fa-arrow-left"></i> Back</a><h2 class="styleset"> Files</h2>
+    </span>
+    <div class="parent-div">
+        <div id="add-files-div-Id">
+            @Html.Partial("~/Views/School/_pv_AddStaffFileUpload.cshtml", Model)
+        </div>
+        <div>
+            <table class="table custome-table" id="list-files-div-Id">
+                @Html.Partial("~/Views/School/_pv_ListStaffFileUpload.cshtml", Model)
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).on('change', '.upload-clean-Formats-dev2', function () {
+        var source = $(this);
+        var userId = $('#UserId').val();
+        var formData = new FormData();
+        formData.append("documentFile", this.files[0]);
+        formData.append("UserId", userId);
+        $.ajax({
+            type: "POST",
+            url: "/Student/MemoAchievementUpload",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforeSend: function (xhr) {
+            },
+            success: function (response) {
+                if (response.Status) {
+                    var data = response.UserData;
+                    $('#FilePath').val(data);
+                }
+                else {
+                    toastrError('No such Files!');
+                }
+            },
+            error: function (data) {
+            }
+        });
+    });
+
+
+    $(document).ready(function () {
+        $('#ReceivedDateString').datepicker({
+            format: "dd-mm-yyyy",
+            autoclose: true,
+            todayHighlight: true,
+            endDate: '+d'
+        });
+        IntializeDataTable();
+    });
+
+    function AddStaffFilesSuccess(result) {
+        if (result.status) {
+            toastrSuccess(result.msg);
+            window.location.href = '/School/StaffFileUploadHome/' + result.StaffId;
+        }
+        else {
+            toastrError(result.msg);
+        }
+    };
+
+    function AddStaffFilesFailed(result) {
+        toastrError(result.msg);
+    };
+
+    function IntializeDataTable() {
+        $("#list-files-div-Id").dataTable().fnDestroy()
+        $("#list-files-div-Id").dataTable();
+    }
+
+
+
+</script>

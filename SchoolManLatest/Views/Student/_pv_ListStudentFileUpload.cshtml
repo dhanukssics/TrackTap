@@ -1,0 +1,64 @@
+﻿
+@model TrackTap.Models.StudentFileUploadModel
+@{
+    var Files = new TrackTap.DataLibrary.Data.Student(Model.StudentId).StudentFiles();
+}
+<thead>
+    <tr>
+        <th>
+            Sl No
+        </th>
+        <th>
+            Type
+        </th>
+        <th>
+            Receiving Date
+        </th>
+        <th>
+            Description
+        </th>
+        <th>
+            File
+        </th>
+        <th>
+           
+        </th>
+    </tr>
+</thead>
+<tbody>
+    @{
+        int i = 1;
+        foreach (var one in Files)
+        {
+            var url = "http://www.schoolman.in" + one.FilePath;
+            //var url = "http://localhost:16135" + one.FilePath;
+            <tr>
+                <td>
+                    @i
+                </td>
+                @if (one.FileType == 0)
+                {
+                    <td>
+                        Memo
+                    </td>
+                }
+                else
+                {
+                    <td>Achievement</td>
+                }
+                <td>@one.ReceivingDate.ToShortDateString()</td>
+                <td>@one.Description</td>
+                <td>
+                    <a href="@url" target="_blank">Click Here</a>
+                </td>
+                <td>
+                    <a href="@url" download><i class="fa fa-download" style="color: black;"></i> 
+                        @*<img src="@url" alt="SchoolMan" width="50" height="30">*@
+                    </a>
+                </td>
+            </tr>
+            i++;
+        }
+    }
+</tbody>
+

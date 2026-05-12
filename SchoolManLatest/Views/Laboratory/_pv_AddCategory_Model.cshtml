@@ -1,0 +1,55 @@
+﻿@model TrackTap.Models.StockUpdateModel
+<style>
+    .isHidden {
+        display: none;
+    }
+
+    span {
+        color: red;
+    }
+
+    .borderStyleClass {
+        border: 1px solid #5a5a5a !important;
+    }
+</style>
+
+<div class="modal-dialog" role="document" style="background-color: #fff;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Add Category</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("SubmitCategory", "Laboratory", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "StudentAddSuccess",
+        OnFailure = "StudentAddFailed",
+    }, new { id = "form-login" }))
+    {
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-sm-6">
+
+                   
+                            @*<label style="color:black;"> Category </label>*@
+                          
+                            @Html.TextBoxFor(m => m.LaboratoryName, new { autocomplete = "off", placeholder = "Category", @class = "form-control", id = "LaboratoryName" })
+                            @Html.ValidationMessageFor(z => z.LaboratoryName)
+                     
+                   
+
+                </div><!-- col-sm-6 End -->
+
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button class="btn pay-now-btn" id="studentStudentAdd">Save</button>
+            <button class="btn pay-now-btn" style="display:none;" id="studentStudentContinue">Continue</button>
+        </div>
+    }
+</div>
+

@@ -1,0 +1,324 @@
+﻿
+@model TrackTap.Models.StudentDetailedView
+@{
+
+}
+<style>
+    .saveStyle {
+        float: right;
+        width: 50%;
+        font-size: large;
+        border-radius: 0px !important;
+    }
+
+    .studentStyle {
+        text-align: center;
+        border: none !important;
+    }
+
+    .eumDropStyle {
+        height: 46px !important;
+    }
+
+    .spanStyle {
+        color: red;
+    }
+</style>
+@using (Ajax.BeginForm("AddStudentAdvancedDetails", "Student", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddStudentDetailsSuccess",
+    OnFailure = "AddStudentDetailsFailed",
+}, new { id = "form-login" }))
+{
+    <span>
+        <h2 class="sameLine">Advanced Details</h2>
+        <button type="button" class="btn btn-sm btn-info sameLine skipBtn" onclick="myCloseFunction()" id="billPrint">CANCEL</button>
+    </span>
+
+    @Html.HiddenFor(m => m.StudentId, new { @value = Model.StudentId });
+    <div class="col-md-12">
+        <h3 class="studentStyle">@Model.StudentName - ( @Model.StudentClassDivision )</h3>
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label> Guardian</label><span class="spanStyle">***</span>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.GuardianName, new { autocomplete = "off", placeholder = "Guardian Name", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(m => m.GuardianName)
+            </div>
+            <div class="col-md-1">
+                <label>Relation</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.RelationShip, new { autocomplete = "off", placeholder = "RelationShip", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Occupation</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Occupation, new { autocomplete = "off", placeholder = "Occupation", @class = "form-control textboxStyle" })
+            </div>
+
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Address</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Guardian_Address, new { autocomplete = "off", placeholder = "Guardian Address", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Contact 1</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Contact_LandLine, new { autocomplete = "off", type = "number", minlength = "10", maxlength = "11", placeholder = "Contact No", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Contact 2</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Contact_OfficeLine, new { autocomplete = "off", type = "number", minlength = "10", maxlength = "11", placeholder = "Contact 2", @class = "form-control textboxStyle" })
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Previous School</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Previous_SchoolName, new { autocomplete = "off", placeholder = "Previous School Name", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Previous Standard</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Previous_Standard, new { autocomplete = "off", placeholder = "Previous Standard", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Previous Admission Date</label>
+            </div>
+            <div class="col-md-3 calendar-inp pos_icon_adj">
+                <i class="fa fa-calendar" style="margin-left: 90%;"></i>
+                @Html.TextBoxFor(m => m.Previous_DateOfAdmissionString, new { @class = "form-control textboxStyle", placeholder = "" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Previous Leaving Date</label>
+            </div>
+            <div class="col-md-3 calendar-inp pos_icon_adj">
+                <i class="fa fa-calendar" style="margin-left: 90%;"></i>
+                @Html.TextBoxFor(m => m.Previous_DateOfLeaving, new { @class = "form-control textboxStyle", placeholder = "" })
+            </div>
+            <div class="col-md-1">
+                <label>TC </label>
+            </div>
+
+            <div class="col-md-3 uploader-box td-uploder">
+                <input type="file" class="upload-file upload-clean-Formats-dev1" />
+                <button class="btn-link btn-link-pink"><i class="fa fa-cloud-upload" aria-hidden="true"></i></button>
+
+                @Html.HiddenFor(m => m.TC_Filepath, new { autocomplete = "off", placeholder = "Previous School Name", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>TC No</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.TC_Number, new { autocomplete = "off", placeholder = "TC No", @class = "form-control textboxStyle" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>TC Date</label>
+            </div>
+            <div class="col-md-3 calendar-inp pos_icon_adj">
+                <i class="fa fa-calendar" style="margin-left: 90%;"></i>
+                @Html.TextBoxFor(m => m.TC_Date, new { @class = "form-control textboxStyle", placeholder = "" })
+            </div>
+            <div class="col-md-1">
+                <label>Place OF Birth</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.PlaceOFBirth, new { autocomplete = "off", placeholder = "Place OF Birth", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>DOB File ***</label>
+            </div>
+            <div class="col-md-3">
+                <input type="file" class="upload-file upload-clean-Formats-dev2" />
+                <button class="btn-link btn-link-pink"><i class="fa fa-cloud-upload" aria-hidden="true"></i></button>
+
+                @Html.HiddenFor(m => m.DOBCertificate_FilePath, new { autocomplete = "off", placeholder = "TC No", @class = "form-control textboxStyle" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Religion</label>
+            </div>
+            <div class="col-md-3">
+                @Html.DropDownListFor(m => m.ReligionId, TrackTap.DataLibrary.Data.DropdownData.GetAllReligions(), "--Choose--", new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Category</label>
+            </div>
+            <div class="col-md-3">
+                @Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetAllCategories(), "--Choose--", new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Caste</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Caste, new { autocomplete = "off", placeholder = "Caste", @class = "form-control textboxStyle" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Nationality</label>
+            </div>
+            <div class="col-md-3">
+                @Html.EnumDropDownListFor(m => m.NationalityId, new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Mother Tongue</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.MotherTongue, new { autocomplete = "off", placeholder = "Mother Tongue", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Permanent BodyMark 1</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.PermanentBodyMark1, new { autocomplete = "off", placeholder = "Permanent Body Mark 1", @class = "form-control textboxStyle" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Permanent BodyMark 2</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.PermanentBodyMark2, new { autocomplete = "off", placeholder = "Permanent Body Mark 2", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Boarding Point</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.BoardingPoint, new { autocomplete = "off", placeholder = "Boarding Point", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Known Language 1</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.KnownLanguage1, new { autocomplete = "off", placeholder = "Known Language 1", @class = "form-control textboxStyle" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Known Language 2</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.KnownLanguage2, new { autocomplete = "off", placeholder = "Known Language 2", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Taluk</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Taluk, new { autocomplete = "off", placeholder = "Taluk", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Revenue District</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Revenue_District, new { autocomplete = "off", placeholder = "Revenue District", @class = "form-control textboxStyle" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>PanchayatiRaj System</label>
+            </div>
+            <div class="col-md-3">
+                @Html.EnumDropDownListFor(m => m.PanchayatiRajSystemId, new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>District Panchayath</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.DistrictPanchayath, new { autocomplete = "off", placeholder = "District Panchayath", @class = "form-control textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Block Panchayath</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.BlockPanchayath, new { autocomplete = "off", placeholder = "Block Panchayath", @class = "form-control textboxStyle" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Instruction Medium</label>
+            </div>
+            <div class="col-md-3">
+                @Html.EnumDropDownListFor(m => m.InstructionMediumId, new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>First Language Paper1</label>
+            </div>
+            <div class="col-md-3">
+                @Html.EnumDropDownListFor(m => m.FirstLanguagePaper1, new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>First Language Paper2</label>
+            </div>
+            <div class="col-md-3">
+                @Html.EnumDropDownListFor(m => m.FirstLanguagePaper2, new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Third Language</label>
+            </div>
+            <div class="col-md-3">
+                @Html.EnumDropDownListFor(m => m.ThirdLanguage, new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Is Vaccinated</label>
+            </div>
+            <div class="col-md-3">
+                @Html.CheckBoxFor(m => m.IsVaccinated, new { @class = "textboxStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Vaccinated Date</label>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-calendar" style="margin-left: 90%;"></i>
+                @Html.TextBoxFor(m => m.VaccinatedDate, new { @class = "form-control textboxStyle", placeholder = "" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Learing Disability</label>
+            </div>
+            <div class="col-md-3">
+                @Html.EnumDropDownListFor(m => m.LearingDisabilityId, new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-1">
+                <label>Economical Status</label>
+            </div>
+            <div class="col-md-3">
+                @Html.EnumDropDownListFor(m => m.EconomicalStatus, new { @class = "form-control textboxStyle eumDropStyle" })
+            </div>
+            <div class="col-md-4">
+                <button type="submit" id="btn-save-daybook" class="btn pay-now-btn saveStyle">Save and Continue</button>
+            </div>
+        </div>
+    </div>
+}

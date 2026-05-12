@@ -1,0 +1,92 @@
+﻿
+@{
+    ViewBag.Title = "Stationary_Add_Inventory";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+}
+
+
+
+    <!-- Bootstrap -->
+    @*<link href="css/bootstrap.min.css" rel="stylesheet">*@
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!-- Lato Google font -->
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900" rel="stylesheet">
+
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- custom style -->
+    @*<link href="css/styles.css" rel="stylesheet">*@
+    @*<link href="~/Content/Inventory_Files/styles.css" rel="stylesheet" />*@
+
+
+
+    @*<div class="school-inventory">*@
+        <div class="inv-title">
+            <h3>Add Inventory</h3>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="form-group school-form">
+                    <label>Purchase Order</label>
+                    <input type="text" class="form-control">
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="form-group school-form">
+                    <label>Purchase Date</label>
+                    <div class="school-form-icon">
+                        <input type="text" class="form-control" id="date" name="date">
+                        <i class="fa fa-calendar"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="form-group school-form">
+                    <label>Supplier Name</label>
+                    <input type="text" class="form-control">
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="form-group school-form">
+                    <label>Supplier GST</label>
+                    <input type="text" class="form-control">
+                </div>
+            </div>
+
+            <div class="col-lg-12">
+                <div class="school-form-buttons">
+                    <button class="btn blue-btn">Save</button>
+                    <button class="btn grey-btn">Update Stock</button>
+                </div>
+            </div>
+        </div>
+    @*</div>*@
+
+
+     
+    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    
+    <script src="js/bootstrap.min.js"></script>
+
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css" />
+    <script>
+        $(document).ready(function(){
+            var date_input=$('input[name="date"]'); //our date input has the name "date"
+            var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+            date_input.datepicker({
+                format: 'mm/dd/yyyy',
+                container: container,
+                todayHighlight: true,
+                autoclose: true,
+            })
+        })
+    </script>*@

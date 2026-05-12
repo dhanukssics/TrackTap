@@ -1,0 +1,230 @@
+﻿@model TrackTap.Models.LedgerReportModel
+@{
+    DateTime startDate = Model.FromDate;
+    DateTime endDate = Model.ToDate;
+    long schoolId = Model.SchoolId;
+    long headId = Model.HeadId;
+    long subId = Model.SubId;
+    string schoolName = Model.SchoolName;
+    string heading = Model.Heading;
+
+    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var data = school.Report_GetLedgerReport(startDate, endDate, schoolId, headId, subId);
+
+    var accounthead_List = data.Select(x => x.AccountHead).Distinct().ToArray();
+
+
+    var income1 = data.Sum(x => x._LedgerDetailsList.Sum(i => i.Income));
+    var expense1 = data.Sum(x => x._LedgerDetailsList.Sum(i => i.Expence));
+
+    var total = expense1 - income1;
+
+}
+
+
+
+
+<thead>
+
+    <tr>
+        <td colspan="5" style="text-align:center; font-weight:bold;font-size:22; display:none;">
+            @schoolName
+        </td>
+    </tr>
+    <tr>
+        <td colspan="5" style="text-align:center; font-weight:normal;font-size:18; display:none;">
+            Ledger
+        </td>
+    </tr>
+    <tr>
+        <td colspan="5" style="text-align:center; font-weight:normal;font-size:12; display:none;">
+            @heading
+        </td>
+    </tr>
+
+    <tr>
+        <th>
+            Date
+        </th>
+
+        <th>
+            Header
+        </th>
+        <th>
+            Narration
+        </th>
+        <th>
+            Credit
+        </th>
+        <th>
+            Debit
+        </th>
+        <th>
+            Dt/Cr
+        </th>
+
+    </tr>
+</thead>
+<tbody>
+
+
+    @foreach (var i in accounthead_List)
+    {
+        var Income = data.Where(x => x.AccountHead == i).Select(x => x.Income).Sum();
+        var Expense = data.Where(x => x.AccountHead == i).Select(x => x.Expence).Sum();
+        var TotalExp = Expense - Income;
+        var TotalInc = Income - Expense;
+
+        foreach (var item in data.OrderBy(x => x.AccountHead))
+        {
+
+            //var incomeSum = item._LedgerDetailsList.Sum(x => x.Income);
+            //var expenseSum = item._LedgerDetailsList.Sum(x => x.Expence);
+            if (i == item.AccountHead)
+
+            {
+
+
+                foreach (var a1 in item._LedgerDetailsList)
+                {
+
+
+                    var incomeSum = item._LedgerDetailsList.Sum(x => x.Income);
+                    var expenseSum = item._LedgerDetailsList.Sum(x => x.Expence);
+
+                    <tr>
+                        <td>
+
+
+                            @a1.AccountDate.ToShortDateString()
+
+
+                        </td>
+
+                        <td>
+                            @item.AccountHead
+
+                        </td>
+
+                        <td>
+                            @item.Narration
+                        </td>
+
+                        <td>
+                            @a1.Income
+                        </td>
+                        <td>
+                            @a1.Expence
+                        </td>
+
+
+                        @if (incomeSum > expenseSum)
+                        {
+                            <td>
+                                Cr
+                            </td>
+                        }
+                        else if (incomeSum == expenseSum)
+                        {
+                            <td>
+                                --
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                Dt
+                            </td>
+                        }
+                    </tr>
+
+
+
+
+                }
+            }
+        }
+
+        @*foreach (var sub in item._LedgerDetailsList.OrderBy(x => x.AccountDate.Date).ToList())
+                    {
+            <tr>
+                <td>@sub.AccountDate.ToShortDateString()</td>
+                <td>@item.Narration</td>
+                <td>@sub.SubLedger</td>
+                <td>@String.Format("{0:0.00}", sub.Income)</td>
+                <td>@String.Format("{0:0.00}", sub.Expence)</td>
+                <td>@sub.Status</td>
+            </tr>
+                    }*@
+        //foreach (var sub in item._LedgerDetailsList.OrderBy(x => x.AccountDate.Date).ToList())
+        //{
+        <tr>
+            <td></td>
+            <td></td>
+            <td style="font-weight: bold;">Total</td>
+            @if (Income > Expense)
+            {
+                <td style="font-weight: bold;">@TotalInc</td>
+
+            }
+            <td>
+            </td>
+
+            @if (Expense > Income)
+            {
+                <td style="font-weight: bold;">@TotalExp</td>
+            }
+
+            <td></td>
+            @*@if (incomeSum > expenseSum)
+                {
+                    <td style="font-weight: bold;">@String.Format("{0:0.00}", incomeSum - expenseSum)</td>
+                    <td></td>
+                    <td style="font-weight: bold;">Cr</td>
+                }
+                else if (incomeSum == expenseSum)
+                {
+                    <td>0.00</td>
+                    <td>0.00</td>
+                    <td>--</td>
+                }
+                else
+                {
+                    <td></td>
+                    <td style="font-weight: bold;">@String.Format("{0:0.00}", expenseSum - incomeSum)</td>
+                    <td style="font-weight: bold;">Dt</td>
+                }*@
+
+        </tr>
+        @*}*@
+
+
+
+    }
+</tbody>
+
+@*<tfoot>
+
+        <tr>
+            <td style="padding: 5px; font-weight: bold;" id="total-paid-amt-wr">
+                Total
+            </td>
+
+            <td style="padding: 5px;  font-weight: bold;">
+            </td>
+
+            <td style="padding: 5px;  font-weight: bold;">
+            </td>
+            <td style="padding: 5px;  font-weight: bold;">
+            </td>
+            <td style="padding: 5px;  font-weight: bold;">
+                @String.Format("{0:0.00}", total)
+            </td>
+            <td style="padding: 5px;  font-weight: bold;">
+            </td>
+        </tr>
+
+    </tfoot>*@
+
+}
+

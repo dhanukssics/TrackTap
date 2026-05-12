@@ -1,0 +1,679 @@
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TempCustomers](
+	[Customer] [nvarchar](10) NOT NULL,
+	[CorporateName] [nvarchar](40) NULL,
+	[Address] [nvarchar](60) NULL,
+	[PostalCode] [nvarchar](10) NULL,
+	[Country] [nvarchar](40) NULL
+) ON [PRIMARY]
+
+GO
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TempODP](
+	[ODP] [nvarchar](12) NOT NULL
+) ON [PRIMARY]
+
+GO
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TempODPMaterials](
+	[ODP] [nvarchar](12) NOT NULL,
+	[Phase] [nvarchar](4) NOT NULL,
+	[MaterialCode] [nvarchar](18) NOT NULL,
+	[Number] [int] NOT NULL,
+	[Position] [int] NOT NULL,
+	[Quantity] [float] NULL,
+	[Availability] [bit] NULL,
+	[Description] [nvarchar](40) NULL,
+	[MeasureUnit] [nvarchar](3) NULL,
+	[ClosingPhase] [bit] NULL
+) ON [PRIMARY]
+
+GO
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TempInstrumentInformation](
+	[ODP] [nvarchar](12) NOT NULL,
+	[ExternalPurchaseOrder] [nvarchar](35) NULL,
+	[SalePosition] [nvarchar](6) NULL,
+	[SaleSubPosition] [nvarchar](6) NULL,
+	[PrimaryCode] [nvarchar](40) NULL,
+	[HighSealCode] [nvarchar](40) NULL,
+	[LowSealCode] [nvarchar](40) NULL,
+	[OptionalCode] [nvarchar](40) NULL,
+	[CustomerID] [bigint] NULL,
+	[CustomerItem] [nvarchar](10) NULL,
+	[Message] [nvarchar](30) NULL,
+	[InstrumentSerialNumber] [nvarchar](14) NULL,
+	[InternalSaleOrder] [nvarchar](10) NULL,
+	[TagNumber] [nvarchar](32) NULL,
+	[CalibrationUM] [nvarchar](10) NULL,
+	[CalibrationFrom] [nvarchar](10) NULL,
+	[CalibrationTo] [nvarchar](10) NULL,
+	[MeterScaleUMOnOutput] [nvarchar](10) NULL,
+	[ScaleFROMMeterOutput] [nvarchar](10) NULL,
+	[ScaleTOMeterOutput] [nvarchar](10) NULL,
+	[CustomerDetails] [nvarchar](20) NULL,
+	[Date] [nvarchar](8) NULL,
+	[TypeOfMeasure] [nvarchar](4) NULL,
+	[LinearizationType] [nvarchar](4) NULL,
+	[InputConversionUnitCode] [nvarchar](4) NULL,
+	[DeviceAddress] [nvarchar](3) NULL,
+	[Histeresys] [nvarchar](11) NULL,
+	[DampingType] [nvarchar](11) NULL,
+	[CriticalLimitHigh] [nvarchar](11) NULL,
+	[CriticalLimitLow] [nvarchar](11) NULL,
+	[AdvisoryLimitHigh] [nvarchar](11) NULL,
+	[AdvisoryLimitLow] [nvarchar](11) NULL,
+	[InputPressureHigh] [nvarchar](11) NULL,
+	[InputPressureLow] [nvarchar](11) NULL,
+	[OutputConvertionHigh] [nvarchar](11) NULL,
+	[OutputConvertionLow] [nvarchar](11) NULL,
+	[XxxTextPurchaseOrder] [nvarchar](30) NULL,
+	[stSpecialCode] [nvarchar](18) NULL,
+	[ndSpecialCode] [nvarchar](18) NULL,
+	[rdSpecialCode] [nvarchar](18) NULL,
+	[Empty] [nvarchar](1) NULL,
+	[LongTag] [nvarchar](32) NULL,
+	[ShortTag] [nvarchar](32) NULL,
+	[NewMessage] [nvarchar](32) NULL,
+	[NewCustomerDetails] [nvarchar](16) NULL,
+	[MeterExitType] [nvarchar](3) NULL,
+	[TransmitterTransferFunction] [nvarchar](3) NULL,
+	[TransmitterLinearCut] [nvarchar](5) NULL,
+	[LCDIndicatorDisplayType] [nvarchar](3) NULL,
+	[LCDIndicatrScaleFrom] [nvarchar](10) NULL,
+	[LCDIndicatorScaleTo] [nvarchar](10) NULL,
+	[LCDIndicatorUM] [nvarchar](10) NULL,
+	[LCDIndicatoExitType] [nvarchar](3) NULL,
+	[LocalKeys] [nvarchar](1) NULL,
+	[WriteProtection] [nvarchar](1) NULL,
+	[TransmitterFailureMode] [nvarchar](1) NULL,
+	[FreeVariableScaleFrom] [nvarchar](10) NULL,
+	[FreeVariableScaleTo] [nvarchar](10) NULL,
+	[FreeVariableUM] [nvarchar](10) NULL,
+	[PolynomialBAndCOffset] [nvarchar](10) NULL,
+	[PolynomialB1stCoefficient] [nvarchar](10) NULL,
+	[PolynomialB2ndCoefficient] [nvarchar](10) NULL,
+	[PolynomialB3rdCoefficient] [nvarchar](10) NULL,
+	[PolynomialC1stCoefficient] [nvarchar](10) NULL,
+	[PolynomialC2ndCoefficient] [nvarchar](10) NULL,
+	[PolynomialC3rdCoefficient] [nvarchar](10) NULL,
+	[PolynomialAOffset] [nvarchar](10) NULL,
+	[PolynomialA1stCoefficient] [nvarchar](10) NULL,
+	[PolynomialA2ndCoefficient] [nvarchar](10) NULL,
+	[PolynomialA3rdCoefficient] [nvarchar](10) NULL,
+	[PolynomialA4thCoefficient] [nvarchar](10) NULL,
+	[PolynomialA5thCoefficient] [nvarchar](10) NULL,
+	[FOLFamily] [nvarchar](18) NULL,
+	[Codapp] [nvarchar](3) NULL
+) ON [PRIMARY]
+
+GO
+
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[LogErrorData](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[TableName] [nvarchar](120) NULL,
+	[Data] [nvarchar](max) NULL,
+	[Reason] [nvarchar](250) NULL,
+	[TimeStamp] [datetime] NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+
+
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-----------------tigger start --------------------
+
+CREATE TRIGGER [dbo].[TriggerAfterCustomersInsert]
+   ON  [dbo].[TempCustomers]
+   AFTER INSERT
+AS 
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @CustomerID bigint;  
+	declare @Customer nvarchar(10);  
+	declare @CorporateName nvarchar(40);
+	declare @Address  nvarchar(60); 
+        declare @PostalCode  nvarchar(10); 
+        declare @Country nvarchar(40);
+	declare @DATA  nvarchar(max); 
+	declare @REASON  nvarchar(max); 
+
+ 
+	select @Customer=i.Customer from inserted i; 
+	select @CorporateName=i.CorporateName from inserted i; 
+	select @Address =i.Address from inserted i; 
+	select @PostalCode =i.PostalCode from inserted i; 
+	select @Country =i.Country from inserted i; 
+	
+	  IF NOT EXISTS (SELECT * FROM [dbo].[Customers] WHERE Customer = @Customer )
+	  BEGIN
+		insert into [dbo].[Customers]  
+		(Customer,CorporateName,Address,PostalCode,Country)
+		values(@Customer,@CorporateName,@Address,@PostalCode,@Country); 
+
+		delete from [TempCustomers]  WHERE  Customer = @Customer  
+	   END
+	   ELSE
+	   BEGIN
+		 update [dbo].[Customers]  set Customer=@Customer,CorporateName=@CorporateName,Address=@Address,PostalCode=@PostalCode,Country=@Country WHERE Customer = @Customer 
+		 delete from [TempCustomers]  WHERE  Customer = @Customer 
+
+	   END
+
+END
+
+
+GO
+
+
+
+
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE TRIGGER [dbo].[TriggerAfterODPInsert]
+   ON  [dbo].[TempODP]
+   AFTER INSERT
+AS 
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @ODP int;  
+	declare @DATA  nvarchar(max); 
+	declare @REASON  nvarchar(max); 
+select @ODP=i.ODP from inserted i; 
+ 
+  IF NOT EXISTS (SELECT * FROM [dbo].[ODP] WHERE ODP = @ODP )
+  BEGIN
+insert into [dbo].[ODP]  
+(ODP)   
+values(@ODP); 
+
+delete from TempODP   WHERE ODP = @ODP
+End
+Else
+Begin
+ update [dbo].[ODP]  set ODP = @ODP WHERE ODP = @ODP
+
+ 	--inserting in error table 
+	  SET @DATA =  CAST(@ODP AS VARCHAR(MAX))
+
+	  SET @REASON = 'Violation of primary key constraint for Key ' + CAST(@ODP AS VARCHAR(MAX)) + ' in table [dbo].[ODP]'
+	
+	   INSERT INTO [dbo].[LogErrorData](TableName,Data,Reason,TimeStamp)
+	    VALUES('[dbo].[ODP]',@DATA,@REASON,getdate())
+
+ delete from TempODP   WHERE ODP = @ODP
+End
+   
+
+END
+
+GO
+
+
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE TRIGGER [dbo].[TriggerAfterODPPMaterialsInsert]
+   ON  [dbo].[TempODPMaterials]
+   AFTER INSERT
+AS 
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	declare @ODP nvarchar(12);  
+	declare @Phase nvarchar(4);
+	declare @MaterialCode nvarchar(18);  
+	declare @Number int;
+	declare @Position int;
+	declare @Quantity float;  
+	declare @Availability bit;
+	declare @Description  nvarchar(40); 
+        declare @MeasureUnit  nvarchar(3); 
+        declare @ClosingPhase bit;
+	declare @DATA  nvarchar(max); 
+	declare @REASON  nvarchar(max); 
+
+
+        select @ODP=i.ODP from inserted i; 
+	select @Phase=i.Phase from inserted i; 
+	select @MaterialCode=i.MaterialCode from inserted i; 
+	select @Number =i.Number from inserted i; 
+	select @Position =i.Position from inserted i; 
+	select @Quantity =i.Quantity from inserted i; 
+	select @Availability =i.Availability from inserted i; 
+	select @Description =i.Description from inserted i; 
+    select @MeasureUnit =i.MeasureUnit from inserted i; 
+    select @ClosingPhase =i.ClosingPhase from inserted i; 
+ 
+ IF  EXISTS (SELECT * FROM [dbo].[ODP] WHERE ODP = @ODP)---ODP FOREIGN KEY VIOLATION CHECKING
+ BEGIN
+	  IF NOT EXISTS (SELECT * FROM [dbo].[ODPMaterials] WHERE ODP = @ODP and Phase = @Phase and MaterialCode=@MaterialCode and Number=@Number and Position=@Position)
+	  BEGIN
+		insert into [dbo].[ODPMaterials]  
+		(ODP,Phase,MaterialCode,Number,Position,Quantity,Availability,Description,MeasureUnit,ClosingPhase)
+		values(@ODP,@Phase,@MaterialCode,@Number,@Position,@Quantity,@Availability,@Description,@MeasureUnit,@ClosingPhase); 
+
+		delete from [TEMPODPMaterials]  WHERE ODP = @ODP and Phase = @Phase and MaterialCode=@MaterialCode and Number=@Number and Position=@Position
+
+
+		Declare @OdpCount int  = (Select count(ODP) FROM [dbo].[ODPMaterials]  where ODP=@ODP)
+		IF(@OdpCount >= 5) 
+		BEGIN
+		SET @REASON = CAST(@OdpCount AS VARCHAR(MAX)) + ' records with odp number ' + CAST(@ODP AS VARCHAR(MAX)) 
+	 
+	   INSERT INTO [dbo].[LogErrorData](TableName,Data,Reason,TimeStamp)
+	    VALUES('[dbo].[ODPMaterials]',@DATA,@REASON,getdate())
+		END
+
+	   END
+	   ELSE
+	   BEGIN
+		 update [dbo].[ODPMaterials]  set ODP=@ODP,Phase=@Phase,MaterialCode=@MaterialCode,Number=@Number,Position=@Position,Quantity=@Quantity,Availability=@Availability,Description=@Description,MeasureUnit=@MeasureUnit,ClosingPhase=@ClosingPhase WHERE ODP = @ODP and Phase =@Phase and MaterialCode=@MaterialCode and Number=@Number and Position=@Position
+		
+		   --inserting in error table 
+		    SET @DATA = @ODP + ' || ' + @Phase + ' || ' + @MaterialCode + ' || ' + CAST (@Number AS NVARCHAR(10))+' || '  + CAST (@Position AS NVARCHAR(10)) + ' || ' + CAST (@Quantity AS NVARCHAR(MAX))+ ' || ' +
+	           CAST(@Availability AS VARCHAR(MAX)) + ' || ' +@Description
+			  
+
+	  SET @REASON = 'Violation of primary key constraint for Key ' + @ODP + ' in table [dbo].[ODPMaterials]'
+	 
+	   INSERT INTO [dbo].[LogErrorData](TableName,Data,Reason,TimeStamp)
+	    VALUES('[dbo].[ODPMaterials]',@DATA,@REASON,getdate())
+		
+		delete from [TEMPODPMaterials]  WHERE ODP = @ODP and Phase = @Phase and MaterialCode=@MaterialCode and Number=@Number and Position=@Position
+	   END
+ END
+ ELSE
+ BEGIN
+      --inserting in error table 
+		 SET @DATA = @ODP + ' || ' + @Phase + ' || ' + @MaterialCode + ' || ' + CAST (@Number AS NVARCHAR(10))+' || '  + CAST (@Position AS NVARCHAR(10)) + ' || ' + CAST (@Quantity AS NVARCHAR(MAX))+ ' || ' +
+	           CAST(@Availability AS VARCHAR(MAX)) + ' || ' +@Description 		 
+	  SET @REASON = 'Violation of foreign key constraint for Key ' + @ODP + ' in table [dbo].[ODPMaterials]'
+	 
+	   INSERT INTO [dbo].[LogErrorData](TableName,Data,Reason,TimeStamp)
+	    VALUES('[dbo].[ODPMaterials]',@DATA,@REASON,getdate())
+
+		delete from [TEMPODPMaterials]  WHERE ODP = @ODP and Phase = @Phase and MaterialCode=@MaterialCode and Number=@Number and Position=@Position
+ END
+
+   
+
+END
+
+
+GO
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE TRIGGER [dbo].[TriggerAfterInstrumentInformationInsert]
+   ON  [dbo].[TempInstrumentInformation]
+   AFTER INSERT
+AS 
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	declare @ODP nvarchar(12);
+	declare @ExternalPurchaseOrder nvarchar(35);
+	declare @SalePosition nvarchar(6);
+	declare @SaleSubPosition nvarchar(6);
+	declare @PrimaryCode nvarchar(40);
+	declare @HighSealCode nvarchar(40);
+	declare @LowSealCode nvarchar(40);
+	declare @OptionalCode nvarchar(40);
+	declare @CustomerID bigint;
+	declare @CustomerItem nvarchar(10);
+	declare @Message nvarchar(30);
+	declare @InstrumentSerialNumber nvarchar(14);
+	declare @InternalSaleOrder nvarchar(10);
+	declare @TagNumber nvarchar(32);
+	declare @CalibrationUM nvarchar(10);
+	declare @CalibrationFrom nvarchar(10);
+	declare @CalibrationTo nvarchar(10);
+	declare @MeterScaleUMOnOutput nvarchar(10);
+	declare @ScaleFROMMeterOutput nvarchar(10);
+	declare @ScaleTOMeterOutput nvarchar(10);
+	declare @CustomerDetails nvarchar(20);
+	declare @Date nvarchar(8);
+	declare @TypeOfMeasure nvarchar(4);
+	declare @LinearizationType nvarchar(4);
+	declare @InputConversionUnitCode nvarchar(4);
+	declare @DeviceAddress nvarchar(3);
+	declare @Histeresys nvarchar(11);
+	declare @DampingType nvarchar(11);
+	declare @CriticalLimitHigh nvarchar(11);
+	declare @CriticalLimitLow nvarchar(11);
+	declare @AdvisoryLimitHigh nvarchar(11);
+	declare @AdvisoryLimitLow nvarchar(11);
+	declare @InputPressureHigh nvarchar(11);
+	declare @InputPressureLow nvarchar(11);
+	declare @OutputConvertionHigh nvarchar(11);
+	declare @OutputConvertionLow nvarchar(11);
+	declare @XxxTextPurchaseOrder nvarchar(30);
+	declare @1stSpecialCode nvarchar(18);
+	declare @2ndSpecialCode nvarchar(18);
+	declare @3rdSpecialCode nvarchar(18);
+	declare @Empty nvarchar(1);
+	declare @LongTag nvarchar(32);
+	declare @ShortTag nvarchar(32);
+	declare @NewMessage nvarchar(32);
+	declare @NewCustomerDetails nvarchar(16);
+	declare @MeterExitType nvarchar(3);
+	declare @TransmitterTransferFunction nvarchar(3);
+	declare @TransmitterLinearCut nvarchar(5);
+	declare @LCDIndicatorDisplayType nvarchar(3);
+	declare @LCDIndicatrScaleFrom nvarchar(10);
+	declare @LCDIndicatorScaleTo nvarchar(10);
+	declare @LCDIndicatorUM nvarchar(10);
+	declare @LCDIndicatoExitType nvarchar(3);
+	declare @LocalKeys nvarchar(1);
+	declare @WriteProtection nvarchar(1);
+	declare @TransmitterFailureMode nvarchar(1);
+	declare @FreeVariableScaleFrom nvarchar(10);
+	declare @FreeVariableScaleTo nvarchar(10);
+	declare @FreeVariableUM nvarchar(10);
+	declare @PolynomialBAndCOffset nvarchar(10);
+	declare @PolynomialB1stCoefficient nvarchar(10);
+	declare @PolynomialB2ndCoefficient nvarchar(10);
+	declare @PolynomialB3rdCoefficient nvarchar(10);
+	declare @PolynomialC1stCoefficient nvarchar(10);
+	declare @PolynomialC2ndCoefficient nvarchar(10);
+	declare @PolynomialC3rdCoefficient nvarchar(10);
+	declare @PolynomialAOffset nvarchar(10);
+	declare @PolynomialA1stCoefficient nvarchar(10);
+	declare @PolynomialA2ndCoefficient nvarchar(10);
+	declare @PolynomialA3rdCoefficient nvarchar(10);
+	declare @PolynomialA4thCoefficient nvarchar(10);
+	declare @PolynomialA5thCoefficient nvarchar(10);
+	declare @FOLFamily nvarchar(18);
+	declare @Codapp nvarchar(3);
+	declare @DATA  nvarchar(max); 
+	declare @REASON  nvarchar(max); 
+
+	select @ODP =i.ODP from inserted i;
+	select @ExternalPurchaseOrder =i.ExternalPurchaseOrder from inserted i; 
+	select @SalePosition=i.SalePosition from inserted i; 
+	select @SaleSubPosition =i.SaleSubPosition from inserted i; 
+	select @PrimaryCode =i.PrimaryCode from inserted i; 
+	select @HighSealCode =i.HighSealCode from inserted i; 
+	select @LowSealCode =i.LowSealCode from inserted i; 
+	select @OptionalCode =i.OptionalCode from inserted i; 
+	select @CustomerID =i.CustomerID from inserted i; 
+	select @CustomerItem =i.CustomerItem from inserted i; 
+	select @Message=i.Message from inserted i; 
+	select @InstrumentSerialNumber =i.InstrumentSerialNumber from inserted i; 
+	select @InternalSaleOrder=i.InternalSaleOrder from inserted i; 
+	select @TagNumber =i.TagNumber from inserted i; 
+	select @CalibrationUM =i.CalibrationUM from inserted i; 
+	select @CalibrationFrom =i.CalibrationFrom from inserted i; 
+	select @CalibrationTo =i.CalibrationTo from inserted i; 
+	select @MeterScaleUMOnOutput =i.MeterScaleUMOnOutput from inserted i; 
+	select @ScaleFROMMeterOutput =i.ScaleFROMMeterOutput from inserted i; 
+	select @ScaleTOMeterOutput=i.ScaleTOMeterOutput from inserted i; 
+	select @CustomerDetails =i.CustomerDetails from inserted i; 
+	select @Date =i.Date from inserted i; 
+	select @TypeOfMeasure =i.TypeOfMeasure from inserted i; 
+	select @LinearizationType =i.LinearizationType from inserted i; 
+	select @InputConversionUnitCode =i.InputConversionUnitCode from inserted i; 
+	select @DeviceAddress =i.DeviceAddress from inserted i; 
+	select @Histeresys=i.Histeresys from inserted i; 
+	select @DampingType =i.DampingType from inserted i; 
+	select @CriticalLimitHigh=i.CriticalLimitHigh from inserted i; 
+	select @CriticalLimitLow =i.CriticalLimitLow from inserted i; 
+	select @AdvisoryLimitHigh =i.AdvisoryLimitHigh from inserted i; 
+	select @AdvisoryLimitLow =i.AdvisoryLimitLow from inserted i; 
+	select @InputPressureHigh =i.InputPressureHigh from inserted i; 
+	select @InputPressureLow =i.InputPressureLow from inserted i; 
+	select @OutputConvertionHigh =i.OutputConvertionHigh from inserted i; 
+	select @OutputConvertionLow =i.OutputConvertionLow from inserted i; 
+	select @XxxTextPurchaseOrder =i.XxxTextPurchaseOrder from inserted i; 
+	select @1stSpecialCode =i.stSpecialCode from inserted i; 
+	select @2ndSpecialCode =i.ndSpecialCode from inserted i; 
+	select @3rdSpecialCode =i.rdSpecialCode from inserted i; 
+	select @Empty=i.Empty from inserted i; 
+	select @LongTag =i.LongTag from inserted i; 
+	select @ShortTag=i.ShortTag from inserted i; 
+	select @NewMessage =i.NewMessage from inserted i; 
+	select @NewCustomerDetails=i.NewCustomerDetails from inserted i; 
+	select @MeterExitType=i.MeterExitType from inserted i; 
+	select @TransmitterTransferFunction =i.TransmitterTransferFunction from inserted i; 
+	select @TransmitterLinearCut =i.TransmitterLinearCut from inserted i; 
+	select @LCDIndicatorDisplayType =i.LCDIndicatorDisplayType from inserted i; 
+	select @LCDIndicatrScaleFrom =i.LCDIndicatrScaleFrom from inserted i; 
+	select @LCDIndicatorScaleTo=i.LCDIndicatorScaleTo from inserted i; 
+	select @LCDIndicatorUM =i.LCDIndicatorUM from inserted i; 
+	select @LCDIndicatoExitType=i.LCDIndicatoExitType from inserted i; 
+	select @LocalKeys =i.LocalKeys from inserted i; 
+	select @WriteProtection =i.WriteProtection from inserted i; 
+	select @TransmitterFailureMode =i.TransmitterFailureMode from inserted i; 
+	select @FreeVariableScaleFrom =i.FreeVariableScaleFrom from inserted i; 
+	select @FreeVariableScaleTo =i.FreeVariableScaleTo from inserted i; 
+	select @FreeVariableUM =i.FreeVariableUM from inserted i; 
+	select @PolynomialBAndCOffset =i.PolynomialBAndCOffset from inserted i; 
+	select @PolynomialB1stCoefficient =i.PolynomialB1stCoefficient from inserted i; 
+	select @PolynomialB2ndCoefficient=i.PolynomialB2ndCoefficient from inserted i; 
+	select @PolynomialB3rdCoefficient =i.PolynomialB3rdCoefficient from inserted i; 
+	select @PolynomialC1stCoefficient=i.PolynomialC1stCoefficient from inserted i; 
+	select @PolynomialC2ndCoefficient =i.PolynomialC2ndCoefficient from inserted i; 
+	select @PolynomialC3rdCoefficient =i.PolynomialC3rdCoefficient from inserted i; 
+	select @PolynomialAOffset =i.PolynomialAOffset from inserted i; 
+	select @PolynomialA1stCoefficient=i.PolynomialA1stCoefficient from inserted i; 
+	select @PolynomialA2ndCoefficient=i.PolynomialA2ndCoefficient from inserted i; 
+	select @PolynomialA3rdCoefficient=i.PolynomialA3rdCoefficient from inserted i; 
+	select @PolynomialA4thCoefficient=i.PolynomialA4thCoefficient from inserted i; 
+	select @PolynomialA5thCoefficient =i.PolynomialA5thCoefficient from inserted i; 
+	select @FOLFamily =i.FOLFamily from inserted i; 
+	select @Codapp=i.Codapp from inserted i; 
+ 
+IF EXISTS (SELECT * FROM [dbo].[ODP] WHERE ODP = @ODP)
+ BEGIN
+     IF EXISTS (SELECT * FROM [dbo].[Customers] WHERE CustomerID = @CustomerID)  
+	  BEGIN
+		  IF NOT EXISTS (SELECT * FROM [dbo].[InstrumentInformation] WHERE ODP = @ODP AND CustomerID=@CustomerID)
+			BEGIN
+
+			 Declare @OdpCount int  = (Select count(ODP) FROM [dbo].[ODPMaterials]  where ODP=@ODP)
+		IF(@OdpCount < 4) 
+		BEGIN
+			delete from [TempInstrumentInformation]   WHERE ODP = @ODP AND CustomerID=@CustomerID
+		    delete from [ODPMaterials]  WHERE ODP = @ODP 
+			delete from [ODP]  WHERE ODP = @ODP 
+			SET @REASON = 'odp number ' +  CAST(@ODP AS VARCHAR(MAX)) + '  is rejected - only ' + CAST(@OdpCount AS VARCHAR(MAX)) + ' records received'
+	 
+	   INSERT INTO [dbo].[LogErrorData](TableName,Data,Reason,TimeStamp)
+	   VALUES('[dbo].[ODPMaterials]',@DATA,@REASON,getdate())
+		END
+
+		ELSE
+		BEGIN
+
+				  insert into [dbo].[InstrumentInformation] (ODP,ExternalPurchaseOrder,SalePosition,SaleSubPosition,PrimaryCode,
+			HighSealCode,LowSealCode,OptionalCode,[CustomerID],CustomerItem,[Message],InstrumentSerialNumber,InternalSaleOrder,TagNumber,CalibrationUM,CalibrationFrom,CalibrationTo,MeterScaleUMOnOutput,ScaleFROMMeterOutput,ScaleTOMeterOutput,CustomerDetails,Date,TypeOfMeasure,
+					  LinearizationType,InputConversionUnitCode,DeviceAddress,Histeresys,DampingType,CriticalLimitHigh,CriticalLimitLow,AdvisoryLimitHigh,AdvisoryLimitLow,InputPressureHigh, 
+					  InputPressureLow,OutputConvertionHigh,OutputConvertionLow,XxxTextPurchaseOrder,[1stSpecialCode],[2ndSpecialCode],[3rdSpecialCode],Empty,
+					  LongTag,ShortTag,NewMessage,NewCustomerDetails,MeterExitType,TransmitterTransferFunction,TransmitterLinearCut,LCDIndicatorDisplayType,LCDIndicatrScaleFrom,LCDIndicatorScaleTo, 
+					  LCDIndicatorUM,LCDIndicatoExitType,LocalKeys,WriteProtection,TransmitterFailureMode,FreeVariableScaleFrom,FreeVariableScaleTo,FreeVariableUM,
+					  PolynomialBAndCOffset,PolynomialB1stCoefficient,PolynomialB2ndCoefficient,PolynomialB3rdCoefficient,PolynomialC1stCoefficient,  
+					  PolynomialC2ndCoefficient,PolynomialC3rdCoefficient,PolynomialAOffset,PolynomialA1stCoefficient,PolynomialA2ndCoefficient,PolynomialA3rdCoefficient, 
+					  PolynomialA4thCoefficient,PolynomialA5thCoefficient,FOLFamily,Codapp)
+				   values (@ODP,@ExternalPurchaseOrder,@SalePosition,@SaleSubPosition,@PrimaryCode,
+					  @HighSealCode,@LowSealCode,@OptionalCode,@CustomerID,@CustomerItem,@Message,@InstrumentSerialNumber,@InternalSaleOrder,@TagNumber,
+					  @CalibrationUM,@CalibrationFrom,@CalibrationTo,@MeterScaleUMOnOutput,@ScaleFROMMeterOutput,@ScaleTOMeterOutput,@CustomerDetails,@Date,@TypeOfMeasure,
+					  @LinearizationType,@InputConversionUnitCode,@DeviceAddress,@Histeresys,@DampingType,@CriticalLimitHigh,@CriticalLimitLow,@AdvisoryLimitHigh,@AdvisoryLimitLow,@InputPressureHigh, 
+					  @InputPressureLow,@OutputConvertionHigh,@OutputConvertionLow,@XxxTextPurchaseOrder,@1stSpecialCode,@2ndSpecialCode,@3rdSpecialCode,@Empty,
+					  @LongTag,@ShortTag,@NewMessage,@NewCustomerDetails,@MeterExitType,@TransmitterTransferFunction,@TransmitterLinearCut,@LCDIndicatorDisplayType,@LCDIndicatrScaleFrom,@LCDIndicatorScaleTo, 
+					 @LCDIndicatorUM,@LCDIndicatoExitType,@LocalKeys,@WriteProtection,@TransmitterFailureMode,@FreeVariableScaleFrom,@FreeVariableScaleTo,@FreeVariableUM,
+					 @PolynomialBAndCOffset, @PolynomialB1stCoefficient,@PolynomialB2ndCoefficient,@PolynomialB3rdCoefficient,@PolynomialC1stCoefficient,  
+					 @PolynomialC2ndCoefficient,@PolynomialC3rdCoefficient,@PolynomialAOffset,@PolynomialA1stCoefficient,@PolynomialA2ndCoefficient,@PolynomialA3rdCoefficient, 
+					 @PolynomialA4thCoefficient,@PolynomialA5thCoefficient,@FOLFamily,@Codapp ) 
+
+
+			delete from [TempInstrumentInformation]   WHERE ODP = @ODP AND CustomerID=@CustomerID
+			END
+			END
+			ELSE
+			BEGIN 
+			      update [dbo].[InstrumentInformation]  set ODP=@ODP,ExternalPurchaseOrder=@ExternalPurchaseOrder,SalePosition= @SalePosition,SaleSubPosition=@SaleSubPosition ,PrimaryCode=@PrimaryCode ,
+				  HighSealCode=@HighSealCode ,LowSealCode=@LowSealCode  , OptionalCode=@OptionalCode  , CustomerID=@CustomerID  , CustomerItem=@CustomerItem,   Message=@Message  , InstrumentSerialNumber=@InstrumentSerialNumber,   InternalSaleOrder=@InternalSaleOrder  , TagNumber=@TagNumber , 
+				  CalibrationUM=@CalibrationUM ,  CalibrationFrom=@CalibrationFrom,   CalibrationTo=@CalibrationTo ,  MeterScaleUMOnOutput=@MeterScaleUMOnOutput,   ScaleFROMMeterOutput=@ScaleFROMMeterOutput,   ScaleTOMeterOutput =@ScaleTOMeterOutput,  CustomerDetails =@CustomerDetails, Date =@Date,  TypeOfMeasure=@TypeOfMeasure , 
+				  LinearizationType=@LinearizationType,  InputConversionUnitCode=@InputConversionUnitCode,  DeviceAddress=@DeviceAddress ,Histeresys=@Histeresys ,DampingType=@DampingType ,CriticalLimitHigh=@CriticalLimitHigh,CriticalLimitLow=@CriticalLimitLow, AdvisoryLimitHigh=@AdvisoryLimitHigh,  AdvisoryLimitLow=@AdvisoryLimitLow , InputPressureHigh=@InputPressureHigh , 
+				  InputPressureLow=@InputPressureLow , OutputConvertionHigh=@OutputConvertionHigh, OutputConvertionLow=@OutputConvertionLow , XxxTextPurchaseOrder=@XxxTextPurchaseOrder,[1stSpecialCode]=@1stSpecialCode,[2ndSpecialCode]=@2ndSpecialCode,[3rdSpecialCode]=@3rdSpecialCode , Empty=@Empty  ,
+				  LongTag=@LongTag , ShortTag=@ShortTag,  NewMessage=@NewMessage,  NewCustomerDetails=@NewCustomerDetails ,MeterExitType=@MeterExitType  ,TransmitterTransferFunction =@TransmitterTransferFunction , TransmitterLinearCut =@TransmitterLinearCut , LCDIndicatorDisplayType =@LCDIndicatorDisplayType , LCDIndicatrScaleFrom=@LCDIndicatrScaleFrom , LCDIndicatorScaleTo=@LCDIndicatorScaleTo , 
+				  LCDIndicatorUM =@LCDIndicatorUM , LCDIndicatoExitType=@LCDIndicatoExitType ,  LocalKeys=@LocalKeys,   WriteProtection=@WriteProtection,   TransmitterFailureMode=@TransmitterFailureMode,   FreeVariableScaleFrom =@FreeVariableScaleFrom,  FreeVariableScaleTo =@FreeVariableScaleTo , FreeVariableUM =@FreeVariableUM ,
+				  PolynomialBAndCOffset=@PolynomialBAndCOffset, PolynomialB1stCoefficient=@PolynomialB1stCoefficient , PolynomialB2ndCoefficient=@PolynomialB2ndCoefficient ,  PolynomialB3rdCoefficient=@PolynomialB3rdCoefficient,   PolynomialC1stCoefficient=@PolynomialC1stCoefficient,  
+				  PolynomialC2ndCoefficient=@PolynomialC2ndCoefficient,  PolynomialC3rdCoefficient=@PolynomialC3rdCoefficient,  PolynomialAOffset=@PolynomialAOffset ,  PolynomialA1stCoefficient=@PolynomialA1stCoefficient ,  PolynomialA2ndCoefficient =@PolynomialA2ndCoefficient,  PolynomialA3rdCoefficient=@PolynomialA3rdCoefficient , 
+				  PolynomialA4thCoefficient=@PolynomialA4thCoefficient ,  PolynomialA5thCoefficient =@PolynomialA5thCoefficient , FOLFamily=@FOLFamily  , Codapp=@Codapp WHERE ODP = @ODP
+
+
+				  --inserting in error table for ODP
+	   SET @DATA =@ODP + ' || '  + isnull(@ExternalPurchaseOrder,'')+ ' || ' + isnull(@SalePosition,'')+ ' || ' + isnull(@SaleSubPosition,'')+ ' || ' + isnull(@PrimaryCode,'') + ' || ' 
+	       + isnull(@HighSealCode,'')+ ' || ' + isnull(@LowSealCode,'')+ ' || ' + isnull(@OptionalCode,'') + ' || ' + CAST(@CustomerID AS NVARCHAR(40))+ ' || ' +isnull(@CustomerItem,'')  + ' || ' +isnull(@Message,'') + ' || ' 
+	        + isnull(@InstrumentSerialNumber,'') + ' || ' + isnull(@InternalSaleOrder,'') + ' || ' + isnull(@TagNumber,'') + ' || ' +isnull( @CalibrationUM,'') + ' || ' + isnull(@CalibrationFrom,'') + ' || ' 
+	        + isnull(@CalibrationTo,'') + ' || ' + isnull(@MeterScaleUMOnOutput,'') + ' || ' + isnull(@ScaleFROMMeterOutput,'') + ' || ' + isnull(@ScaleTOMeterOutput,'') + ' || ' + isnull(@CustomerDetails,'') 
+	        + ' || ' + isnull(@Date,'') 
+			+ ' || ' + isnull(@TypeOfMeasure,'') + ' || ' + isnull(@LinearizationType,'')+ ' || ' + isnull(@InputConversionUnitCode,'') 
+		   + ' || ' + isnull(@DeviceAddress,'') + ' || ' 
+		  + isnull(@Histeresys,'') + ' || ' + isnull(@DampingType,'') + ' || ' + isnull(@CriticalLimitHigh,'') + ' || ' + isnull(@CriticalLimitLow,'') + ' || ' + isnull(@AdvisoryLimitHigh,'') + ' || ' 
+		   + isnull(@AdvisoryLimitLow,'')+ ' || ' + isnull(@InputPressureHigh,'') + ' || ' +isnull(@InputPressureLow,'') + ' || ' + isnull(@OutputConvertionHigh,'') + ' || ' + isnull(@OutputConvertionLow,'') + ' || ' + isnull(@XxxTextPurchaseOrder,'') + ' || ' + isnull(@1stSpecialCode,'') + ' || ' + isnull(@2ndSpecialCode,'') + ' || ' + isnull(@3rdSpecialCode,'') + ' || ' + isnull(@Empty,'')+ ' || ' +isnull(@LongTag,'')+ ' || ' + isnull(@ShortTag,'') + ' || ' 
+		
+
+	  SET @REASON = 'Violation of primary key constraint for Key ' + @ODP + ' in table [dbo].[InstrumentInformation]'
+
+	    INSERT INTO [dbo].[LogErrorData](TableName,Data,Reason,TimeStamp)
+	    VALUES('[dbo].[InstrumentInformation]',@DATA,@REASON,getdate())
+		 delete from [TempInstrumentInformation]   WHERE ODP = @ODP AND CustomerID=@CustomerID
+
+			
+			END
+      END
+	  ELSE
+	  BEGIN
+	  --inserting in error table For Customer
+	  SET @DATA =@ODP + ' || '  + isnull(@ExternalPurchaseOrder,'')+ ' || ' + isnull(@SalePosition,'')+ ' || ' + isnull(@SaleSubPosition,'')+ ' || ' + isnull(@PrimaryCode,'') + ' || ' 
+	       + isnull(@HighSealCode,'')+ ' || ' + isnull(@LowSealCode,'')+ ' || ' + isnull(@OptionalCode,'') + ' || ' + CAST(@CustomerID AS NVARCHAR(40))+ ' || ' +isnull(@CustomerItem,'')  + ' || ' +isnull(@Message,'') + ' || ' 
+	        + isnull(@InstrumentSerialNumber,'') + ' || ' + isnull(@InternalSaleOrder,'') + ' || ' + isnull(@TagNumber,'') + ' || ' +isnull( @CalibrationUM,'') + ' || ' + isnull(@CalibrationFrom,'') + ' || ' 
+	        + isnull(@CalibrationTo,'') + ' || ' + isnull(@MeterScaleUMOnOutput,'') + ' || ' + isnull(@ScaleFROMMeterOutput,'') + ' || ' + isnull(@ScaleTOMeterOutput,'') + ' || ' + isnull(@CustomerDetails,'') 
+	        + ' || ' + isnull(@Date,'') 
+			+ ' || ' + isnull(@TypeOfMeasure,'') + ' || ' + isnull(@LinearizationType,'')+ ' || ' + isnull(@InputConversionUnitCode,'') 
+		   + ' || ' + isnull(@DeviceAddress,'') + ' || ' 
+		  + isnull(@Histeresys,'') + ' || ' + isnull(@DampingType,'') + ' || ' + isnull(@CriticalLimitHigh,'') + ' || ' + isnull(@CriticalLimitLow,'') + ' || ' + isnull(@AdvisoryLimitHigh,'') + ' || ' 
+		   + isnull(@AdvisoryLimitLow,'')+ ' || ' + isnull(@InputPressureHigh,'') + ' || ' +isnull(@InputPressureLow,'') + ' || ' + isnull(@OutputConvertionHigh,'') + ' || ' + isnull(@OutputConvertionLow,'') + ' || ' + isnull(@XxxTextPurchaseOrder,'') + ' || ' + isnull(@1stSpecialCode,'') + ' || ' + isnull(@2ndSpecialCode,'') + ' || ' + isnull(@3rdSpecialCode,'') + ' || ' + isnull(@Empty,'')+ ' || ' +isnull(@LongTag,'')+ ' || ' + isnull(@ShortTag,'') + ' || ' 
+		
+	  SET @REASON = 'Violation of foreign key constraint for Key ' + CAST(@CustomerID AS NVARCHAR(40)) + ' in table [dbo].[InstrumentInformation]'
+
+	    INSERT INTO [dbo].[LogErrorData](TableName,Data,Reason,TimeStamp)
+	    VALUES('[dbo].[InstrumentInformation]',@DATA,@REASON,getdate())
+		 delete from [TempInstrumentInformation]   WHERE ODP = @ODP AND CustomerID=@CustomerID
+
+
+	  END
+  END
+  ELSE
+  BEGIN
+    --inserting in error table for ODP
+	   SET @DATA =@ODP + ' || '  + isnull(@ExternalPurchaseOrder,'')+ ' || ' + isnull(@SalePosition,'')+ ' || ' + isnull(@SaleSubPosition,'')+ ' || ' + isnull(@PrimaryCode,'') + ' || ' 
+	       + isnull(@HighSealCode,'')+ ' || ' + isnull(@LowSealCode,'')+ ' || ' + isnull(@OptionalCode,'') + ' || ' + CAST(@CustomerID AS NVARCHAR(40))+ ' || ' +isnull(@CustomerItem,'')  + ' || ' +isnull(@Message,'') + ' || ' 
+	        + isnull(@InstrumentSerialNumber,'') + ' || ' + isnull(@InternalSaleOrder,'') + ' || ' + isnull(@TagNumber,'') + ' || ' +isnull( @CalibrationUM,'') + ' || ' + isnull(@CalibrationFrom,'') + ' || ' 
+	        + isnull(@CalibrationTo,'') + ' || ' + isnull(@MeterScaleUMOnOutput,'') + ' || ' + isnull(@ScaleFROMMeterOutput,'') + ' || ' + isnull(@ScaleTOMeterOutput,'') + ' || ' + isnull(@CustomerDetails,'') 
+	        + ' || ' + isnull(@Date,'') 
+			+ ' || ' + isnull(@TypeOfMeasure,'') + ' || ' + isnull(@LinearizationType,'')+ ' || ' + isnull(@InputConversionUnitCode,'') 
+		   + ' || ' + isnull(@DeviceAddress,'') + ' || ' 
+		  + isnull(@Histeresys,'') + ' || ' + isnull(@DampingType,'') + ' || ' + isnull(@CriticalLimitHigh,'') + ' || ' + isnull(@CriticalLimitLow,'') + ' || ' + isnull(@AdvisoryLimitHigh,'') + ' || ' 
+		   + isnull(@AdvisoryLimitLow,'')+ ' || ' + isnull(@InputPressureHigh,'') + ' || ' +isnull(@InputPressureLow,'') + ' || ' + isnull(@OutputConvertionHigh,'') + ' || ' + isnull(@OutputConvertionLow,'') + ' || ' + isnull(@XxxTextPurchaseOrder,'') + ' || ' + isnull(@1stSpecialCode,'') + ' || ' + isnull(@2ndSpecialCode,'') + ' || ' + isnull(@3rdSpecialCode,'') + ' || ' + isnull(@Empty,'')+ ' || ' +isnull(@LongTag,'')+ ' || ' + isnull(@ShortTag,'') + ' || ' 
+		
+
+	  SET @REASON = 'Violation of foreign key constraint for Key ' + @ODP + ' in table [dbo].[InstrumentInformation]'
+
+	    INSERT INTO [dbo].[LogErrorData](TableName,Data,Reason,TimeStamp)
+	    VALUES('[dbo].[InstrumentInformation]',@DATA,@REASON,getdate())
+		 delete from [TempInstrumentInformation]   WHERE ODP = @ODP AND CustomerID=@CustomerID
+  END
+  END
+
+GO
+
+
+
+
+
+
+

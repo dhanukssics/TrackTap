@@ -1,0 +1,43 @@
+﻿
+@model TrackTap.Models.FeeAlertDataModel
+@{
+//var feeIncomeData = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetFeeIncomeHead();
+//if (feeIncomeData != null)
+//{
+//    Model.FeeIncomeHead = new TrackTap.Models.FeeIncomeAccountHead();
+//    Model.FeeIncomeHead.HeadId = feeIncomeData.AccountId;
+//    Model.FeeIncomeHead.AccountHead = feeIncomeData.AccHeadName;
+//}
+}
+<div class="col-md-12 col-md-offset-1 style=" margin-bottom 70%; margin-top 3%;"">
+    <div class="email-setup-main">
+        @using (Ajax.BeginForm("EditFeeAccountHeadData", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddFeeIncomeHeadSuccess",
+            OnFailure = "AddFeeIncomeHeadFailed"
+        }, new { id = "form-login" }))
+        {
+            <div class="form-group">
+                <label>Fee Income Head Name</label>
+                <span>
+                    @Html.TextBoxFor(m => m.FeeIncomeHead.AccountHead, new { autocomplete = "off", id = "feeIncomeHeadId", placeholder = "Senderid", @class = "form-control", style = "width:50%;" })
+                    @*@Html.TextBoxFor(m => m.FeeIncomeHead.AccountHead, new { autocomplete = "off", id = "feeIncomeHeadId", placeholder = "Head", @class = "form-control", style = "width:50%;" })*@
+                    @Html.ValidationMessageFor(z => z.FeeIncomeHead.AccountHead)
+                </span>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12" style="float: left; margin-top:15px;">
+                    <button type="submit" class="btn pay-now-btn">Edit </button>
+                </span>
+            </div>
+
+        }
+    </div>
+</div>
+
+<script>
+    //$(document).ready(function () {
+    //    $('#feeIncomeHeadId').val('');
+    //});
+</script>

@@ -1,0 +1,26 @@
+﻿@model TrackTap.Models.AddAccountHeadModel
+
+@using (Ajax.BeginForm("SubmitAddAccountHead", "Journal", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddAccountHeadSuccess",
+    OnFailure = "AddAccountHeadFailed"
+}, new { id = "form-add-exam" }))
+{
+    <div class="row">
+        <div id="new-account-div" class="dev-adj-style">
+            <div class="form-group">
+                 @Html.HiddenFor(m => m.AccountHeadId, new { autocomplete = "off", placeholder = "AccHid", @class = "form-control", id = "AccHid" })
+                @Html.TextBoxFor(m => m.AccountHeadName, new { autocomplete = "off", placeholder = "Account Head Name", @class = "form-control", style = "text-transform: uppercase", onchange = "acounthead()", id = "Acchead" })
+                @Html.ValidationMessageFor(z => z.AccountHeadName)
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        @*<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>*@
+        <button type="submit" class="btn pay-now-btn" id="btn-addAccountHead">Save</button>
+    </div>
+}
+<script>
+
+</script>

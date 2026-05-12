@@ -1,0 +1,540 @@
+﻿@model TrackTap.Models.FeeAlertDataModel
+
+@{
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+    var senderDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetSenderDetails();
+    var feeIncomeData = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetFeeIncomeHead();
+    if (feeIncomeData != null)
+    {
+        Model.FeeIncomeHead = new TrackTap.Models.FeeIncomeAccountHead();
+        Model.FeeIncomeHead.HeadId = feeIncomeData.AccountId;
+        Model.FeeIncomeHead.AccountHead = feeIncomeData.AccHeadName;
+    }
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h3>Settings</h3>
+        <div class="row">
+            <div id="sender-id-div">
+                @if (Model.Id != 0)
+                {
+                    @Html.Partial("~/Views/School/_pv_Edit_FeeAlerDate.cshtml")
+                }
+                else
+                {
+                    @Html.Partial("~/Views/School/_pv_Add_FeeAlerDate.cshtml")
+                }
+            </div>
+            @*<div class="col-md-12 col-md-offset-1" style="margin-top:30px; border-top:2px solid #ccc; width:50%; padding:20px 15px;">
+                <div class="form-group">
+                    <label class="cust-label" style="margin-top:10px;">Print Preference!</label>
+                    <div class="form-group" id="myModalLabel">
+                        <label style="margin-top:10px;">Tick for Thermal print</label>
+                        <input type="checkbox" name="thermalprint" value="ThermalPrint" id="thermalprint" autocomplete="off" />
+                    </div>
+                </div>
+            </div>*@
+
+            <div class="col-md-12 col-md-offset-1" style="margin-top:30px; border-top:2px solid #ccc; width:50%; padding:20px 15px;">
+                <div class="form-group">
+                    <label class="cust-label" style="margin-top:10px;">Send Birthday Wishes !</label>
+                    <div class="form-group" id="myModalLabel">
+                        <button class="btn btn-peek" id="send-brthday-wishes">Send </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-12 col-md-offset-1" style="margin-top:30px; border-top:2px solid #ccc; width:50%; padding:20px 15px;">
+                <div class="form-group">
+                    <label class="cust-label" style="margin-top:10px;">Send Circular Notifications !</label>
+                    <div class="form-group" id="myModalLabel">
+                        <button class="btn btn-peek" id="send-circular-notification">Send </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-md-offset-1" style="margin-top:30px; border-top:2px solid #ccc; width:50%; padding:20px 15px;">
+                <div class="form-group">
+                    <label class="cust-label" style="margin-top:10px;">Send Fee Due Alert !</label>
+                    <div class="form-group" id="myModalLabel">
+                        <button class="btn btn-peek" id="send-fee-due">Send </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-md-offset-1" style="margin-top:30px; border-top:2px solid #ccc; width:50%; padding:20px 15px;">
+                <div class="form-group">
+                    <label class="cust-label" style="margin-top:10px;">Send App details !</label>
+                    <div class="form-group" id="myModalLabel">
+                        <button class="btn btn-peek" id="send-app-details">Send </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-md-offset-1" style="margin-top:30px; border:2px solid #ccc; width:50%; padding:20px 15px;">
+                <div class="form-group">
+                    <label class="cust-label" style="margin-top:10px;">Billing footer message.</label>
+                    <div class="form-group" id="myModalLabel">
+                        @if (Model.FooterMessage == null)
+                        {
+                            using (Ajax.BeginForm("AddBillingFooter", "School", null, new AjaxOptions
+                            {
+                                HttpMethod = "POST",
+                                OnSuccess = "AddBillingFooterSuccess",
+                                OnFailure = "AddBillingFooterFailure",
+                            }, new { id = "form-footer-add" }))
+                            {
+                                <div class="form-group">
+                                    @Html.TextBoxFor(m => m.FooterMessage, new { autocomplete = "off", placeholder = "", @class = "form-control" })
+                                    @Html.ValidationMessageFor(z => z.FooterMessage)
+                                    @*<input class="form-control" placeholder="Name" type="text" />*@
+                                </div>
+
+
+                                <div class="">
+                                    <button type="button" id="btn-cancel-footer" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" id="btn-addfooter" class="btn pay-now-btn">Save</button>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            using (Ajax.BeginForm("AddBillingFooter", "School", null, new AjaxOptions
+                            {
+                                HttpMethod = "POST",
+                                OnSuccess = "AddBillingFooterSuccess",
+                                OnFailure = "AddBillingFooterFailure",
+                            }, new { id = "form-footer-edit" }))
+                            {
+                                <div class="form-group">
+                                    @Html.TextBoxFor(m => m.FooterMessage, new { autocomplete = "off", placeholder = "", @class = "isDisabled form-control" })
+                                    @Html.ValidationMessageFor(z => z.FooterMessage)
+                                    @*<input class="form-control" placeholder="Name" type="text" />*@
+                                </div>
+
+
+                                <div class="">
+                                    <button type="button" id="btn-cancel-footer" class="btn btn-default isHidden" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" id="btn-addfooter" class="btn pay-now-btn isHidden">Save</button>
+                                    <button type="button" id="btn-editfooter" class="btn pay-now-btn">Edit</button>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="">
+                <div class="col-md-5 col-md-offset-1" style="margin-top:30px;margin-bottom:40; border:2px solid #ccc; padding:20px 15px; height:35%;">
+                    <div class="form-group">
+                        <label class="cust-label" style="margin-top:10px;">Library Due Days.</label>
+                        <div class="form-group" id="myModalLabel">
+                            @if (Model.libraryDueDay == 0)
+                            {
+                                using (Ajax.BeginForm("AddLibraryDueDays", "School", null, new AjaxOptions
+                                {
+                                    HttpMethod = "POST",
+                                    OnSuccess = "AddLibraryDueDaysSuccess",
+                                    OnFailure = "AddLibraryDueDaysFailure",
+                                }, new { id = "form-footer-add" }))
+                                {
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(m => m.libraryDueDay, new { autocomplete = "off", placeholder = "", @class = "form-control", type = "number" })
+                                        @Html.ValidationMessageFor(z => z.libraryDueDay)
+                                        @*<input class="form-control" placeholder="Name" type="text" />*@
+                                    </div>
+
+
+                                    <div class="">
+                                        <button type="button" id="btn-cancel-libraryDue" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" id="btn-addlibraryDue" class="btn pay-now-btn">Save</button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                using (Ajax.BeginForm("AddLibraryDueDays", "School", null, new AjaxOptions
+                                {
+                                    HttpMethod = "POST",
+                                    OnSuccess = "AddLibraryDueDaysSuccess",
+                                    OnFailure = "AddLibraryDueDaysFailure",
+                                }, new { id = "form-footer-edit" }))
+                                {
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(m => m.libraryDueDay, new { autocomplete = "off", placeholder = "", @class = "isDisabled form-control", type = "number" })
+                                        @Html.ValidationMessageFor(z => z.libraryDueDay)
+                                        @*<input class="form-control" placeholder="Name" type="text" />*@
+                                    </div>
+
+
+                                    <div class="">
+                                        <button type="button" id="btn-cancel-libraryDue" class="btn btn-default isHidden" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" id="btn-addlibraryDue" class="btn pay-now-btn isHidden">Save</button>
+                                        <button type="button" id="btn-editlibraryDue" class="btn pay-now-btn">Edit</button>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 " style="margin-top:30px;margin-bottom:40px; border:2px solid #ccc; padding:20px 15px; border-left: 2px solid #ccc; height:35%;">
+                    <div class="form-group">
+                        <label class="cust-label" style="margin-top:10px;">Library Fine.</label>
+                        <div class="form-group" id="myModalLabel">
+                            @if (Model.feeId == 0)
+                            {
+                                using (Ajax.BeginForm("AddLibraryDueFine", "School", null, new AjaxOptions
+                                {
+                                    HttpMethod = "POST",
+                                    OnSuccess = "AddLibraryDueFineSuccess",
+                                    OnFailure = "AddLibraryDueFineFailure",
+                                }, new { id = "form-footer-add" }))
+                                {
+                                    <div class="form-group">
+                                        <label style="width:100px; float:left; font-weight: normal;">Fee Name:</label>
+                                        @Html.DropDownListFor(m => m.feeId, new TrackTap.DataLibrary.Data.DropdownData().SchoolSpecialFeesList(Model.SchoolId), "--Choose Fee--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true", @style = "width:calc(100% - 160px);" })
+                                        @Html.ValidationMessageFor(z => z.feeId)
+                                        @*<input class="form-control" placeholder="Name" type="text" />*@
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="width:100px; float:left; font-weight: normal;">Fine Amount:</label>
+                                        @Html.TextBoxFor(m => m.libFineAmount, new { autocomplete = "off", placeholder = "Enter Amount", @class = "form-control", type = "number", @style = "width:calc(100% - 160px);" })
+                                        @Html.ValidationMessageFor(z => z.libFineAmount)
+                                        @*<input class="form-control" placeholder="Name" type="text" />*@
+                                    </div>
+
+
+                                    <div class="">
+                                        <button type="button" id="btn-cancel-libraryFine" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" id="btn-addlibraryFine" class="btn pay-now-btn">Save</button>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                using (Ajax.BeginForm("AddLibraryDueFine", "School", null, new AjaxOptions
+                                {
+                                    HttpMethod = "POST",
+                                    OnSuccess = "AddLibraryDueFineSuccess",
+                                    OnFailure = "AddLibraryDueFineFailure",
+                                }, new { id = "form-footer-edit" }))
+                                {
+                                    <div class="form-group">
+                                        <label style="width:100px; float:left; font-weight: normal;">Fee Name:</label>
+                                        @Html.DropDownListFor(m => m.feeId, new TrackTap.DataLibrary.Data.DropdownData().SchoolSpecialFeesList(Model.SchoolId), "--Choose Fee--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true", @style = "width:calc(100% - 160px);" })
+                                        @Html.ValidationMessageFor(z => z.feeId)
+                                        @*<input class="form-control" placeholder="Name" type="text" />*@
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="width:100px; float:left; font-weight: normal;">Fine Amount:</label>
+                                        @Html.TextBoxFor(m => m.libFineAmount, new { autocomplete = "off", placeholder = "Enter Amount", @class = "form-control", type = "number", @style = "width:calc(100% - 160px);" })
+                                        @Html.ValidationMessageFor(z => z.libFineAmount)
+                                        @*<input class="form-control" placeholder="Name" type="text" />*@
+                                    </div>
+
+                                    <div class="">
+                                        <button type="button" id="btn-cancel-libraryFine" class="btn btn-default isHidden" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" id="btn-addlibraryFine" class="btn pay-now-btn isHidden">Save</button>
+                                        <button type="button" id="btn-editlibraryFine" class="btn pay-now-btn">Edit</button>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-md-5" style="margin-top:30px;margin-bottom:40px; border:2px solid #ccc; padding:20px 15px; border-left: 2px solid #ccc; height:35%; margin-left: 100px;">
+                <div class="form-group">
+                    @if (senderDetails != null)
+                    {
+                        @Html.Partial("~/Views/School/_pv_Edit_SMSCenderId.cshtml")
+                    }
+                    else
+                    {
+                        @Html.Partial("~/Views/School/_pv_Add_SMSCenderId.cshtml", Model)
+                    }
+                </div>
+
+            </div><!-- end of col md 8 -->
+            <div class="col-md-5" style="margin-top:30px;margin-bottom:40px; border:2px solid #ccc; padding:20px 15px; border-left: 2px solid #ccc; height:35%; margin-left: 100px;">
+                <div class="form-group">
+                    @if (feeIncomeData != null)
+                    {
+                        @Html.Partial("~/Views/School/_pv_EditFeeIncomeHead.cshtml", Model)
+                    }
+                    else
+                    {
+                        @Html.Partial("~/Views/School/_pv_AddFeeIncomeHead.cshtml", Model)
+                    }
+                </div>
+            </div>
+
+
+            <div class="col-md-5" style="margin-top:30px;margin-bottom:40px; border:2px solid #ccc; padding:20px 15px; border-left: 2px solid #ccc; height:35%; margin-left: 100px;">
+                <div class="form-group">
+                    @Html.Partial("~/Views/School/_pv_SchoolSalaryType.cshtml", Model)
+                </div>
+            </div>
+            @*Wages Salary Employees don't wants to list the report*@
+            <div class="col-md-5" style="margin-top:30px;margin-bottom:40px; border:2px solid #ccc; padding:20px 15px; border-left: 2px solid #ccc; height:35%; margin-left: 100px;">
+                <div class="form-group">
+                    @Html.Partial("~/Views/School/_pv_SettingsForHideWagesEmployees.cshtml", Model)
+                </div>
+            </div>
+            <div class="col-md-5" style="margin-top:30px;margin-bottom:40px; border:2px solid #ccc; padding:20px 15px; border-left: 2px solid #ccc; height:35%; margin-left: 100px;">
+                <div class="form-group">
+                    @Html.Partial("~/Views/School/_pv_SettingsForHideAccounts.cshtml", Model)
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        $(document).ready(function () {
+
+            document.querySelector('#thermalprint').checked = localStorage.checked
+
+        });
+        $(document).on('change', '#thermalprint', function () {
+            debugger;
+            if (this.checked) {
+                var value = 1;
+                sessionStorage.param1 = value;
+                $('#thermalprint').prop('checked', true);
+                localStorage.checked = true;
+                
+            }
+            else
+            {
+                var value = 0;
+                sessionStorage.param1 = value;
+                $('#thermalprint').prop('checked', false);
+                localStorage.checked = false;
+               
+            }
+
+        });
+
+        $(document).on('click', '#btn-editlibraryFine', function () {
+            $('#btn-cancel-libraryFine').removeClass('isHidden');
+            $('#btn-addlibraryFine').removeClass('isHidden');
+            $('#feeId').removeClass('isDisabled');
+            $('#btn-editlibraryFine').addClass('isHidden');
+        });
+        $(document).on('click', '#btn-cancel-libraryFine', function () {
+            $('#btn-cancel-libraryFine').addClass('isHidden');
+            $('#btn-addlibraryFine').addClass('isHidden');
+            $('#feeId').addClass('isDisabled');
+            $('#btn-editlibraryFine').removeClass('isHidden');
+        });
+        function AddLibraryDueFineSuccess(result) {
+            if (result.status) {
+                toastrSuccess(result.msg);
+                $('#btn-cancel-libraryFine').addClass('isHidden');
+                $('#btn-addlibraryFine').addClass('isHidden');
+                $('#feeId').addClass('isDisabled');
+            }
+        }
+        function AddLibraryDueFineFailure() {
+            toastrError("Failed");
+        }
+
+        $(document).on('click', '#btn-editlibraryDue', function () {
+            $('#btn-cancel-libraryDue').removeClass('isHidden');
+            $('#btn-addlibraryDue').removeClass('isHidden');
+            $('#libraryDueDay').removeClass('isDisabled');
+            $('#btn-editlibraryDue').addClass('isHidden');
+        });
+        $(document).on('click', '#btn-cancel-libraryDue', function () {
+            $('#btn-cancel-libraryDue').addClass('isHidden');
+            $('#btn-addlibraryDue').addClass('isHidden');
+            $('#libraryDueDay').addClass('isDisabled');
+            $('#btn-editlibraryDue').removeClass('isHidden');
+        });
+        function AddLibraryDueDaysSuccess(result) {
+            if (result.status) {
+                toastrSuccess(result.msg);
+                $('#btn-cancel-libraryDue').addClass('isHidden');
+                $('#btn-addlibraryDue').addClass('isHidden');
+                $('#libraryDueDay').addClass('isDisabled');
+            }
+        }
+        function AddLibraryDueDaysFailure() {
+            toastrError("Failed");
+        }
+
+        $(document).on('click', '#btn-editfooter', function () {
+            $('#btn-cancel-footer').removeClass('isHidden');
+            $('#btn-addfooter').removeClass('isHidden');
+            $('#FooterMessage').removeClass('isDisabled');
+            $('#btn-editfooter').addClass('isHidden');
+        });
+        $(document).on('click', '#btn-cancel-footer', function () {
+            $('#btn-cancel-footer').addClass('isHidden');
+            $('#btn-addfooter').addClass('isHidden');
+            $('#FooterMessage').addClass('isDisabled');
+            $('#btn-editfooter').removeClass('isHidden');
+        });
+        function AddBillingFooterSuccess(result) {
+            if (result.status) {
+                toastrSuccess(result.msg);
+                $('#btn-cancel-footer').addClass('isHidden');
+                $('#btn-addfooter').addClass('isHidden');
+                $('#FooterMessage').addClass('isDisabled');
+            }
+        }
+        function AddBillingFooterFailure() {
+            toastrError("Failed");
+        }
+
+        function AddNewFeeAlertDateSuccess(result) {
+            if (result.status) {
+                toastrSuccess(result.msg);
+                location.reload();
+            }
+            else {
+                toastrError(result.msg);
+                location.reload();
+            }
+        }
+        function AddNewFeeAlertDateFailed() {
+            toastrError("Failed");
+            location.reload();
+        }
+        //----------Birthday wishes-------------------------
+        $(document).on('click', '#send-brthday-wishes', function () {
+            var headId = $('#headt-Id').val();
+            if (headId != '') {
+                $.ajax({
+                    url: '/School/SendBirthdayWishes/',
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (status) {
+                        toastrSuccess('Successful!');
+                    }
+                });
+            }
+        });
+        //----------Birthday wishes-------------------------
+        //----------Send Fee Due Alert !---------------------
+        $(document).on('click', '#send-fee-due', function () {
+            var headId = $('#headt-Id').val();
+            if (headId != '') {
+                $.ajax({
+                    url: '/School/SendFeeDueAlert/',
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.status)
+                            toastrSuccess(result.msg);
+                        else
+                            toastrError(result.msg);
+                    }
+                });
+            }
+        });
+        //----------Send Fee Due Alert !-----------------------
+        //----------Circular Notifications --------------------
+        $(document).on('click', '#send-circular-notification', function () {
+            var headId = $('#headt-Id').val();
+            if (headId != '') {
+                $.ajax({
+                    url: '/School/SendCircularNotificationMessages/',
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (status) {
+                        toastrSuccess('Successful!');
+                    }
+                });
+            }
+        });
+        //----------Circular Notifications -----------------------
+        //----------Send App Details !---------------------
+        $(document).on('click', '#send-app-details', function () {
+            var headId = $('#headt-Id').val();
+            if (headId != '') {
+                $.ajax({
+                    url: '/School/SendAppDetails/',
+                    type: "GET",
+                    dataType: 'json',
+                    success: function (result) {
+                        if (result.status)
+                            toastrSuccess(result.msg);
+                        else
+                            toastrError(result.msg);
+                    }
+                });
+            }
+        });
+        //----------Send App Details !-----------------------
+
+
+
+        function AddSchoolSenderIdSuccess(result) {
+            if (result.status) {
+                toastrSuccess(result.msg);
+                location.reload();
+            }
+            else {
+                toastrError(result.msg);
+                location.reload();
+            }
+        }
+        function AddSchoolSenderIdFailed() {
+            toastrError("Failed");
+            location.reload();
+        }
+        function AddFeeIncomeHeadSuccess(result) {
+            if (result.status) {
+                toastrSuccess(result.msg);
+                location.reload();
+            }
+            else {
+                toastrError(result.msg);
+                location.reload();
+            }
+        }
+        function AddFeeIncomeHeadFailed() {
+            toastrError("Failed");
+            location.reload();
+        }
+
+
+
+
+        function AddSalaryTypeSuccess(result) {
+            if (result.status) {
+                toastrSuccess(result.msg);
+                location.reload();
+            }
+            else {
+                toastrError(result.msg);
+                location.reload();
+            }
+        }
+        function AddSalaryTypeFailed() {
+            toastrError("Failed");
+            location.reload();
+        }
+
+
+        function ChangeAccountHideSuccess(result) {
+            if (result.status) {
+                toastrSuccess(result.msg);
+                location.reload();
+            }
+            else {
+                toastrError(result.msg);
+                location.reload();
+            }
+        }
+        function ChangeAccountHideFailed() {
+            toastrError("Failed");
+            location.reload();
+        }
+    </script>

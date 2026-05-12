@@ -1,0 +1,52 @@
+﻿@model TrackTap.Models.EditFee
+
+<div class="modal-dialog modal-sm" role="document">
+
+    <style>
+        span {
+            color: red;
+        }
+    </style>
+
+    @using (Ajax.BeginForm("EditFee", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "EditFeeSuccess",
+            OnFailure = "ajaxFailure",
+        }, new { id = "form-login" }))
+    {
+        @Html.HiddenFor(z => z.feeId, new { Value = @Model.feeId })
+        @Html.HiddenFor(z => z.feeType, new { Value = @Model.feeType })
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Fee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>FeeName</label>
+                    @Html.TextBoxFor(m => m.feename, new { autocomplete = "off", placeholder = "FeeName", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.feename)
+                </div>
+                <div class="form-group">
+                    @*<label>FeeType</label>
+                        <div class="form-group">*@
+                    <div class="radio-inline">
+
+                        @*<label>@Html.RadioButtonFor(m => m.feeType, new { @name = "01", @checked = (Model.feeType == Convert.ToInt32(1) ? true : false) }) Common Fee</label>*@
+                        <label><input type="radio" name="01" value="1" onclick="radioOnclick(this.value)" class="radio-fee-type" @((Model.feeType == Convert.ToInt32(1) ? "checked" : "")) /> Common Fee</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label><input type="radio" name="01" value="2" onclick="radioOnclick(this.value)" class="radio-fee-type" @((Model.feeType == Convert.ToInt32(2) ? "checked" : "")) /> Special Fee</label>
+                        @*<label>@Html.RadioButtonFor(m => m.feeType, new { @name = "01", @checked = (Model.feeType == Convert.ToInt32(2) ? true : false) }) Special Fee</label>*@
+                    </div>
+                    @*</div>*@
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button class="btn pay-now-btn">Save</button>
+            </div>
+        </div>
+    }
+</div>

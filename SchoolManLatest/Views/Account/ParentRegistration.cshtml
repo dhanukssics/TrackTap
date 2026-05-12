@@ -1,0 +1,82 @@
+﻿@model TrackTap.Models.ParentRegisterModel
+
+@{
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+
+<section class="login-body parentReg">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="login">
+                    @using (Ajax.BeginForm("ParentRegister", "Account", null, new AjaxOptions
+                    {
+                        HttpMethod = "POST",
+                        OnSuccess = "RegitrationSuccess",
+                        OnFailure = "NewUserAddFailed"
+                    }, new { id = "login-form" }))
+                    {
+                        <div class="login-form">
+                            <h3>Parent Registration </h3>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    @Html.TextBoxFor(m => m.parentName, new { @class = "form-control", placeholder = "Parent Name", maxLength = 60, checkAttr = "chk-1" })
+                                    @Html.ValidationMessageFor(m => m.parentName)
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    @Html.TextBoxFor(m => m.email, new { @class = "form-control", placeholder = "Email", maxLength = 60, checkAttr = "chk-1" })
+                                    @Html.ValidationMessageFor(m => m.email)
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    @Html.TextBoxFor(m => m.password, new { @class = "form-control", placeholder = "Password", maxLength = 60, checkAttr = "chk-1" })
+                                    @Html.ValidationMessageFor(m => m.password)
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    @Html.TextBoxFor(m => m.contactNo, new { @class = "form-control", placeholder = "Contact Number", maxLength = 60, checkAttr = "chk-1" })
+                                    @Html.ValidationMessageFor(m => m.contactNo)
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    @Html.TextBoxFor(m => m.address, new { @class = "form-control", placeholder = "Address", maxLength = 60, checkAttr = "chk-1" })
+                                    @Html.ValidationMessageFor(m => m.address)
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    @Html.TextBoxFor(m => m.city, new { @class = "form-control", placeholder = "City", maxLength = 60, checkAttr = "chk-1" })
+                                    @Html.ValidationMessageFor(m => m.city)
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    @Html.TextBoxFor(m => m.state, new { @class = "form-control", placeholder = "State", maxLength = 60, checkAttr = "chk-1" })
+                                    @Html.ValidationMessageFor(m => m.state)
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    @Html.TextBoxFor(m => m.postalCode, new { @class = "form-control", placeholder = "Postal Code", maxLength = 60, checkAttr = "chk-1" })
+                                    @Html.ValidationMessageFor(m => m.postalCode)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Submit" class="submit" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div><!-- /row -->
+    </div><!-- /container -->
+</section>
+<script>
+    function RegitrationSuccess(result) {
+        if (result.Status) {
+            toastrSuccess(result.Message);
+            window.location.href = "/Parent/Home";
+        }
+        else {
+            toastrError(result.Message);
+        }
+    }
+</script>

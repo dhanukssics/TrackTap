@@ -1,0 +1,208 @@
+﻿@model TrackTap.Models.ContactUsModel
+@{
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+@*<section class="register-body contact-body">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="contact-title">
+                    <h1 style="padding-top: 1%;">Contact us</h1>
+                    <hr>
+                </div>
+            </div>
+@using (Ajax.BeginForm("Contact", "Account", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "ContactUsSuccess",
+    OnFailure = "ContactUsFailed",
+}, new { id = "form-login" }))
+{
+            <div class="col-md-8">
+                <div class="contact-form">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Name*</label>
+                                @Html.TextBoxFor(m => m.name, new { @class = "form-control", placeholder = "Your full name" })
+                                @Html.ValidationMessageFor(m => m.name)
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Email*</label>
+                                @Html.TextBoxFor(m => m.email, new { @class = "form-control", placeholder = "Your email" })
+                                @Html.ValidationMessageFor(m => m.email)
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>Contact Number*</label>
+                                @Html.TextBoxFor(m => m.contactNo, new { @class = "form-control", placeholder = "Your contact number" })
+                                @Html.ValidationMessageFor(m => m.contactNo)
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <label>School</label>
+                                @Html.TextBoxFor(m => m.schoolName, new { @class = "form-control", placeholder = "Your school name" })
+                                @Html.ValidationMessageFor(m => m.schoolName)
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="form-group">
+                                <label>Message</label>
+                                @Html.TextAreaFor(m => m.message, new { @class = "form-control ", placeholder = "Type your message here", @rows = "5", @style = "resize:vertical;" })
+                                @Html.ValidationMessageFor(m => m.message)
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+                            <div class="form-group">
+                                <div class="pad-btn"></div>
+                                <input type="submit" value="Submit" class="submit" style="background:#2e3138;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+}
+            <div class="col-md-4">
+                <div class="reach-us">
+                    <h3>Address</h3>
+                    <hr>
+                    <address>
+                        <p><i class="fa fa-map-marker"></i> <span>1C, 1st Floor, Leela Infopark, Technopark Campus, Trivandrum - 695 581.</span></p>
+                        <p><i class="fa fa-phone"></i><span>+91 92 49 558800</span></p>
+                        <p><i class="fa fa-envelope-o"></i> <span>childacademy@srishtis.com</span></p>
+                    </address>
+                   
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15781.655362616784!2d76.87997884958514!3d8.556143810136607!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xad47e8d643d0eeba!2sSrishti+Innovative!5e0!3m2!1sen!2sin!4v1530182769816" width="100%" height="250" frameborder="0" style="border:0" allowfullscreen></iframe>
+                 </div>
+            </div><!-- /col-md-4 -->
+        </div><!-- /row -->
+    </div><!-- /container -->
+</section>*@
+
+
+
+<!--banner start-->
+<section class="banner_abt">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="bnr">
+                    <h1 class="header-main-h1 head_main_cap">CONTACT US</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--   banner end   -->
+<!-- MAIN CONTENT START    -->
+<section class="contSec">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="contact_map">
+                    @*<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d63126.56190843103!2d76.882195!3d8.556503!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xad47e8d643d0eeba!2sSrishti+Innovative!5e0!3m2!1sen!2sin!4v1556273063776!5m2!1sen!2sin" width="100%" height="300" frameborder="0" style="border:0" allowfullscreen></iframe>*@
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m23!1m12!1m3!1d63126.253922061594!2d76.84557336572556!3d8.558360701995637!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m8!3e6!4m0!4m5!1s0x3b05bf15d5f34ba7%3A0x46d8fbc477710fc1!2sSchool+Man%2C+Carnival+Infopark%2C+Thiruvananthapuram%2C+Kerala+695581!3m2!1d8.5582774!2d76.8805931!5e0!3m2!1sen!2sin!4v1556616584432!5m2!1sen!2sin" width="100%" height="300" frameborder="0" style="border:0" allowfullscreen></iframe>
+                 </div>
+
+                <hr>
+@using (Ajax.BeginForm("Contact", "Account", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "ContactUsSuccess",
+    OnFailure = "ContactUsFailed",
+}, new { id = "form-login" }))
+{
+                <div class="aboutUs">
+                    <div class="row">
+                        <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                            <div class="about-us">
+                                <h4>Contact<span> Form</span></h4>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(m => m.name, new { @class = "form-control", placeholder = "Your full name" })
+                                        @Html.ValidationMessageFor(m => m.name)
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(m => m.email, new { @class = "form-control", placeholder = "Your email" })
+                                        @Html.ValidationMessageFor(m => m.email)
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(m => m.contactNo, new { @class = "form-control", placeholder = "Your contact number" })
+                                        @Html.ValidationMessageFor(m => m.contactNo)
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="form-group">
+                                        @Html.TextBoxFor(m => m.schoolName, new { @class = "form-control", placeholder = "Your school name" })
+                                        @Html.ValidationMessageFor(m => m.schoolName)
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        @Html.TextAreaFor(m => m.message, new { @class = "form-control ", placeholder = "Type your message here", @rows = "5", @style = "resize:vertical;" })
+                                        @Html.ValidationMessageFor(m => m.message)
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                   
+                                    <input type="submit" value="Submit" class="submit submit_btn btn"  />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                            <div class="about-us">
+                                <h4>Address<span> </span></h4>
+                            </div>
+
+                            <address>
+                                <p><i class="fas fa-map-marker-alt"></i> <span>1C, 1st Floor, Carnival Technopark,Technopark Campus, Trivandrum - 695 581.</span></p>
+                                <p><i class="fas fa-phone-volume"></i> <span>+91 90 72 442200</span></p><br>
+                                <p><i class="fas fa-phone-volume"></i> <span>0471-4062181</span></p><br>
+                                <p><i class="far fa-envelope"></i> <span>info@schoolman.in</span></p>
+                            </address>
+                        </div>
+                    </div>
+
+
+
+                </div>
+}
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<script>
+    function ContactUsSuccess(result) {
+        if (result.Status) {
+            $('#name').val("");
+            $('#email').val("");
+            $('#contactNo').val("");
+            $('#schoolName').val("");
+            $('#message').val("");
+            toastrSuccess('Thank you for showing interest in us. We will contact you soon.');
+            }
+        else {
+            toastrError("Something went wrong!");
+        }
+    }
+
+    function ContactUsFailed() {
+        toastrError("Something went wrong!");
+    }
+</script>

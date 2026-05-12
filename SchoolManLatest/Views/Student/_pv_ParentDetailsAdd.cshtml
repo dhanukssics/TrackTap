@@ -1,0 +1,107 @@
+﻿@model TrackTap.Models.ParentDetailsView
+@{
+
+}
+<style>
+    .saveStyle {
+        float: right;
+        /*height: 12%;*/
+        width: 50%;
+        font-size: large;
+        border-radius: 0px !important;
+    }
+
+    .studentStyle {
+        text-align: center;
+        border:none!important;
+    }
+</style>
+@using (Ajax.BeginForm("AddParentDetails", "Student", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddStudentParentDetailsSuccess",
+    OnFailure = "AddStudentParentDetailsFailed",
+}, new { id = "form-login" }))
+{
+    @Html.HiddenFor(m => m.StudentId, new { @value = Model.StudentId });
+    <div class="col-md-12">
+        <h3 class="studentStyle">@Model.StudentName - ( @Model.StudentClassDivision )</h3>
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label> Father</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.ParentName, new { autocomplete = "off", placeholder = "Father Name", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(z => z.ParentName)
+            </div>
+            <div class="col-md-1">
+                <label>Mother</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.MotherName, new { autocomplete = "off", placeholder = "Mother Name", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(z => z.MotherName)
+            </div>
+            <div class="col-md-1">
+                <label>Email</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Email, new { autocomplete = "off", placeholder = "Email", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(z => z.Email)
+            </div>
+
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>Password</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.Password, new { autocomplete = "off", placeholder = "Password", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(z => z.Password)
+            </div>
+            <div class="col-md-1">
+                <label>Contact</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.ContactNumber, new { autocomplete = "off",type="number", placeholder = "Contact No", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(z => z.ContactNumber)
+            </div>
+            <div class="col-md-1">
+                <label>Address</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextAreaFor(m => m.Address, new { autocomplete = "off", placeholder = "Address", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(z => z.Address)
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-1">
+                <label>City</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.City, new { autocomplete = "off", placeholder = "City", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(z => z.City)
+            </div>
+            <div class="col-md-1">
+                <label>State</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.State, new { autocomplete = "off", placeholder = "State", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(z => z.State)
+            </div>
+            <div class="col-md-1">
+                <label>Pin Code</label>
+            </div>
+            <div class="col-md-3">
+                @Html.TextBoxFor(m => m.PostelCode, new { autocomplete = "off",type="number", placeholder = "Pin Code", @class = "form-control textboxStyle" , maxlength = "6",minlength="6"})
+                @Html.ValidationMessageFor(z => z.PostelCode)
+            </div>
+
+        </div>
+        <div class="form-group row">
+            <div class="col-md-12">
+                <button type="submit" id="btn-save-daybook" style="float:right; width:20%;" class="btn pay-now-btn saveStyle">Save and Continue</button>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,89 @@
+﻿@model TrackTap.Models.LoginModel   
+
+@{
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+@using (Ajax.BeginForm("ChkSuperAdminLogin", "Account", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "CheckLoginSuccess",
+    OnFailure = "NewUserAddFailed"
+}, new { id = "login-form", @style = "display: block;" }))
+{
+    <section class="login-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-7">
+                    <img src="~/Content/img/child.png" class="img-responsive visible-lg visible-md child-img" />
+                </div>
+
+                <div class="col-md-5">
+                    <div class="login">
+                        <h2 style="margin-bottom: 37px; font-size: 55px;">Admin Login</h2>
+                        @*<h5>School Login </h5>*@
+                        <div class="login-form">
+                            <h3>Login</h3>
+                            @Html.HiddenFor(m => m.userType, new { @value = 1 })
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", id = "username", placeholder = "Username", onkeypress = "", maxLength = 60, checkAttr = "chk-1" })
+                                @Html.ValidationMessageFor(m => m.Email)
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "password", id = "password", placeholder = "Password", maxLength = 60, checkAttr = "chk-1" })
+                                @Html.ValidationMessageFor(m => m.Password)
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Submit" class="submit" />
+                            </div>
+                            @*<div class="form-group">
+                                <a href="/Account/ForgotPassword" class="forgot-pass">Forgot password?</a>
+                                <a href="/Account/SchoolRegistration" class="forgot-pass" style="margin-left: 100px;">Register Now</a>
+                            </div>*@
+                        </div>
+                    </div>
+                </div><!-- /col-md-4 -->
+            </div><!-- /row -->
+        </div><!-- /container -->
+    </section>
+}
+<script>
+    $(document).ready(function () {
+        $(".se-pre-con").hide();
+    });
+    $('#hide-login').click(function () {
+        $('.login-main').hide()
+        $('.forgot-pass-main').show();
+    });
+    $('#show-login').click(function () {
+        $('.login-main').show()
+        $('.forgot-pass-main').hide();
+    });
+
+
+    function CheckLoginSuccess(result) {
+        //alert('');
+     //debugger;
+        if (result.status) {
+            $(".se-pre-con").show();
+                $('#errorMsg').hide();
+                window.location.href = '/SuperAdmin/SchoolList';
+            }
+        else {
+            //$('#errorMsg').removeClass("isHidden");
+            toastrError(result.msg);
+        }
+    }
+
+    //$(window).load(function () {
+    //    // Animate loader off screen
+    //    $(".se-pre-con").fadeOut("slow");;
+    //});
+
+
+    $(document).on('keypress', '#password', function (e) {
+        if (e.which === 32)
+            return false;
+    });
+
+</script>

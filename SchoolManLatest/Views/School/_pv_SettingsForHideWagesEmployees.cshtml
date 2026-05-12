@@ -1,0 +1,34 @@
+﻿
+@model TrackTap.Models.FeeAlertDataModel
+@{
+    Model.IsShowWagesEmployees = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCurrentStatusOfWagesEmployees();
+
+}
+<div class="col-md-12 col-md-offset-1 style=" margin-bottom 70%; margin-top 3%;"">
+    <div class="salary-setup-main">
+        @using (Ajax.BeginForm("ChangeWageEmployeeListingSettings", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddSalaryTypeSuccess",
+            OnFailure = "AddSalaryTypeFailed"
+        }, new { id = "form-login" }))
+        {
+            <div class="form-group">
+                <label>Wants to show the Wages employees ? </label>
+                    <div class="form-group col-lg-2" id="chkDiv">
+                        <br />
+                        <label>Yes</label>
+                        <br />
+                        @Html.CheckBoxFor(m => m.IsShowWagesEmployees, new { @class = "", id = "cash-check-id" })
+                        @Html.ValidationMessageFor(z => z.IsShowWagesEmployees)
+                    </div>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12" style="float: left; margin-top:15px;">
+                    <button type="submit" class="btn pay-now-btn">Save </button>
+                </span>
+            </div>
+
+        }
+    </div>
+</div>

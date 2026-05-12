@@ -1,0 +1,52 @@
+﻿@model TrackTap.Models.CalendarEventModels
+@{
+    var calender = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetCalendarEventByDate(Model.startDate, Model.endDate);
+}
+
+
+<thead>
+    <tr>
+        <th>
+            Slno
+        </th>
+        <th>
+            Event Head
+        </th>
+        <th>
+            Event Details
+        </th>
+        <th>
+            Event Date
+        </th>
+        <th>
+
+        </th>
+    </tr>
+</thead>
+<tbody>
+    @{
+        int i = 1;
+        foreach (var cal in calender)
+        {
+            <tr>
+                <td class="ng-teacherDetails-click">
+                    @i
+                </td>
+                <td class="ng-teacherDetails-click">
+                    @cal.eventHead
+                </td>
+                <td class="ng-teacherDetails-click">
+                    @cal.eventDetail
+                </td>
+                <td class="ng-teacherDetails-click">
+                    @cal.eventDate.ToString("dd/MM/yyyy")
+                </td>
+                <td>
+                    <button class="delete-category-tr btn-peek" data-id="@cal.eventId"><i class="fa fa-trash "></i></button>
+                    <button class="edit-staff-tr pay-now-btn" data-id="@cal.eventId"><i class="fa fa-edit "></i></button>
+                </td>
+            </tr>
+            i++;
+        }
+    }
+</tbody>

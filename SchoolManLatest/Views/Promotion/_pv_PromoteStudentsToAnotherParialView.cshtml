@@ -1,0 +1,57 @@
+﻿@model TrackTap.Models.PromoteStudents
+<div class="modal-dialog modal-sm" role="document">
+    <style>
+        span {
+            color: red;
+        }
+    </style>
+    @using (Ajax.BeginForm("AddPromoteStudents", "Promotion", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "AddPromoteStudents",
+        OnFailure = "ajaxFailure",
+    }, new { id = "form-login" }))
+    {
+        @Html.HiddenFor(z => z.SchoolId, new { Value = @Model.SchoolId })
+        @Html.HiddenFor(z => z.OldClassId, new { Value = @Model.OldClassId })
+        @Html.HiddenFor(z => z.OldDivId, new { Value = @Model.OldDivId })
+        @Html.HiddenFor(z => z.OldAcademicyearId, new { Value = @Model.OldAcademicyearId })
+        @Html.HiddenFor(z => z.StudentListString, new { Value = @Model.StudentListString })
+        @Html.HiddenFor(z => z.NewAcademicYearId, new { Value = 0 })
+        @Html.HiddenFor(z => z.NewCLassId, new { Value = 0 })
+        @Html.HiddenFor(z => z.NewDivId, new { Value = 0 })
+
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Promote Students to</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Academic Year  </label>
+                    @Html.DropDownListFor(m => m.NewAcademicYearId, TrackTap.DataLibrary.Data.DropdownData.GetOtherAcademicYear(), "--Choose--", new { @class = "form-control", @data_live_search = "true", id = "academic-year-dropdown-id-new" })
+                    @Html.ValidationMessageFor(z => z.NewAcademicYearId)
+                </div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select id="class-drop-down-new" class="form-control" disabled>
+                        <option>-- Please select Class --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Division</label>
+                    <select id="division-drop-down-new" class="form-control" disabled>
+                        <option>-- Please select division --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button class="btn pay-now-btn" type="submit" id="btn-promote" style="display:none;">Promote</button>
+                <button class="btn pay-now-btn" type="button" id="btn-promote-dummy">Promote</button>
+            </div>
+        </div>
+    }
+</div>
+

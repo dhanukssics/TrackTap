@@ -1,0 +1,125 @@
+﻿@model TrackTap.Models.LoginModel
+@{
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+@Scripts.Render("~/bundles/jqueryval")
+@using (Ajax.BeginForm("CheckLogin", "Account", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "CheckLoginSuccess",
+    OnFailure = "NewUserAddFailed"
+}, new { id = "login-form", @style = "display: block;" }))
+{
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <div class="login-main">
+                        <img class="img-responsive" src="/Content/img/logo.png" width="200" />
+                        <h3 class="main-title" style="border-bottom: none;">Login</h3>
+                        <hr>
+                        <form>
+                            @Html.HiddenFor(m => m.userType, new { @value = 1 })
+
+
+                            <div class="form-group">
+                                <label>Email</label>
+                                @*<input type="text" class="form-control" />
+                                    <label class="warning">Field Required</label>*@
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", id = "username", placeholder = "Username", onkeypress = "", maxLength = 60, checkAttr = "chk-1" })
+                                @Html.ValidationMessageFor(m => m.Email)
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                @*<input type="password" class="form-control" />
+                                    <label class="warning">Field Required</label>*@
+                                @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "password", id = "password", placeholder = "Password", maxLength = 60, checkAttr = "chk-1" })
+                                @Html.ValidationMessageFor(m => m.Password)
+                            </div>
+                            <div class="form-group">
+                                @*<p class="forgot-pass"><a id="hide-login">Forgot password?</a></p>*@
+                                <a href="/Account/ForgotPassword">Forgot password?</a>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" class="custom-btn" value="Signin" />
+                            </div>
+                            <div class="form-group text-center">
+                                New User? <a href="/Account/SchoolRegistration">Register</a>
+                            </div>
+                        </form>
+                    </div><!-- end of register-main -->
+                    @*Archana Commended this forget password -Start*@
+                    @*<div class="forgot-pass-main">
+                            <h3 class="main-title">Forgot Password</h3>
+                            <hr>
+                            <p class="custom-warning">
+                                Email address you use to log in to your account.
+                                We'll send you an email with instructions to choose a new password.
+                            </p>
+                            <form>
+                                <div class="form-group">
+                                    <label class="form-title">Email</label>
+                                    <input type="text" class="form-control" />
+                                    <label class="warning">Field Required</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="submit" class="custom-btn" value="Send" />
+                                </div>
+                                <div class="form-group">
+                                    <p class="forgot-pass"><a id="show-login">Back to login</a></p>
+                                </div>
+                            </form>
+                        </div>*@
+                    @*--Archana end*@
+                    <!-- end of forgot pass main -->
+                </div><!-- end of col md 6 -->
+            </div><!-- end of row -->
+        </div><!-- end of container -->
+      
+        <script>
+            $(document).ready(function () {
+                $('#userType').val(1)
+                });
+            $('#hide-login').click(function () {
+                $('.login-main').hide()
+                $('.forgot-pass-main').show();
+            });
+            $('#show-login').click(function () {
+                $('.login-main').show()
+                $('.forgot-pass-main').hide();
+            });
+
+
+            function CheckLoginSuccess(result) {
+                //debugger;
+                alert('');
+                if (result.status) {
+                    if (result.userType == 1) {
+                        $('#errorMsg').hide();
+                        window.location.href = '/School/Home';
+                    }
+                    else if (result.userType == 2) {
+                        $('#errorMsg').hide();
+                        window.location.href = '/Parent/Home';
+                    }
+                }
+                else {
+                    //$('#errorMsg').removeClass("isHidden");
+                    toastrError(result.msg);
+                }
+            }
+
+            $(window).load(function () {
+                // Animate loader off screen
+                $(".se-pre-con").fadeOut("slow");;
+            });
+
+
+            $(document).on('keypress', '#password', function (e) {
+                if (e.which === 32)
+                    return false;
+            });
+
+        </script>
+  
+}

@@ -1,0 +1,63 @@
+﻿
+@model TrackTap.Models.FeeAlertDataModel
+
+<div class="col-md-12 col-md-offset-1">
+    <div class="email-setup-main">
+        @using (Ajax.BeginForm("EditNewFeeAlertDate", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddNewFeeAlertDateSuccess",
+            OnFailure = "AddNewFeeAlertDateFailed"
+        }, new { id = "form-login" }))
+        {
+            @Html.HiddenFor(z => z.Id, new { Value = @Model.SenderDetails.SenderData })
+            @Html.HiddenFor(z => z.SchoolId, new { Value = @Model.SchoolId })
+            <div class="form-group">
+                <label class="cust-label">Fee Alert Date</label>
+                <p>Automatically send an alert messages to all students who are not paid the Bills before this particular date .</p>
+                <span class="col-md-4">
+
+                    @Html.TextBoxFor(m => m.AlertDate, new { autocomplete = "off", placeholder = "Select Date", @class = "form-control", Value = Model.AlertDate.ToString("dd-MM-yyyy") })
+
+
+                    @*@Html.HiddenFor(m => m.AlertDateString)
+                    <div class="with-icon ">
+                        <input type="text" class="form-control fee-date" id="alert-calender" value="@Model.AlertDate.ToString("dd-MM-yyyy")">
+                        <i class="fa fa-calendar"></i>
+                    </div>*@
+
+
+
+                </span>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12" style="float: left; margin-top:15px;">
+                    @*<button type="submit" class="btn pay-now-btn " style="display:none;" id="feeAlert_date" >Edit </button>
+                    <button type="button" class="btn pay-now-btn" id="dummy_feeAlert_date">Edit </button>*@
+
+                    <button type="submit" class="btn pay-now-btn " id="feeAlert_date">Edit </button>
+
+                </span>
+            </div>
+
+        }
+    </div>
+</div><!-- end of col-md-12 -->
+
+<script>
+    //$('.fee-date').datepicker({
+    $('#AlertDate').datepicker({
+        format: 'dd-MM-yyyy',
+        autoclose: true,
+        todayHighlight: true
+    });
+    //$(document).on('click', '#dummy_feeAlert_date', function () {
+    //    debugger;
+    //    var date = $('#alert-calender').val();
+    //    $('#AlertDateString').val(date);
+    //    $('#dummy_feeAlert_date').hide();
+    //    $('#feeAlert_date').trigger('click');
+    //});
+    
+
+</script>

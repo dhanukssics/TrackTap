@@ -1,0 +1,122 @@
+﻿@model TrackTap.Models.TeacherAddModel
+
+<div class="modal-dialog modal-lg" role="document">
+
+    <style>
+        span {
+            color: red;
+        }
+
+        .textBoxShade {
+            border: 1px solid black !important;
+        }
+    </style>
+
+    @using (Ajax.BeginForm("AddTeacher", "School", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "AddTeacherSuccess",
+        OnFailure = "ajaxFailure",
+    }, new { id = "form-teacher-add" }))
+    {
+        @Html.HiddenFor(z => z.schoolId, new { Value = @Model.schoolId })
+        @Html.HiddenFor(z => z.divisionId, new { Value = 0 })
+        @Html.HiddenFor(z => z.classId)
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add Teacher</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-6">
+                        <label>Name</label>
+                        @Html.TextBoxFor(m => m.teacherName, new { autocomplete = "off", placeholder = "Name", @class = "form-control textBoxShade" })
+                        @Html.ValidationMessageFor(z => z.teacherName)
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label>Email</label>
+                        @Html.TextBoxFor(m => m.emailId, new { autocomplete = "off", placeholder = "E-mail", @class = "form-control textBoxShade" })
+                        <span id="spn-error-email-teacher" data-val="0" data-myval="10" style="color:red;"></span>
+                        @Html.ValidationMessageFor(z => z.emailId)
+                    </div>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label>Contact No.</label>
+                        @Html.TextBoxFor(m => m.contactNumber, new { autocomplete = "off", placeholder = "Contact Number", @class = "form-control textBoxShade", id = "teacherContactNumber" })
+                        <span id="spn-error-contactNumber" data-val="0" data-myval="10" style="color:red;"></span>
+                        @Html.ValidationMessageFor(z => z.contactNumber)
+                    </div>
+                    <div class="form-group col-lg-2" id="chkDiv">
+                        <br/>
+                        <label>Permanent</label>
+                        <br/>
+                        @Html.CheckBoxFor(m => m.IsPermanent, new { @class = "", id = "cash-check-id" })
+                        @Html.ValidationMessageFor(z => z.IsPermanent)
+                    </div>
+
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label>Class</label>
+                            @Html.DropDownListFor(m => m.classId, new TrackTap.DataLibrary.Data.DropdownData().GetFreeClasses(Model.schoolId), "--Choose--", new { @class = "form-control slct-teacherclass-dropdwn textBoxShade", @data_live_search = "true" })
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label>Division</label>
+                            <select class="form-control slct-free-div-dropdown textBoxShade" disabled></select>
+                            <span id="division-required-teacher-add" style="display:none;"></span>
+                        </div>
+                    </div>
+                  
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label>@Model.SalaryType</label>
+                        @Html.TextBoxFor(m => m.SalaryAmount, new { autocomplete = "off",type="number", placeholder = "Name", @class = "form-control textBoxShade" })
+                    </div>
+                    <div class="col-lg-4">
+                        <label>PF %</label>
+                        @Html.TextBoxFor(m => m.PFPercentage, new { autocomplete = "off", type = "number", placeholder = "Name", @class = "form-control textBoxShade" })
+                    </div>
+                    <div class="col-lg-4">
+                        <label>ESI %</label>
+                        @Html.TextBoxFor(m => m.ESIPercentage, new { autocomplete = "off", type = "number", placeholder = "Name", @class = "form-control textBoxShade" })
+                    </div>
+                </div>  
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-6">
+                        <label>User Type</label>
+                        @Html.DropDownListFor(m => m.UserTypeId, new TrackTap.DataLibrary.Data.DropdownData().GetAllTeacherUserTypeDataAdd(Model.schoolId), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label>DOJ</label>
+                        <div class="calendar-inp pos_icon_adj">
+                            <i class="fa fa-calendar" style="margin-left: 90%;"></i>
+                            @Html.TextBoxFor(m => m.DOJstring, new { @class = "form-control borderStyleClass", placeholder = "" })
+                            @Html.ValidationMessageFor(m => m.DOJstring)
+                        </div>
+                    </div>
+
+                </div>             
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" style="display:none;" id="btn-addteacher" class="btn pay-now-btn">Add Teacher</button>
+                <button type="button" id="btn-dummy-addteacher" class="btn pay-now-btn">Save</button>
+            </div>
+        </div>
+    }
+</div>
+<script>
+    $('#DOJstring').datepicker({
+        format: "dd-mm-yyyy",
+        autoclose: true,
+        todayHighlight: true,
+        //startDate: '-3d'
+        endDate: '+d'
+    });
+
+
+</script>

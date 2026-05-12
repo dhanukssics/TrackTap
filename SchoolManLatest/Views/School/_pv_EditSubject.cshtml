@@ -1,0 +1,87 @@
+﻿
+@model TrackTap.Models.ExamSubjectDetailsModel
+
+@using (Ajax.BeginForm("SubmitEditSubject", "School", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "SubjectEditSuccess",
+    OnFailure = "SubjectEditFailed"
+}, new { id = "form-add-exam" }))
+{
+    @Html.HiddenFor(z => z.ExamId, new { Value = @Model.ExamId })
+    @Html.HiddenFor(z => z.ExamSubjectId, new { Value = @Model.ExamSubjectId })
+    <div class="col-md-4 col-md-offset-4 " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel6">Edit Subjects</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Subject</label>
+                    @*@Html.TextBoxFor(m => m.Subject, new { autocomplete = "off", placeholder = "Subject", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.Subject)*@
+                    @Html.DropDownListFor(m => m.SubjectId, TrackTap.DataLibrary.Data.DropdownData.GetSubjectss(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                    @Html.ValidationMessageFor(z => z.SubjectId)
+                </div>
+                <div class="form-group">
+                    <label>Exam Date</label>
+                    @Html.TextBoxFor(m => m.ExamDate, new { autocomplete = "off", placeholder = "Select Date", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.ExamDate)
+                </div>
+                <div class="form-group">
+                    <label>Exam Time</label>
+                    @Html.TextBoxFor(m => m.ExamTime, new { autocomplete = "off", placeholder = "Select Date", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.ExamTime)
+                </div>
+                <div class="form-group">
+                    <label>Internal Mark</label>
+                    @Html.TextBoxFor(m => m.Internal, new { id = "id-internal", autocomplete = "off", placeholder = "Internal Mark", @class = "form-control ", @type = "text" })
+                    @Html.ValidationMessageFor(z => z.Internal)
+                </div>
+                <div class="form-group">
+                    <label>External Mark</label>
+                    @Html.TextBoxFor(m => m.External, new { id = "id-external", autocomplete = "off", placeholder = "External Mark", @class = "form-control ", @type = "text" })
+                    @Html.ValidationMessageFor(z => z.External)
+                </div>
+                <div class="form-group">
+                    <label>Total</label>
+                    @Html.TextBoxFor(m => m.Total, new { id = "id-sum-sub", @readonly = "readonly", autocomplete = "off", placeholder = "Total", @class = "form-control", @type = "number" })
+                    @Html.ValidationMessageFor(z => z.Total)
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn pay-now-btn" id="btn-editSubject">Save</button>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    $("#id-internal").keyup(function () {
+        //debugger;
+        var internal = $('#id-internal').val();
+        var external = $('#id-external').val();
+        var sum = parseFloat(internal) + parseFloat(external);
+        $("#id-sum-sub").val('');
+        $("#id-sum-sub").val(sum);
+    });
+
+    $("#id-external").keyup(function () {
+        //debugger;
+        var internal = $('#id-internal').val();
+        var external = $('#id-external').val();
+        var sum = parseFloat(internal)+ parseFloat(external);
+        $("#id-sum-sub").val('');
+        $("#id-sum-sub").val(sum);
+    });
+
+    $('#ExamDate').datepicker({
+        format: 'mm-dd-yyyy',
+        autoclose: true,
+        todayHighlight: true,
+        startDate: 'd'
+    });
+
+    
+</script>

@@ -1,0 +1,25 @@
+﻿@model TrackTap.Models.AddAccountHeadModel
+
+@using (Ajax.BeginForm("SubmitAddSubLedger", "Journal", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddAddSubLedgerSuccess",
+    OnFailure = "AddAddSubLedgerFailed"
+}, new { id = "form-add-exam" }))
+{
+    <div class="row">
+        <div id="new-account-div" class="dev-adj-style">
+            <div class="form-group">
+                @Html.DropDownListFor(m => m.AccountHeadId, (IEnumerable<SelectListItem>)ViewBag.store, "--Choose Account Head--", new { @class = "form-control pv_class-drop-down", @data_live_search = "true", name = "classDropdown", id = "classDataDropdown" })
+                @Html.ValidationMessageFor(m => m.AccountHeadId)
+            </div>
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.SubLedger, new { autocomplete = "off", placeholder = "Sub Ledger Name", @class = "form-control" })
+                @Html.ValidationMessageFor(z => z.SubLedger)
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn pay-now-btn" id="btn-addSubLedger">Save</button>
+    </div>
+}

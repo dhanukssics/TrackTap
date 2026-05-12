@@ -1,0 +1,253 @@
+﻿@model TrackTap.Models.StockUpdateModel
+@{
+    ViewBag.Title = "AddCategory";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+
+}
+    <style>
+        .setHeight {
+            height: 34px !important;
+        }
+
+
+        .sp {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+        }
+
+        
+          
+    </style>
+<div class="form-group text-right" style="margin-top: 24px;">
+
+    <button class="btn pay-now-btn" data-toggle="modal" id="addcategory" onclick="AddStudent()"><i class="fa fa-plus"></i> Add Category</button>
+</div>
+@using (Ajax.BeginForm("SubmitStockAddNew", "Laboratory", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddStockSuccess",
+    OnFailure = "AddStockFailed"
+}, new { id = "form-add-exam" }))
+{
+
+
+    <div class="row" style="width:100%; padding-left: 10px;">
+
+        <h3 style="margin-top: 5px;"> Add Items</h3>
+
+        <div class="form-group col-sm-3">
+
+
+            <div class="form-group">
+                <label style="color:black;">Category : </label>
+                <br />
+                @Html.HiddenFor(m => m.CatId, new { autocomplete = "off", placeholder = "Id", @class = "form-control", id = "catid" })
+                @Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetLabCategoriesAll(), new { @class = "form-control slct-lab-category-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                @Html.ValidationMessageFor(z => z.CategoryId)
+                @*@Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetLabCategories(Model.SchoolId), new { @class = "form-control slct-lab-category-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+        @Html.ValidationMessageFor(z => z.CategoryId)*@
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Item : </label>
+                <br />
+                @Html.TextBoxFor(m => m.Item, new { autocomplete = "off", placeholder = "Item", @class = "form-control clsitem" })
+                @Html.ValidationMessageFor(z => z.Item)
+
+
+            </div>
+        </div>
+
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Units : </label>
+                <br />
+                @Html.TextBoxFor(m => m.Unit, new { autocomplete = "off", placeholder = "Unit", @class = "form-control clsunit" })
+                @Html.ValidationMessageFor(z => z.Unit)
+
+            </div>
+        </div>
+
+        
+        <div class="col-sm-3">
+            <div style="padding: 26px;">
+                <button type="submit" class="btn pay-now-btn" id="btn-stock-update">Add New</button>
+                <button type="submit" class="btn pay-now-btn" id="btn-stock-Edit">Update</button>
+            </div>
+        </div>
+
+    </div>
+}
+
+    <div class="modal fade" id="addCategoryModel">
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h4 align="center" style="font-weight:bold">Item Details</h4>
+            <div class="table-responsive">
+                <table class="table custome-table" id="table-categoryDetails-list">
+                    @Html.Partial("~/Views/Laboratory/_pv_AddCategory_List.cshtml", Model)
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        $(document).on('click', '.delete-CategoryId-tr', function () {
+            var source = $(this);
+            swal({
+                title: "Are you sure?",
+                text: "You will not be able to undo this !",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel!",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            url: '/Laboratory/Deleteitem/' + $(source).attr('data-catid'),
+                            type: "GET",
+                            dataType: 'json',
+                            success: function (data) {
+                                if (data.status) {
+                                    toastrSuccess(data.msg);
+                                    window.location.href = '/Laboratory/StoreList';
+                                    //RefreshList();
+                                }
+                                else {
+                                    toastrError(data.msg);
+                                    window.location.href = '/Laboratory/StoreList';
+                                }
+                            }
+                        });
+                    }
+                });
+        });
+
+        $(document).on('click', '.edit-CategoryId-tr', function () {
+            var source = $(this);
+
+            $.ajax({
+                url: '/Laboratory/EditItem/' + $(source).attr('data-catid'),
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    
+                    $(".slct-lab-category-dropdwn1").val(data.Category);
+                    $(".clsitem").val(data.item);
+                    $(".clsunit").val(data.unit);
+                    $("#catid").val(data.bankId);
+                    $("#btn-stock-update").hide();
+                    $("#btn-stock-Edit").show();
+                   
+                   
+                }
+            });
+
+        });
+
+        $(document).on('click', '#btn-stock-Edit', function () {
+            var catid = $("#catid").val();
+            var item = $(".clsitem").val();
+            var unit = $(".clsunit").val();
+            var category = $(".slct-lab-category-dropdwn1").val();
+          
+            $.ajax({
+                url: '/Laboratory/EditItemById/' + catid + '~' + item + '~' + unit + '~' + category,
+                type: "GET",
+                dataType: 'json',
+                success: function (data) {
+                    if (data.Status) {
+                        toastrSuccess(data.message);
+                        window.location.href = '/Laboratory/StoreList';
+                        //RefreshList();
+                    }
+                    else {
+                        toastrError(data.message);
+                        window.location.href = '/Laboratory/StoreList';
+                    }
+                    //$(".slct-lab-category-dropdwn1").val(data.Category);
+                    //$(".clsitem").val('');
+                    //$(".clsunit").val('');
+                    //$("#catid").val('');
+                    //$("#btn-stock-update").show();
+                    //$("#btn-stock-Edit").hide();
+
+
+                }
+            });
+
+        });
+        $(function () {
+            $("#table-categoryDetails-list").dataTable();
+            $("#btn-stock-Edit").hide();
+        })
+        function StudentAddSuccess(result) {
+            toastrSuccess('Added Successfully');
+            window.location.href = '/Laboratory/StoreList';
+            
+        }
+        function StudentAddFailed() {
+            toastrError('Record not saved');
+            window.location.href = '/Laboratory/StoreList';
+        }
+
+        function AddStudent() {
+            $.ajax({
+                url: '/Laboratory/AddCategory',
+                dataType: 'html',
+                success: function (data) {
+                    $('#addCategoryModel').html(data);
+                    $.validator.unobtrusive.parse($('#addCategoryModel'));
+                    $('#addCategoryModel').modal('show');
+                    $('#DOBstring').datepicker({
+                        format: "dd-mm-yyyy",
+                        autoclose: true,
+                        todayHighlight: true,
+                        //startDate: '-3d'
+                        endDate: '+d'
+                    });
+                },
+            });
+        }
+
+
+        function AddStockSuccess(result) {
+            if (result.Status == true) {
+                toastrSuccess(result.message);
+                window.location.href = '/Laboratory/StoreList';
+            }
+            else {
+                toastrError(result.message);
+                window.location.href = '/Laboratory/StoreList';
+            }
+        };
+
+        function AddStockFailed(result) {
+           $(document).ready(function () {
+                                $('#hel').append(headerIcon, messageBox);
+                                $(".textDiv .sp").text(result.msg);
+                            });
+            window.location.href = '/Laboratory/StoreList';
+        };
+
+
+        var headerIcon = '<div></div>';
+   var messageBox = $("<div class='textDiv'><span class='sp'></span></div>");
+
+    </script>
+
+
+
+
+
+
+
+
+

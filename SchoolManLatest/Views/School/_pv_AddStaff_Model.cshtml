@@ -1,0 +1,167 @@
+﻿
+@model TrackTap.Models.StaffModels
+@{
+    var salary = new TrackTap.DataLibrary.Data.School(Model.SchoolId).SalaryTypeStatus();
+    if (salary == 0)
+    {
+        Model.SalaryType = "Basic Salary";
+    }
+    else
+    {
+        Model.SalaryType = "Gross Salary";
+    }
+}
+<div class="modal-dialog modal-lg" role="document">
+
+    <style>
+        span {
+            color: red;
+        }
+
+        .textBoxShade {
+            border: 1px solid black !important;
+        }
+    </style>
+
+    @using (Ajax.BeginForm("AddStaff", "School", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "AddStaffSuccess",
+        OnFailure = "ajaxFailure",
+    }, new { id = "form-teacher-add" }))
+    {
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Add Staff</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-6">
+                        <label>Name</label>
+                        @Html.TextBoxFor(m => m.Name, new { autocomplete = "off", placeholder = "name", @class = "form-control textBoxShade" })
+                        @Html.ValidationMessageFor(z => z.Name)
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label>Email</label>
+                        @Html.TextBoxFor(m => m.emailId, new { autocomplete = "off", placeholder = "email", @class = "form-control textBoxShade" })
+                        @Html.ValidationMessageFor(z => z.emailId)
+                        <span id="spn-error-email-teacher" data-val="0" data-myval="10" style="color:red;"></span>
+                    </div>
+                </div>
+
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-6">
+                        <label>Password</label>
+                        @Html.TextBoxFor(m => m.Password, new { autocomplete = "new-password", placeholder = "password", @class = "form-control textBoxShade", type = "password" })
+                        @Html.ValidationMessageFor(z => z.Password)
+                    </div>
+                    <div class="form-group col-lg-4">
+                        <label>Contact</label>
+                        @Html.TextBoxFor(m => m.Contact, new { autocomplete = "off", placeholder = "Contact", @class = "form-control textBoxShade" })
+                        @Html.ValidationMessageFor(z => z.Contact)
+                    </div>
+                    <div class="form-group col-lg-2" id="chkDiv">
+                        <br />
+                        <label>Permanent</label>
+                        <br />
+                        @Html.CheckBoxFor(m => m.IsPermanent, new { @class = "", id = "cash-check-id" })
+                        @Html.ValidationMessageFor(z => z.IsPermanent)
+                    </div>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-6">
+                        <label>Address</label>
+                        @Html.TextAreaFor(m => m.Address, new { autocomplete = "off", placeholder = "Address", @class = "form-control textBoxShade", row = 3, col = 4 })
+                        @Html.ValidationMessageFor(z => z.Address)
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label>DOB</label>
+                        @Html.TextBoxFor(m => m.DOBstring, new { autocomplete = "off", placeholder = "DOB", @class = "form-control textBoxShade" })
+                        @Html.ValidationMessageFor(z => z.DOBstring)
+                    </div>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-4">
+                        <label>@Model.SalaryType</label>
+                        @Html.TextBoxFor(m => m.SalaryAmount, new { autocomplete = "off", type = "number", placeholder = "Name", @class = "form-control textBoxShade" })
+                    </div>
+                    <div class="col-lg-4">
+                        <label>PF %</label>
+                        @Html.TextBoxFor(m => m.PFPercentage, new { autocomplete = "off", type = "number", placeholder = "Name", @class = "form-control textBoxShade" })
+                    </div>
+                    <div class="col-lg-4">
+                        <label>ESI %</label>
+                        @Html.TextBoxFor(m => m.ESIPercentage, new { autocomplete = "off", type = "number", placeholder = "Name", @class = "form-control textBoxShade" })
+                    </div>
+                </div>
+                <div class="row col-lg-12">
+                    <div class="form-group col-lg-6">
+                        <label>User Type</label>
+                        @Html.DropDownListFor(m => m.UserTypeId, new TrackTap.DataLibrary.Data.DropdownData().GetAllStaffUserTypesDataAdd(Model.SchoolId), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
+                    </div>
+                </div>   
+                <div class="form-group col-lg-6">
+                    <label>DOJ</label>
+                    <div class="calendar-inp pos_icon_adj">
+                        <i class="fa fa-calendar" style="margin-left: 90%;"></i>
+                        @Html.TextBoxFor(m => m.DOJstring, new { @class = "form-control borderStyleClass", placeholder = "" })
+                        @*@Html.ValidationMessageFor(m => m.DOBstring)*@
+                    </div>
+                </div>       
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" style="display:none;" id="btn-addteacher" class="btn pay-now-btn">Add Staff</button>
+                <button type="button" id="btn-dummy-addteacher" class="btn pay-now-btn">Save</button>
+            </div>
+        </div>
+    }
+</div>
+<script>
+    $('#DOBstring').datepicker({
+        format: "dd-mm-yyyy",
+        autoclose: true,
+        todayHighlight: true,
+        endDate: '+d'
+    });
+
+    $(document).ready(function () {
+        $('#DOBstring').val('');
+    });
+
+    $(document).on('blur', '#emailId', function () {
+        //  debugger;
+        var source = $(this);
+        $.ajax({
+            url: '/School/CheckEmail?text=' + $(source).val(),
+            type: "GET",
+            dataType: 'json',
+            success: function (data) {
+                if (data.Status) {
+                    var message = "Email already exists";
+                    $('#spn-error-email-teacher').text(message);
+                    $('#spn-error-email-teacher').show();
+                    $('#btn-dummy-addteacher').css({ 'cursor': 'default', 'pointer-events': 'none', 'opacity': '.8' });
+                }
+                else {
+                    $('#spn-error-email-teacher').hide();
+                    $('#btn-dummy-addteacher').css({ 'cursor': 'pointer', 'pointer-events': 'initial', 'opacity': '1' });
+                }
+            }
+        });
+    });
+
+
+    $('#DOJstring').datepicker({
+        format: "dd-mm-yyyy",
+        autoclose: true,
+        todayHighlight: true,
+        //startDate: '-3d'
+        endDate: '+d'
+    });
+
+
+</script>

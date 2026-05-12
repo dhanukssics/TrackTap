@@ -1,0 +1,116 @@
+﻿@model TrackTap.Models.AccountHide
+@{
+    DateTime startDate = Model.FromDate;
+    DateTime endDate = Model.EndDate;
+    long schoolId = Model.SchoolId;
+    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var list = school.DayBookReportDetailsCollectionContra(startDate, endDate);
+    string schoolName = school.SchoolName;
+    string heading = "CONTRA";
+}
+
+
+<div class="table-headings">
+    <h5>@schoolName</h5>
+    <p>@heading</p>
+</div>
+<div class="custome-table">
+    <table>
+        <thead>
+
+            <tr>
+                <th>
+                    <div class="custom-control custom-checkbox mb-3">
+                        <input type="checkbox" class="custom-control-input selectallcontra" id="customCheck" name="example1">
+                    </div>
+                </th>
+                <th>
+                    VoucherNo - BillNo
+                </th>
+                <th>
+                    Type
+                </th>
+                <th>
+                    Bank/Cash
+                </th>
+                <th>
+                    Account Head
+                </th>
+                <th>
+                    Sub Ledger
+                </th>
+                <th>
+                    Income
+                </th>
+                <th>
+                    Expense
+                </th>
+                <th>
+                    Narration
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+           
+            @foreach (var item in list)
+            {
+
+                <tr>
+                    <td style="color:red; font-weight:bold; text-align:left;" colspan="8">
+                        @item.EnterDate.ToShortDateString()
+                    </td>
+                </tr>             
+                foreach (var one in item._list.OrderBy(x => x.VoucherNo))
+                {
+                    <tr>
+                        <td>                        
+                            <input  data-enterdate="@item.EnterDate" data-voucherno="@one.VoucherNo" data-transactiontype="@one.TransactionType"
+                                   data-fromstatus="@one.FromStatus" data-accountheadname="@one.AccountHeadName" data-subledger="@one.SubLedger"
+                                   data-incomeamount="@one.IncomeAmount" data-expenseamount="@one.ExpenseAmount" data-narration="@one.Narration" class="ckb-contra-item" value="0" style="margin: 0;" type="checkbox" />
+                        </td>
+                        <td>
+                            @one.VoucherNo
+                        </td>
+                        <td style="text-align:center;">
+                            @one.TransactionType
+                        </td>
+                        <td style="text-align:center;">
+                            @one.FromStatus
+                        </td>
+                        <td>
+                            @one.AccountHeadName
+                        </td>
+                        <td>
+                            @one.SubLedger
+                        </td>
+                        <td>
+                            @String.Format("{0:0.00}", one.IncomeAmount)
+                        </td>
+                        <td>
+                            @String.Format("{0:0.00}", one.ExpenseAmount)
+                        </td>
+                        <td>
+                            @one.Narration
+                        </td>
+                    </tr>
+                }             
+
+            }
+
+
+
+        </tbody>
+    </table>
+</div>
+<div class="modal-footer">
+    <button type="submit" style="display:none;" id="btn-addaccountsContra" class="btn pay-now-btn">Add Accounts</button>
+    <button type="button" id="btn-dummy-addaccountsContra" class="btn pay-now-btn">Save</button>
+</div>
+
+
+
+
+
+
+

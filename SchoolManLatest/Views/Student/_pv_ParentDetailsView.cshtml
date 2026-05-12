@@ -1,0 +1,101 @@
+﻿@model TrackTap.Models.ParentDetailsView
+@{
+
+}
+<style>
+    .saveStyle {
+        float: right;
+        /*height: 12%;*/
+        width: 50%;
+        font-size: large;
+        border-radius: 0px !important;
+    }
+
+    .studentStyle {
+        text-align: center;
+        border:none!important;
+    }
+</style>
+@Html.HiddenFor(m => m.StudentId, new { @value = Model.StudentId });
+<div class="col-md-12">
+    <h3 class="studentStyle">@Model.StudentName - ( @Model.StudentClassDivision )</h3>
+    <div class="form-group row">
+        <div class="col-md-1">
+            <label> Father</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextBoxFor(m => m.ParentName, new { autocomplete = "off", @readonly = "readonly", placeholder = "Father Name", @class = "form-control textboxStyle" })
+            @Html.ValidationMessageFor(z => z.ParentName)
+        </div>
+        <div class="col-md-1">
+            <label>Mother</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextBoxFor(m => m.MotherName, new { autocomplete = "off", @readonly = "readonly", placeholder = "Mother Name", @class = "form-control textboxStyle" })
+            @Html.ValidationMessageFor(z => z.MotherName)
+        </div>
+        <div class="col-md-1">
+            <label>Email</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextBoxFor(m => m.Email, new { autocomplete = "off", @readonly = "readonly", placeholder = "Email", @class = "form-control textboxStyle" })
+            @Html.ValidationMessageFor(z => z.Email)
+        </div>
+
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-1">
+            <label>Password</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextBoxFor(m => m.Password, new { autocomplete = "off", @readonly = "readonly", placeholder = "Password", @class = "form-control textboxStyle" })
+            @Html.ValidationMessageFor(z => z.Password)
+        </div>
+        <div class="col-md-1">
+            <label>Contact</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextBoxFor(m => m.ContactNumber, new { autocomplete = "off", @readonly = "readonly", type = "number", placeholder = "Contact No", @class = "form-control textboxStyle" })
+            @Html.ValidationMessageFor(z => z.ContactNumber)
+        </div>
+        <div class="col-md-1">
+            <label>Address</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextAreaFor(m => m.Address, new { autocomplete = "off", @readonly = "readonly", placeholder = "Address", @class = "form-control textboxStyle" })
+            @Html.ValidationMessageFor(z => z.Address)
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-1">
+            <label>City</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextBoxFor(m => m.City, new { autocomplete = "off", @readonly = "readonly", placeholder = "City", @class = "form-control textboxStyle" })
+            @Html.ValidationMessageFor(z => z.City)
+        </div>
+        <div class="col-md-1">
+            <label>State</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextBoxFor(m => m.State, new { autocomplete = "off", @readonly = "readonly", placeholder = "State", @class = "form-control textboxStyle" })
+            @Html.ValidationMessageFor(z => z.State)
+        </div>
+        <div class="col-md-1">
+            <label>Pin Code</label>
+        </div>
+        <div class="col-md-3">
+            @Html.TextBoxFor(m => m.PostelCode, new { autocomplete = "off", @readonly = "readonly", type = "number", placeholder = "Postel Code", @class = "form-control textboxStyle", length = "6" })
+            @Html.ValidationMessageFor(z => z.PostelCode)
+        </div>
+
+    </div>
+    <div class="form-group row">
+        <div class="col-md-12">
+            <button type="button" style="float:right; width:15%;" class="btn pay-now-btn"  onclick="myFunction()">Continue</button>
+        </div>
+    </div>
+</div>
+
+

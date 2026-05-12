@@ -1,0 +1,71 @@
+﻿@model TrackTap.Models.AddStudentMarkModel
+@{
+
+    var dataList = new List<TrackTap.Models.StudentList>();
+
+}
+<input type="hidden" value="@Model.ExamId" id="examId" />
+<input type="hidden" value="@Model.SubjectId" id="subId" />
+<input type="hidden" value="@Model.TotalInternalMark" id="internalmark" />
+<input type="hidden" value="@Model.TotalExternalMark" id="externalmark" />
+
+<div class="table-responsive">
+    <table class="table account-table" id="tbstdMarkList">
+        <tr id="thead">
+            <th style="color: black;">
+                Sl.No
+            </th>
+            <th style="color: black;">
+                Student Name
+            </th>
+            <th style="color: black;" >
+                Internal Mark (@Model.TotalInternalMark)
+            </th>
+            <th style="color: black;">
+                External Mark (@Model.TotalExternalMark)
+            </th>
+        </tr>
+        <tbody id="bodyTable">
+            @{int count = 1;
+                //added by basheer on 28/01/2019 to add id for textbox in loop
+              int externalcount = 10000;
+            }
+
+            @foreach (var item in Model.StudentList)
+            {
+                <tr data-id="tbRowAmount" style="color:black; " data-StudentId="@item.StudentId" class="cls-tr-class">
+                    <td>
+                        @count
+                    </td>
+                    <td>
+                        @item.StudentName
+                    </td>
+                    <td>
+                        <div>
+                            <input type="text" value="@String.Format("{00}", item.InternalMark)" style="color:black; " onchange="imarkchange(@count)"  class="cls-internal-mark" id="@count" />
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            @*@{int externalcount = count+'b';
+                              }*@
+                            <input type="text" value="@String.Format("{00}", item.ExternalMark)" style="color:black; " onchange="emarkchange(@externalcount)" class="cls-external-mark " id="@externalcount" />
+                        </div>
+                    </td>
+                </tr>
+                count = count + 1;
+                externalcount = externalcount + 1;
+            }
+
+        </tbody>
+    </table>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>*@
+                <button type="button" id="markSave_btn" class="btn pay-now-btn">Save</button>
+            </div>
+
+</div>
+
+<script>
+
+</script>

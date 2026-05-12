@@ -1,0 +1,188 @@
+﻿@model TrackTap.Models.ParentDetailsView
+@{
+    Layout = "~/Views/Shared/_LayoutWithoutMenuBar.cshtml";
+}
+
+<style>
+    .gap_bottom {
+        padding-bottom: 35px;
+    }
+
+        .gap_bottom label {
+            padding-top: 8px;
+        }
+
+    .textboxStyle {
+        border: solid 1px #3a3232 !important;
+    }
+    .sameLine{
+        display:table-cell;
+    }
+    .skipBtn{
+        float: right;
+        width:10%;
+        background-color:#03a9f4;
+    }
+</style>
+<br />
+<div class="parent-div">
+    <div id="add-parent-details-Id">
+        <span>
+            <h2 class="sameLine">Parent Informations</h2>
+            <button type="button" class="btn btn-sm btn-info sameLine skipBtn" onclick="myFunction()" id="billPrint">SKIP</button>
+        </span>
+        @Html.Partial("~/Views/Student/_pv_ParentDetailsAdd.cshtml", Model)
+    </div>
+</div>
+
+<script>
+
+    function AddStudentParentDetailsSuccess(result) {
+        if (result.status) {
+            toastrSuccess(result.msg);
+            var studentId = result.studentId;
+            $.ajax({
+                url: '/Student/StudentAdvancedDetails/' + studentId,
+                dataType: 'html',
+                success: function (data) {
+                    $('#add-parent-details-Id').html('');
+                    $('#add-parent-details-Id').html(data);
+
+                    $('#Previous_DateOfAdmissionString').val('');
+                    $('#Previous_DateOfLeaving').val('');
+                    $('#TC_Date').val('');
+                    $('#VaccinatedDate').val('');
+                    DatePickerSettings();
+                },
+            });
+        }
+        else {
+            toastrError('Error occured !');
+        }
+    };
+
+    function AddStudentParentDetailsFailed() {
+        toastrError('Error occured !');
+    }
+
+    $(document).on('change', '.upload-clean-Formats-dev1', function () {
+        var source = $(this);
+        var userId = $('#UserId').val();
+        var formData = new FormData();
+        formData.append("documentFile", this.files[0]);
+        formData.append("UserId", userId);
+        $.ajax({
+            type: "POST",
+            url: "/Student/DocumentUpload",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforeSend: function (xhr) {
+            },
+            success: function (response) {
+                if (response.Status) {
+                    var data = response.UserData;
+                    $('#TC_Filepath').val(data);
+                }
+                else {
+                    toastrError('No such Files!');
+                }
+            },
+            error: function (data) {
+            }
+        });
+    });
+
+    $(document).on('change', '.upload-clean-Formats-dev2', function () {
+        var source = $(this);
+        var userId = $('#UserId').val();
+        var formData = new FormData();
+        formData.append("documentFile", this.files[0]);
+        formData.append("UserId", userId);
+        $.ajax({
+            type: "POST",
+            url: "/Student/DocumentUpload",
+            dataType: 'json',
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforeSend: function (xhr) {
+            },
+            success: function (response) {
+                if (response.Status) {
+                    var data = response.UserData;
+                    $('#DOBCertificate_FilePath').val(data);
+                }
+                else {
+                    toastrError('No such Files!');
+                }
+            },
+            error: function (data) {
+            }
+        });
+    });
+    function DatePickerSettings() {
+        $('#Previous_DateOfAdmissionString').datepicker({
+            format: "dd-mm-yyyy",
+            autoclose: true,
+            todayHighlight: true,
+            endDate: '+d'
+        });
+        $('#Previous_DateOfLeaving').datepicker({
+            format: "dd-mm-yyyy",
+            autoclose: true,
+            todayHighlight: true,
+            endDate: '+d'
+        });
+        $('#TC_Date').datepicker({
+            format: "dd-mm-yyyy",
+            autoclose: true,
+            todayHighlight: true,
+            endDate: '+d'
+        });
+        $('#VaccinatedDate').datepicker({
+            format: "dd-mm-yyyy",
+            autoclose: true,
+            todayHighlight: true,
+            endDate: '+d'
+        });
+    }
+
+    function AddStudentDetailsSuccess(result) {
+        if (result.status) {
+            toastrSuccess(result.msg);
+            window.close();
+        }
+    };
+
+    function AddStudentDetailsFailed(result) {
+        if (result.status) {
+            toastrError(result.msg);
+        }
+    };
+
+
+    function myFunction() {
+        var studentId = $('#StudentId').val();
+        $.ajax({
+            url: '/Student/StudentAdvancedDetails/' + studentId,
+            dataType: 'html',
+            success: function (data) {
+                $('#add-parent-details-Id').html('');
+                $('#add-parent-details-Id').html(data);
+
+                $('#Previous_DateOfAdmissionString').val('');
+                $('#Previous_DateOfLeaving').val('');
+                $('#TC_Date').val('');
+                $('#VaccinatedDate').val('');
+                DatePickerSettings();
+            },
+        });
+    };
+
+    function myCloseFunction(result) {
+            window.close();
+    };
+
+</script>

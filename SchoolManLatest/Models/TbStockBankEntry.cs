@@ -1,0 +1,53 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace TrackTap.Models;
+
+public partial class TbStockBankEntry
+{
+    public long Id { get; set; }
+
+    public string VoucherNumber { get; set; } = null!;
+
+    public string VoucherType { get; set; } = null!;
+
+    public string? BillNo { get; set; }
+
+    public string TransactionType { get; set; } = null!;
+
+    public decimal? Amount { get; set; }
+
+    public int ModeType { get; set; }
+
+    public DateTime? ChequeDate { get; set; }
+
+    public string? ChequeNumber { get; set; }
+
+    public long HeadId { get; set; }
+
+    public long SubId { get; set; }
+
+    public long BankId { get; set; }
+
+    public string Narration { get; set; } = null!;
+
+    public DateTime EnterDate { get; set; }
+
+    public long UserId { get; set; }
+
+    public bool DataFromStatus { get; set; }
+
+    public bool CancelStatus { get; set; }
+
+    public long SchoolId { get; set; }
+
+    public bool Migration { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public DateTime TimeStamp { get; set; }
+
+    public string? EditStatus { get; set; }
+
+    public string? DevStatus { get; set; }
+}

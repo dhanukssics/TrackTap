@@ -1,0 +1,61 @@
+﻿
+
+@model TrackTap.Models.StaffFileUploadModel
+@{
+
+}
+
+@using (Ajax.BeginForm("AddStaffFiles", "School", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddStaffFilesSuccess",
+    OnFailure = "AddStaffFilesFailed",
+}, new { id = "form-login" }))
+{
+    @Html.HiddenFor(m => m.StaffId, new { @value = Model.StaffId });
+    <div class="col-md-12">
+        <div class="form-group gap_bottom">
+            <div class="col-md-2">
+                <label>Type</label>
+            </div>
+            <div class="col-md-4">
+                @Html.EnumDropDownListFor(m => m.TypeId, new { @class = "form-control", @data_live_search = "true", name = "classDropdown textboxStyle" })
+                @Html.ValidationMessageFor(m => m.TypeId)
+            </div>
+            <div class="col-md-2">
+                <label>Date</label>
+            </div>
+            <div class="col-md-4 calendar-inp pos_icon_adj">
+                @Html.TextBoxFor(m => m.ReceivedDateString, new { @class = "form-control textboxStyle", placeholder = "" })
+                <i class="fa "></i>
+                @Html.ValidationMessageFor(m => m.ReceivedDateString)
+            </div>
+        </div>
+        <div class="form-group gap_bottom">
+            <div class="col-md-2">
+                <label>Description</label>
+            </div>
+            <div class="col-md-4">
+                @Html.TextAreaFor(m => m.Description, new { autocomplete = "off", placeholder = "Description", style = "width:100%;", @class = "form-controls textboxStyle" })
+                @Html.ValidationMessageFor(m => m.Description)
+            </div>
+            <div class="col-md-2">
+                <label>File</label>
+            </div>
+            <div class="col-md-4">
+                <input type="file" class="upload-file upload-clean-Formats-dev2" />
+                <button class="btn-link btn-link-pink"><i class="fa fa-cloud-upload" aria-hidden="true"></i></button>
+
+                @Html.HiddenFor(m => m.FilePath, new { autocomplete = "off", placeholder = "TC No", @class = "form-control textboxStyle" })
+                @Html.ValidationMessageFor(m => m.FilePath)
+            </div>
+        </div>
+
+
+        <div class="form-group gap_bottom">
+            <div class="modal-footer">
+                <button type="submit" id="btn-save-daybook" class="btn pay-now-btn">Save</button>
+            </div>
+        </div>
+    </div>
+}

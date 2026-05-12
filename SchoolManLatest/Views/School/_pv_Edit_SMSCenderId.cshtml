@@ -1,0 +1,37 @@
+﻿
+
+@model TrackTap.Models.FeeAlertDataModel
+
+<div class="col-md-12 col-md-offset-1 style=" margin-bottom 70%; margin-top 3%;"">
+    <div class="email-setup-main">
+        @using (Ajax.BeginForm("EditSMSSenderIdData", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddSchoolSenderIdSuccess",
+            OnFailure = "AddSchoolSenderIdFailed"
+        }, new { id = "form-login" }))
+        {
+            @*@Html.HiddenFor(z => z.Id, new { Value = @Model.SenderDetails.Id })*@
+            <div class="form-group">
+                <label>School Sender Id</label>
+                @*<p>Automatically send an alert messages to all students who are not paid the Bills before this particular date .</p>*@
+                <span>
+                    @Html.TextBoxFor(m => m.SenderDetails.SenderData, new { autocomplete = "off", id = "Sender Id", placeholder = "Senderid", @class = "form-control", style = "width:30%;" })
+                    @Html.ValidationMessageFor(z => z.SenderDetails.SenderData)
+                </span>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12" style="float: left; margin-top:15px;">
+                    <button type="submit" class="btn pay-now-btn">Edit </button>
+                </span>
+            </div>
+
+        }
+    </div>
+</div><!-- end of col-md-12 -->
+
+<script>
+    $(document).ready(function () {
+        $('#senderId').val('');
+    });
+</script>

@@ -1,0 +1,163 @@
+﻿@model TrackTap.Models.SchoolId
+@{
+    var school = new TrackTap.DataLibrary.Data.School(Model.schoolId);
+    var WagesShowsSettings = school.GetCurrentStatusOfWagesEmployees();
+}
+
+
+<thead>
+    <tr>
+        <th>
+            Slno
+        </th>
+        <th>
+            Name
+        </th>
+        <th>
+            Contact No.
+        </th>
+        @*@if (WagesShowsSettings == true)
+        {*@
+            <th>
+                Permanent / Wages
+            </th>
+        @*}*@
+        
+        <th>
+            In Charge
+        </th>
+        <th>
+            Email
+        </th>
+        <th>
+            Id
+        </th>
+        <th>
+
+        </th>
+    </tr>
+</thead>
+<tbody>
+    @if (school != null)
+    {
+        if (WagesShowsSettings == false)
+        {
+            int i = 1;
+            foreach (var item in school.Teachers)
+            {
+
+                if (item.IsPermanent == true || item.IsPermanent == null)
+                {
+
+            <tr style="cursor: pointer !important;">
+                <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                    @i
+                </td>
+                <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                    @item.TeacherName
+                </td>
+                <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                    @item.ContactNumber
+                </td>
+                @if (item.IsPermanent == null)
+                {
+                    <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                    NA
+                    </td>
+                }
+                else if (item.IsPermanent == true)
+                {
+                    <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                        Permanent
+                    </td>
+                }
+                else
+                {
+                            <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                                Wages
+                            </td>
+
+
+                }
+                <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                    @if (item.TeacherClass.Count > 0)
+                    {
+                        @item.TeacherClass.FirstOrDefault().ClassName <span class="slash"></span> @item.TeacherClass.FirstOrDefault().DivisionName
+                    }
+                </td>
+                <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                    @item.Email
+                </td>
+                <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                    @item.TeacherSpecialId
+                </td>
+                <td data-teacherid="@item.TeacherId">
+                    <button class="delete-teacher-tr btn-peek"><i class="fa fa-trash "></i></button>
+                    <button class="edit-teacher-tr pay-now-btn"><i class="fa fa-edit "></i></button>
+                </td>
+            </tr>
+                    i++;
+                }
+            }
+        }
+
+        else
+        {
+            int i = 1;
+            foreach (var item in school.Teachers)
+            {
+                   <tr style="cursor: pointer !important;">
+                        <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                            @i
+                        </td>
+                        <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                            @item.TeacherName
+                        </td>
+                        <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                            @item.ContactNumber
+                        </td>
+                        @if (item.IsPermanent == null)
+                        {
+                            <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                                NA
+                            </td>
+                        }
+                        else if (item.IsPermanent == true)
+                        {
+                            <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                                Permanent
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                                Wages
+                            </td>
+
+
+                        }
+                        <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                            @if (item.TeacherClass.Count > 0)
+                            {
+                                @item.TeacherClass.FirstOrDefault().ClassName <span class="slash"></span> @item.TeacherClass.FirstOrDefault().DivisionName
+                            }
+                        </td>
+                        <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                            @item.Email
+                        </td>
+                        <td class="ng-teacherDetails-click" data-teacherid="@item.TeacherId">
+                            @item.TeacherSpecialId
+                        </td>
+                        <td data-teacherid="@item.TeacherId">
+                            <button class="delete-teacher-tr btn-peek"><i class="fa fa-trash "></i></button>
+                            <button class="edit-teacher-tr pay-now-btn"><i class="fa fa-edit "></i></button>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            
+        }
+
+
+    }
+</tbody>

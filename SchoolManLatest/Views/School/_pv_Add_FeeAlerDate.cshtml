@@ -1,0 +1,43 @@
+﻿
+@model TrackTap.Models.FeeAlertDataModel
+
+<div class="col-md-12 col-md-offset-1" >
+    <div class="email-setup-main">
+        @using (Ajax.BeginForm("AddNewFeeAlertDate", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddNewFeeAlertDateSuccess",
+            OnFailure = "AddNewFeeAlertDateFailed"
+            //OnComplete = "perm Loader"
+        }, new { id = "form-login" }))
+        {
+            <div class="form-group">
+                <label class="cust-label">Fee Alert Date</label>
+                <p>Automatically send an alert messages to all students who are not paid the Bills before this particular date .</p>
+                <span class="col-md-4">
+                    @Html.TextBoxFor(m => m.AlertDate, new { autocomplete = "off", placeholder = "Select Date", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.AlertDate)
+                </span>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12" style="float: left; margin-top:15px;">
+                    @*  <input type="button" class="add-form-btn" value="Send Test Mail" />*@
+                    <button type="submit" class="btn pay-now-btn">Add </button>
+                </span>
+            </div>
+
+        }
+    </div>
+</div><!-- end of col-md-12 -->
+
+<script>
+    $('#AlertDate').datepicker({
+        dateFormat: 'mm-dd-yyyy',
+        autoclose: true,
+        todayHighlight: true
+    });
+    $(document).ready(function () {
+        //alert();
+        $('#AlertDate').val('');
+    });
+</script>

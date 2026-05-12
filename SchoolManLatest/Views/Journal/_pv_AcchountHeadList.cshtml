@@ -1,0 +1,45 @@
+﻿@model TrackTap.Models.AddAccountHeadModel
+@{
+    var accountDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetAccountDetails_new(Model.SchoolId);
+}
+<thead>
+    <tr>
+        <th>
+            Slno
+        </th>
+        <th>
+            Account Head
+        </th>
+        <th>
+            SubLedger
+        </th>
+
+        <th>
+
+        </th>
+    </tr>
+</thead>
+<tbody>
+    @{
+        int i = 1;
+        foreach (var account in accountDetails)
+        {
+            <tr>
+                <td class="ng-teacherDetails-click" data-staffid="@account.AccHeadId">
+                    @i
+                </td>
+                <td class="ng-teacherDetails-click" data-staffid="@account.AccHeadId">
+                    @account.AccountHeadName
+                </td>
+                <td class="ng-teacherDetails-click" data-staffid="@account.AccHeadId">
+                    @account.SubLedgerName
+                </td>
+                <td data-teacherid="@account.AccHeadId">
+                    <button class="delete-subledger-tr btn-peek" data-ledgerId="@account.AccHeadId"><i class="fa fa-trash "></i></button>
+                    <button class="edit-staff-tr pay-now-btn" data-staffid="@account.AccHeadId"><i class="fa fa-edit "></i></button>
+                </td>
+            </tr>
+            i++;
+        }
+    }
+</tbody>

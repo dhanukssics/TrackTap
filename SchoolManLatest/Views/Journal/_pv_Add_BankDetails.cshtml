@@ -1,0 +1,26 @@
+﻿
+@model TrackTap.Models.BankDetailsModel
+
+@using (Ajax.BeginForm("SubmitAddBankName", "Journal", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddBankNameSuccess",
+    OnFailure = "AddBankNameFailed"
+}, new { id = "form-add-exam" }))
+{
+    <div class="row">
+        <div id="new-account-div" class="dev-adj-style">
+            <div class="form-group">
+                @Html.HiddenFor(m => m.BankId, new { autocomplete = "off", placeholder = "BankId", @class = "form-control", id = "bankid" })
+                @Html.TextBoxFor(m => m.BankName, new { autocomplete = "off", placeholder = "Bank Name", @class = "form-control", id = "Bank_id" })
+                @Html.ValidationMessageFor(z => z.BankName)
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn pay-now-btn" id="btn-addBankName">Save</button>
+    </div>
+}
+<script>
+
+</script>

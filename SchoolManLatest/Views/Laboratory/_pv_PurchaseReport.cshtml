@@ -1,0 +1,43 @@
+﻿
+<table class="table table-bordered table-striped" id="collection-grid" style="border: 0.5px solid #d2cece;">
+    <thead>
+        <tr>
+            <th>SL NO </th>
+            <th>ITEM</th>
+            <th>PURCHASE ID</th>
+            <th>PRICE</th>
+            <th>SUPPLIER NAME</th>
+            <th> STOCK</th>
+           
+          
+            
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var PurchaseDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetPurchaseByDate(Model.StartDate, Model.EndDate);
+            var index = 1;
+            
+        }
+
+        @foreach (var PurchaseDetail in PurchaseDetails)
+        {
+        <tr class="bill-click" style="cursor:pointer" data-id="@PurchaseDetail.SchoolId" data-studId="@PurchaseDetail.SchoolId">
+            <td>@index</td>
+            <td>@PurchaseDetail.Item</td>
+
+            <td>@PurchaseDetail.PurchaseId</td>
+            <td>@PurchaseDetail.Price </td>
+            <td>@PurchaseDetail.SupplierName </td>
+            @*<td>@PurchaseDetail.Date.ToString("dd-MM-yyyy")</td>*@
+            <td>@PurchaseDetail.StockQuantity </td>
+        </tr>
+        index++;
+           
+        }
+       
+
+    </tbody>
+</table>
+@*<h4 class="ttl-total">Total: @String.Format("{0:0.00}", totAmt)</h4>*@
+

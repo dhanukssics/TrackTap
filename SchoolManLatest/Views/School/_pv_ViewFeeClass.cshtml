@@ -1,0 +1,66 @@
+﻿@model TrackTap.Models.ViewFeeClass
+@{
+    //var classs = new TrackTap.DataLibrary.Data.WebsiteService().getAllClassByFeeId(Model.SchoolId, Model.FeeId).ToList(); // Archana Commended this method for include the division in fee
+    var classs = new TrackTap.DataLibrary.Data.WebsiteService().getAllClassDivisionByFeeId(Model.SchoolId, Model.FeeId).ToList();
+}
+
+@if (classs.Count > 0)
+{
+    //Archana Commended these lines and wrote new code for include the Division in Fee section in 21/06/2019
+    @*foreach (var item in classs.Where(z => z.PublishStatus == true).ToList().OrderBy(z => z.ClassOrder))
+        {
+            <div class="row feeclass-div" data-classid="@item.ClassId">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label style="margin-top: 35px;">Class @item.ClassName</label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Amt</label>
+                        <input type="number" class="form-control loop-class-amount" placeholder="Amt" /><label>INR</label>
+                    </div>
+                </div>
+            </div>
+        }*@
+
+foreach (var item in classs)
+{
+    <div class="col-lg-12">
+        <div class="form-group">
+            <label style="color:#03a9f4; margin-top:10px;">Class : @item.ClassName</label>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var item1 in item.list)
+        {
+        <div class="col-lg-4 feeclass-div" data-classid="@item.ClassId" data-divisionId="@item1.DivisionId">
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <label>Division : @item1.DivisionName</label>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="form-group">
+                    <label>Amt</label>
+                    <input type="number" class="form-control loop-class-amount" placeholder="Amt" /><label>INR</label>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    <div class="row" style="border-bottom:medium;">
+
+    </div>
+    }
+}
+else
+{
+    if (Model.FeeId != 0)
+    {
+        <div>
+            No Class To Update!
+        </div>
+    }
+}

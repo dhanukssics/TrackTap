@@ -1,0 +1,437 @@
+﻿@model TrackTap.Models.PromoteStudents
+@{
+    ViewBag.Title = "StudentPromotionHome";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+}
+
+<h2>Student Promotion</h2>
+@Html.HiddenFor(m => m.SchoolId, new { @value = Model.SchoolId })
+<div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="form-group col-sm-4">
+                    <label>Academic Year  </label>
+                    @Html.DropDownListFor(m => m.OldAcademicyearId, TrackTap.DataLibrary.Data.DropdownData.GetOtherAcademicYear(), "--Choose--", new { @class = "form-control", @data_live_search = "true", id = "old-academic-year-dropdown-id" })
+                    @Html.ValidationMessageFor(z => z.OldAcademicyearId)
+                </div>
+                <div class="form-group col-sm-3">
+                    <label>Class</label>
+                    <select id="class-drop-down" class="form-control" disabled>
+                        <option>-- Please select Class --</option>
+                    </select>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label>Division</label>
+                    <select id="division-drop-down" class="form-control" disabled>
+                        <option>-- Please select division --</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label style="visibility:hidden;">sss</label>
+                    <div class="form-group">
+                        <button class="btn pay-now-btn" id="btn-students-search-promotion">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalClassAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+        </div>
+    </div>
+    <div>
+        <div class="table-responsive">
+            <table class="table custome-table" id="students-list-for-promotion"></table>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var array = [];
+
+    function IntializeDataTable() {
+        $("#students-list-for-promotion").dataTable().fnDestroy()
+        $("#students-list-for-promotion").dataTable();
+    }
+
+    $(document).on('change', '#old-academic-year-dropdown-id', function () {
+        var id = $(this).val();
+        var schoolId = $('#SchoolId').val();
+
+        $("#class-drop-down").html("");
+        $("#class-drop-down").append($('<option></option>').val("").html('-- No Class Found --'));
+        $("#class-drop-down").prop("disabled", true);
+
+        $("#division-drop-down").html("");
+        $("#division-drop-down").append($('<option></option>').val("").html('-- No Division Found --'));
+        $("#division-drop-down").prop("disabled", true);
+
+        $('#students-list-for-promotion').html('');
+
+        if (id != '') {
+            var data = schoolId + '~' + id;
+            $.ajax({
+                url: '/Data/LoadClassesByAcademicYear?id=' + data,
+                type: "GET",
+                success: function (result) {
+                    if (result.list.length > 0) {
+                        $("#class-drop-down").html(""); // clear before appending new list
+                        $("#class-drop-down").append($('<option></option>').val("").html('-- Select Division --'));
+                        $.each(result.list, function (i, item) {
+                            $("#class-drop-down").append($('<option></option>').val(item.Value).html(item.Text));
+                        });
+                        $("#class-drop-down").prop("disabled", false);
+                    }
+                    else {
+                        $("#class-drop-down").html(""); // clear before appending new list
+                        $("#class-drop-down").append($('<option></option>').val("").html('-- No Division Found --'));
+                        $("#class-drop-down").prop("disabled", true);
+                    }
+                }
+            });
+        }
+        else {
+
+        }
+    });
+
+    $(document).on('change', '#class-drop-down', function () {
+        var id = $(this).val();
+
+        $("#division-drop-down").html("");
+        $("#division-drop-down").append($('<option></option>').val("").html('-- No Division Found --'));
+        $("#division-drop-down").prop("disabled", true);
+
+        $('#students-list-for-promotion').html('');
+
+        if (id != '') {
+            $.ajax({
+                url: '/Data/LoadDivision?id=' + id,
+                type: "GET",
+                success: function (result) {
+                    if (result.list.length > 0) {
+                        $("#division-drop-down").html(""); // clear before appending new list
+                        $("#division-drop-down").append($('<option></option>').val("").html('-- Select Division --'));
+                        $.each(result.list, function (i, item) {
+                            $("#division-drop-down").append($('<option></option>').val(item.Value).html(item.Text));
+                        });
+                        $("#division-drop-down").prop("disabled", false);
+                    }
+                    else {
+                        $("#division-drop-down").html(""); // clear before appending new list
+                        $("#division-drop-down").append($('<option></option>').val("").html('-- No Division Found --'));
+                        $("#division-drop-down").prop("disabled", true);
+                    }
+                }
+            });
+        }
+        else {
+
+        }
+    });
+
+    $(document).on('click', '#btn-students-search-promotion', function () {
+        var AcYearId = $('#old-academic-year-dropdown-id').val();
+        var ClassId = $('#class-drop-down').val();
+        var DivId = $('#division-drop-down').val();
+        if (AcYearId != '' && ClassId != '' && DivId != '') {
+            $('#OldClassId').val(AcYearId);
+            $('#OldDivId').val(ClassId);
+            $('#OldAcademicyearId').val(DivId);
+
+            var id = AcYearId + '~' + ClassId + '~' + DivId;
+            $.ajax({
+                url: '/Promotion/StudentListForPromotion/' + id,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                    $('#students-list-for-promotion').html('');
+                    $('#students-list-for-promotion').html(data);
+                    //IntializeDataTable();
+                }
+            });
+        }
+        else {
+            toastrError('Please select  all values.');
+        }
+    });
+
+    function AddRemoveUser(source) {
+        var userId = $(source).attr("data-id");
+        if ($(source).is(":checked")) {
+            array.push(userId);
+        }
+        else {
+            for (var i = array.length - 1; i >= 0; i--) {
+                if (array[i] === userId) {
+                    array.splice(i, 1);
+                }
+            }
+            $('.check-all').prop('checked', false);
+            console.log(JSON.stringify(array));
+        }
+        var cheNo = $('input:checkbox').length;
+        if (array.length == (cheNo - 1)) {
+            $('.check-all').prop('checked', true);
+        }
+    }
+
+    $(document).on('change', '.check-all', function () {
+        array = [];
+        if ($(this).prop("checked") == true) {
+            $('.checkbox-input').each(function () {
+                var userId = $(this).attr("data-id");
+                $(this).prop('checked', true);
+                array.push(userId);
+            });
+        }
+        else {
+            $('input[type=checkbox]').each(function () {
+                $(this).prop('checked', false);
+                array = [];
+            });
+        }
+
+    });
+
+    $(document).on('click', '#btn-students-promotion', function () {
+        if (array.length > 0) {
+            var dataList = new Object();
+            dataList.OldClassId = $('#class-drop-down').val();
+            dataList.OldDivId = $('#division-drop-down').val();
+            dataList.OldAcademicyearId = $('#old-academic-year-dropdown-id').val();
+            dataList.StudentListString = null;
+            dataList.StudentList = [];
+            array.forEach(function (element) {
+                var data = new Object();
+                data.StudentId = element;
+                dataList.StudentList.push(data);
+            });
+            $.ajax({
+                url: '/Promotion/PromoteStudentsToAnotherParialView/' + dataList,
+                type: "POST",
+                dataType: 'html',
+                data: dataList,
+                success: function (data) {
+                    $('#modalClassAdd').html(data);
+                    $.validator.unobtrusive.parse($("#modalClassAdd"));
+                    $('#modalClassAdd').modal('show');
+                }
+            });
+        }
+        else {
+            toastrWarning("Please select student");
+        }
+    });
+
+    //--------------------------------------NEW----------------------------------
+
+    $(document).on('change', '#academic-year-dropdown-id-new', function () {
+        var id = $(this).val();
+        var schoolId = $('#SchoolId').val();
+
+        $("#class-drop-down-new").html("");
+        $("#class-drop-down-new").append($('<option></option>').val("").html('-- No Class Found --'));
+        $("#class-drop-down-new").prop("disabled", true);
+
+        $("#division-drop-down-new").html("");
+        $("#division-drop-down-new").append($('<option></option>').val("").html('-- No Division Found --'));
+        $("#division-drop-down-new").prop("disabled", true);
+
+        if (id != '') {
+            var data = schoolId + '~' + id;
+            $('#NewAcademicYearId').val(id);
+            $.ajax({
+                url: '/Data/LoadClassesByAcademicYear?id=' + data,
+                type: "GET",
+                success: function (result) {
+                    if (result.list.length > 0) {
+                        $("#class-drop-down-new").html("");
+                        $("#class-drop-down-new").append($('<option></option>').val("").html('-- Select Division --'));
+                        $.each(result.list, function (i, item) {
+                            $("#class-drop-down-new").append($('<option></option>').val(item.Value).html(item.Text));
+                        });
+                        $("#class-drop-down-new").prop("disabled", false);
+                    }
+                    else {
+                        $("#class-drop-down-new").html("");
+                        $("#class-drop-down-new").append($('<option></option>').val("").html('-- No Division Found --'));
+                        $("#class-drop-down-new").prop("disabled", true);
+                    }
+                }
+            });
+        }
+        else {
+
+        }
+    });
+
+    $(document).on('change', '#class-drop-down-new', function () {
+        var id = $(this).val();
+
+        $("#division-drop-down-new").html("");
+        $("#division-drop-down-new").append($('<option></option>').val("").html('-- No Division Found --'));
+        $("#division-drop-down-new").prop("disabled", true);
+
+        if (id != '') {
+            $('#NewCLassId').val(id);
+            $.ajax({
+                url: '/Data/LoadDivision?id=' + id,
+                type: "GET",
+                success: function (result) {
+                    if (result.list.length > 0) {
+                        $("#division-drop-down-new").html("");
+                        $("#division-drop-down-new").append($('<option></option>').val("").html('-- Select Division --'));
+                        $.each(result.list, function (i, item) {
+                            $("#division-drop-down-new").append($('<option></option>').val(item.Value).html(item.Text));
+                        });
+                        $("#division-drop-down-new").prop("disabled", false);
+                    }
+                    else {
+                        $("#division-drop-down-new").html("");
+                        $("#division-drop-down-new").append($('<option></option>').val("").html('-- No Division Found --'));
+                        $("#division-drop-down-new").prop("disabled", true);
+                    }
+                }
+            });
+        }
+        else {
+
+        }
+    });
+
+    $(document).on('change', '#division-drop-down-new', function () {
+        var id = $(this).val();
+        if (id != '') {
+            $('#NewDivId').val(id);
+        }
+    });
+
+    $(document).on('click', '#btn-promote-dummy', function () {
+        debugger;
+        var newAcdYear = $('#academic-year-dropdown-id-new').val();
+        var newClassId = $('#class-drop-down-new').val();
+        var newDivId = $('#division-drop-down-new').val();
+        var isExists = false;
+
+        var oldAcdYear = $('#old-academic-year-dropdown-id').val();
+        var oldClassId = $('#class-drop-down').val();
+        var oldDivId = $('#class-drop-down').val();
+
+        //if (newAcdYear == oldAcdYear && newClassId == oldClassId && newClassId == oldDivId) {
+        //    isExists = true;
+        //    toastrError('You are trying to promote from same class to the same.');
+        //}
+
+        if (isExists == false) {
+            var source = $(this);
+            swal({
+                title: "Are you sure want to Promote this students ?",
+                text: "These students are no longer shown on the old class!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, do it!",
+                cancelButtonText: "No, cancel it!",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            },
+    function (isConfirm) {
+        if (isConfirm) {
+            $('#btn-promote').trigger('click');
+        }
+    })
+        }
+    });
+
+    function AddPromoteStudents(result) {
+        if (result.status) {
+            toastrSuccess(result.msg);
+            Refresh();
+        }
+    }
+
+    function Refresh() {
+        array = [];
+        var AcYearId = $('#old-academic-year-dropdown-id').val();
+        var ClassId = $('#class-drop-down').val();
+        var DivId = $('#division-drop-down').val();
+        if (AcYearId != '' && ClassId != '' && DivId != '') {
+            var id = AcYearId + '~' + ClassId + '~' + DivId;
+            $.ajax({
+                url: '/Promotion/StudentListForPromotion/' + id,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                    $('#students-list-for-promotion').html('');
+                    $('#students-list-for-promotion').html(data);
+                    $('#modalClassAdd').modal('hide');
+                }
+            });
+        }
+        else {
+            window.location.href = '/Promotion/StudentPromotionHome';
+            $('#modalClassAdd').modal('hide');
+        }
+    }
+
+    $(document).on('click', '#btn-students-demote', function () {
+        var source = $(this);
+        if (array.length > 0) {
+            swal({
+                title: "Are you sure want to Demote this students ?",
+                text: "These students are no longer shown on the old class!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes, do it!",
+                cancelButtonText: "No, cancel it!",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            },
+    function (isConfirm) {
+        if (isConfirm) {
+            var dataList = new Object();
+            dataList.OldClassId = $('#class-drop-down').val();
+            dataList.OldDivId = $('#division-drop-down').val();
+            dataList.OldAcademicyearId = $('#old-academic-year-dropdown-id').val();
+            dataList.StudentListString = null;
+            dataList.StudentList = [];
+            array.forEach(function (element) {
+                var data = new Object();
+                data.StudentId = element;
+                dataList.StudentList.push(data);
+            })
+            $.ajax({
+                url: '/Promotion/DemoteStudents/' + dataList,
+                type: "POST",
+                dataType: 'json',
+                data: dataList,
+                success: function (result) {
+                    if (result.status) {
+                        toastrSuccess(result.msg);
+                        Refresh();
+                    }
+                    else {
+                        toastrError(result.msg);
+                        Refresh();
+                    }
+                }
+            });
+        }
+    }
+    )
+        }
+        else {
+            toastrWarning("Please select student");
+        }
+    });
+
+
+
+
+
+
+
+</script>

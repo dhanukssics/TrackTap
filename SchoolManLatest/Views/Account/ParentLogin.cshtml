@@ -1,0 +1,103 @@
+﻿@model TrackTap.Models.LoginModel
+@{
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+<style>
+.parent-login-required span {float:left; color:red; padding-top:5px; font-weight:bold; font-size:12px;}
+</style>
+@using (Ajax.BeginForm("CheckLogin", "Account", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "CheckLoginSuccess",
+    OnFailure = "NewUserAddFailed"
+}, new { id = "login-form", @style = "display: block;" }))
+{
+
+<section class="parent_loginFee fullWid">
+    <div class="container">
+        <div class="row">
+
+            @Html.HiddenFor(m => m.userType, new { @value = 4 })
+            <div class="col-md-6">
+                <div class="login">
+                    <div class="login-form fullWid">
+                        <img class="posiImg"  src="~/Content/img/parentPic.png">
+                        <h3>Parent Login</h3>
+                        <div class="form-group parent-login-required">
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", id = "username", placeholder = "Username", onkeypress = "", maxLength = 60, checkAttr = "chk-1" })
+                            @Html.ValidationMessageFor(m => m.Email)
+                        </div>
+                        <div class="form-group parent-login-required">
+                            @Html.TextBoxFor(m => m.Password, new { @class = "form-control", type = "password", id = "password", placeholder = "Password", maxLength = 60, checkAttr = "chk-1" })
+                            @Html.ValidationMessageFor(m => m.Password)
+                        </div>
+                        <div class="form-group">
+                            <a href="/Account/ForgotPasswordParent" class="forgot-pass">Forgot Password</a>
+                            <a href="/Account/ParentRegistration" class="forgot-pass" style="margin-left: 100px;">Register Now</a>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Login" class="submit" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 logconts">
+                <h2>login for</h2>
+                <p><img src="~/Content/img/card.png" /> Fee Payment</p>
+                <p><img src="~/Content/img/attendence.png"> attendence tracking</p>
+                <p><img src="~/Content/img/alerts.png"> School Alerts</p>
+                <p><img src="~/Content/img/bell.png"> Notifications</p>
+                <div class="spBt fullWid">
+                    <a href="/Account/StudentDetails" class="feePay">PAY FEE WITHOUT LOGIN</a>
+                </div>
+            </div>
+
+        </div><!-- /row -->
+    </div><!-- /container -->
+</section>
+}
+<script>
+            $(document).ready(function () {
+        $(".se-pre-con").hide();
+
+                $('#userType').val(4)
+                });
+            $('#hide-login').click(function () {
+                $('.login-main').hide()
+                $('.forgot-pass-main').show();
+            });
+            $('#show-login').click(function () {
+                $('.login-main').show()
+                $('.forgot-pass-main').hide();
+            });
+
+
+            function CheckLoginSuccess(result) {
+                if (result.status) {
+                    $(".se-pre-con").show();
+                    
+               if (result.userType == 4) {
+                        $('#errorMsg').hide();
+                        window.location.href = '/Parent/Home';
+                    }
+                }
+                else {
+                    //$('#errorMsg').removeClass("isHidden");
+                    toastrError(result.msg);
+                }
+            }
+
+            //$(window).load(function () {
+            //    // Animate loader off screen
+            //    $(".se-pre-con").fadeOut("slow");;
+            //});
+
+
+            $(document).on('keypress', '#password', function (e) {
+                if (e.which === 32)
+                    return false;
+            });
+
+</script>

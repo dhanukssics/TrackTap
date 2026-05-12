@@ -1,0 +1,74 @@
+﻿
+@model TrackTap.Models.ExamsModel
+@{
+    var circular = new TrackTap.DataLibrary.Data.School(Model.SchoolId);
+}
+
+@using (Ajax.BeginForm("SubmitAddExam", "School", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "ExamAddSuccess",
+    OnFailure = "ExamAddFailed"
+}, new { id = "form-add-exam" }))
+{
+    @Html.HiddenFor(z => z.SchoolId, new { Value = @Model.SchoolId })
+    @Html.HiddenFor(z => z.DivisionId, new { Value = 0 })
+    @Html.HiddenFor(z => z.ClassId)
+    <div class="col-md-4 col-md-offset-4 " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel3">Add New Exams</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Class</label>
+                            @Html.DropDownListFor(m => m.ClassId, new TrackTap.DataLibrary.Data.DropdownData().RefreshClasses(Model.SchoolId), "--Choose--", new { @class = "form-control slct-alldivisions-dropdwn", @data_live_search = "true" })
+                            @Html.ValidationMessageFor(z => z.ClassId)
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Division</label>
+                            <select class="form-control slct-free-div-dropdown" disabled></select>
+                            <span id="division-required-exam-add" style="display:none; color:red;"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label>Exam Date</label>
+                            @Html.TextBoxFor(m => m.ExamDate, new { autocomplete = "off", placeholder = "Select Date", @class = "form-control" })
+                            @Html.ValidationMessageFor(z => z.ExamDate)
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    @Html.TextBoxFor(m => m.ExamName, new { autocomplete = "off", placeholder = "Name", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.ExamName)
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button class="btn pay-now-btn" style="display:none;" id="btn-addExam">Save</button>
+                <button type="button" id="btn-dummy-addExam" class="btn pay-now-btn">Save</button>
+            </div>
+        </div>
+
+
+    </div>
+}
+<script>
+    $('#ExamDate').datepicker({
+        format: 'mm-dd-yyyy',
+        autoclose: true,
+        todayHighlight: true,
+        startDate: 'd'
+    });
+    $(document).ready(function () {
+        $('#ExamDate').val('');
+    });
+</script>

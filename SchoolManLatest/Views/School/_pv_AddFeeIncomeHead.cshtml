@@ -1,0 +1,34 @@
+﻿
+@model TrackTap.Models.FeeAlertDataModel
+
+<div class="col-md-12 col-md-offset-1 style=" margin-bottom 70%; margin-top 3%;"">
+    <div class="email-setup-main">
+        @using (Ajax.BeginForm("AddFeeAccountHeadData", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddFeeIncomeHeadSuccess",
+            OnFailure = "AddFeeIncomeHeadFailed"
+        }, new { id = "form-login" }))
+        {
+            <div class="form-group">
+                <label>Fee Income Head Name</label>
+                <span>
+                    @Html.TextBoxFor(m => m.FeeIncomeHead.AccountHead, new { autocomplete = "off", id = "feeIncomeHeadId", placeholder = "Head", @class = "form-control", style = "width:50%;" })
+                    @Html.ValidationMessageFor(z => z.FeeIncomeHead.AccountHead)
+                </span>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12" style="float: left; margin-top:15px;">
+                    <button type="submit" class="btn pay-now-btn">Add </button>
+                </span>
+            </div>
+
+        }
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#feeIncomeHeadId').val('');
+    });
+</script>

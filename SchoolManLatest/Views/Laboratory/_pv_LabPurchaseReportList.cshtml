@@ -1,0 +1,80 @@
+﻿@model TrackTap.Models.StockUpdateModel
+@{
+    var stockList = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCurrentPurchaseReport(Model.CategoryId);
+
+    
+}
+
+<thead>
+    <tr>
+        <th>
+            SLNO
+        </th>
+        @*<th>
+                Category
+            </th>*@
+        <th>
+            ITEM
+        </th>
+        <th>
+            PURCHASE ID
+        </th>
+        <th>
+            PRICE
+        </th>
+        <th>
+            SUPPLIER NAME
+        </th>
+        <th>
+            STATUS
+        </th>
+
+        <th>
+             STOCK
+        </th>
+
+    </tr>
+</thead>
+<tbody>
+    @{
+        if (stockList != null)
+        {
+            int i = 1;
+            foreach (var item in stockList)
+            {
+                <tr style="cursor: pointer !important;">
+                    <td>
+                        @i
+                    </td>
+                    @*<td>
+                            @item.LabName
+                        </td>*@
+                    <td>
+                        @item.Item
+                    </td>
+                    <td>
+                        @item.PurchaseId
+                    </td>
+                    <td>
+                        @item.Price
+                    </td>
+                    <td>
+                        @item.SupplierName
+                    </td>
+                    <td>
+                        @item.Status
+                    </td>
+                    <td>
+                        @item.StockQuantity
+                    </td>
+
+                </tr>
+                i++;
+            }
+        }
+        else
+        {
+
+        }
+    }
+</tbody>

@@ -1,0 +1,10 @@
+﻿@model TrackTap.Models.AddDayBookModel
+@{
+    var amount = new TrackTap.DataLibrary.Data.School(Model.SchoolId).CurrentStatus();
+}
+
+<div class="form-group gap_bottom">
+    <div class="col-md-6">
+        <label>@amount</label>
+    </div>
+</div>

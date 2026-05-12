@@ -1,0 +1,21 @@
+﻿
+
+@model TrackTap.Models.DayBookReportModelStock
+@{
+    long bankId = Model.BankId;
+    int sourceId = 2;//From Status Cash ...0:Cash,1:Bill,2:Bank
+    var data = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetClosingBalanceStock(Model.ToDate, bankId, sourceId);
+}
+<div class="row">
+    @if (data != null)
+    {
+        <span>
+            <label style="margin-right:50px;">Closing Balance: @data /- </label>
+        </span>
+    }
+    else
+    {
+
+    }
+</div>
+

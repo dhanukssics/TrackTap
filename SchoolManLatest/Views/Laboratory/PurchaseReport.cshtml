@@ -1,0 +1,241 @@
+﻿@model TrackTap.Models.StockUpdateModel
+@{
+    ViewBag.Title = "MonthlyAttendanceReport";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+}
+<div class="row">
+    @Html.HiddenFor(z => z.SchoolId, new { Value = @Model.SchoolId })
+    <div class="col-md-12">
+
+
+        <div class="col-md-12">
+
+            <div class="row">
+                <div class="form-group col-sm-2">
+                    <label>Start</label>
+                    <div class="with-icon">
+                        <input type="text" class="form-control user-collection-start-date" data-date-end-date="0d" value="@Model.StartDate.ToString("dd-MM-yyyy")">
+                        <i class="fa fa-calendar"></i>
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-2">
+                    <label>End</label>
+                    <div class="with-icon">
+                        <input type="text" class="form-control user-collection-end-date" data-date-end-date="0d" value="@Model.EndDate.ToString("dd-MM-yyyy")">
+                        <i class="fa fa-calendar"></i>
+                    </div>
+                </div>
+                <div class="col-sm-2 col-md-2" style="margin-top: 26px;">
+                    <button type="button" class="btn btn-sm btn-info btn-search" id="searchDetailedDataBtn">Search</button>
+                </div>
+
+
+
+
+
+
+                <div class="row">
+                    <div class="form-group col-sm-3">
+                        <div class="form-group">
+                            <label>Category : </label>
+                            <br />
+                            @Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetLabCategoriesAll(), "   All   ", new { @class = "form-control slct-lab-category-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                            @Html.ValidationMessageFor(z => z.CategoryId)
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <div class="form-group">
+                            <label> Print : </label>
+                            <br />
+                            <button class="btn pay-now-btn" id="btn-Print-bill" onclick="printContent('print-trial-bal')"><i class="fa fa-print"></i> Print</button>
+                            <button class="btn pay-now-btn" id="btn-excel-trial-bal"><i class="fa fa-table"></i> Excel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="table-responsive">
+                        <div class="col-md-12" id="print-trial-bal">
+                            <h3 style="text-align:center;">PURCHASE REPORT</h3>
+                            <h5 style="text-align:center;" id="inventory-report-head"></h5>
+                            <table class="table " id="inventory-report-list" style="border-collapse: inherit;"></table>
+                        </div>
+                    </div>
+                </div>
+
+                @*// jibin 9/17/2020*@
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive custom-table" id="collection-list-view">
+
+                        </div>
+                    </div>
+                </div>
+                @*// jibin 9/17/2020*@
+
+
+            </div>
+        </div>
+        <script>
+
+                //jibin
+     $('.date-detailed').datepicker({
+        format: 'dd-mm-yyyy',
+        autoclose: true,
+        todayHighlight: true
+    });
+
+    //jibin
+
+
+
+
+
+            $(document).on('change', '.slct-lab-category-dropdwn1', function () {
+                var catId = $(".slct-lab-category-dropdwn1 option:selected").val();
+                var category = $(".slct-lab-category-dropdwn1 option:selected").text();
+                $('#inventory-report-list').show();
+                if (catId != 0) {
+                    $.ajax({
+                        url: '/Laboratory/DatatableLabPurchaseReport/' + catId,
+                        type: "GET",
+                        dataType: 'html',
+                        success: function (data) {
+                            $('#collection-list-view').hide();
+                            $('#inventory-report-head').text(category);
+                            $('#inventory-report-list').html(data);
+                        }
+                    });
+                }
+                else {
+                    $.ajax({
+                        url: '/Laboratory/DatatableLabPurchaseReport/' + 0,
+                        type: "GET",
+                        dataType: 'html',
+                        success: function (data) {
+                          
+                            $('#inventory-report-head').text('All Category');
+                            $('#inventory-report-list').html(data);
+                        }
+                    });
+                }
+            });
+
+            $(document).ready(function () {
+                $.ajax({
+                    url: '/Laboratory/DatatableLabPurchaseReport/' + 0,
+                    type: "GET",
+                    dataType: 'html',
+                    success: function (data) {
+
+                        $('#collection-list-view').hide();
+                        $('#inventory-report-head').text('All Category');
+                        $('#inventory-report-list').html(data);
+                    }
+                });
+            });
+
+            function printContent(el) {
+                var restorepage = document.body.innerHTML;
+                var printcontent = document.getElementById(el).innerHTML;
+                document.body.innerHTML = printcontent;
+                window.print();
+                document.body.innerHTML = restorepage;
+                window.location.href = '/Laboratory/LabInventoryReport';
+            };
+
+            $(document).on('click', '#btn-excel-trial-bal', function () {
+
+                var head = $(".slct-lab-category-dropdwn1 option:selected").text();
+                $("#inventory-report-list").table2excel({
+                    name: "Table2Excel",
+                    filename: "LAB INVENTORY REPORT as on " + head,
+                    fileext: ".xls"
+                });
+            });
+
+
+// report by date
+
+
+              $(document).ready(function () {
+        $('.user-collection-start-date').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true,
+            todayHighlight: true
+        });
+        $('.user-collection-end-date').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true,
+            todayHighlight: true,
+        });
+        var sDate = $('.user-collection-start-date').val();
+        var eDate = $('.user-collection-end-date').val();
+
+        var res = sDate.split("-");
+        var dd = res[0];
+        var mm = res[1];
+        var yyyy = res[2];
+        sDate = mm + '-' + dd + '-' + yyyy;
+
+        var zres = eDate.split("-");
+        var zdd = zres[0];
+        var zmm = zres[1];
+        var zyyyy = zres[2];
+        eDate = zmm + '-' + zdd + '-' + zyyyy;
+       
+        $.ajax({
+            url: '/Laboratory/PurchaseReportByDate/' + sDate + '~' + eDate,
+            type: "GET",
+            // dataType: 'html',
+            success: function (data) {
+                $('#collection-list-view').html(data);
+                //IntializeDataTable();
+
+            }
+        })
+
+    })
+              $('.btn-search').click(function () {
+        var sDate = $('.user-collection-start-date').val();
+        var eDate = $('.user-collection-end-date').val();
+
+        var res = sDate.split("-");
+        var dd = res[0];
+        var mm = res[1];
+        var yyyy = res[2];
+        sDate = mm + '-' + dd + '-' + yyyy;
+
+        var zres = eDate.split("-");
+        var zdd = zres[0];
+        var zmm = zres[1];
+        var zyyyy = zres[2];
+        eDate = zmm + '-' + zdd + '-' + zyyyy;
+
+        console.log(sDate, eDate);
+
+   $('#collection-list-view').show();
+        $.ajax({
+            url: '/Laboratory/PurchaseReportByDate/' + sDate + '~' + eDate,
+            type: "GET",
+            // dataType: 'html',
+            success: function (data) {
+
+                $('#inventory-report-list').hide();
+
+           
+                $('#collection-list-view').html(data);
+                //IntializeDataTable();
+            }
+        })
+    })
+
+
+            //report by date
+
+
+
+
+
+
+        </script>

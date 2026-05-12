@@ -1,0 +1,46 @@
+﻿
+@model TrackTap.Models.FeeModel
+<div class="modal-dialog modal-sm" role="document">
+
+    <style>
+        span {
+            color: red;
+        }
+    </style>
+
+    @using (Ajax.BeginForm("EditFeeStudentAmount", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "EditSpecialFeeAmtSuccess",
+            OnFailure = "ajaxFailure",
+        }, new { id = "form-login" }))
+    {
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Edit Special Fee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name</label>
+                    <p>@Model.StudentName</p>
+                </div>
+                <div class="form-group">
+                    <label>Fee</label>
+                    <p>@Model.FeeName</p>
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    @Html.TextBoxFor(m => m.Amount, new { autocomplete = "off", @type = "number", placeholder = "", @class = "form-control" })
+                </div>
+                @Html.TextBoxFor(m => m.SpecialFeeId, new { @type = "hidden" })
+                @Html.TextBoxFor(m => m.StudentId, new { @type = "hidden" })
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" class=" btn pay-now-btn">Save</button>
+            </div>
+        </div>
+    }
+</div>

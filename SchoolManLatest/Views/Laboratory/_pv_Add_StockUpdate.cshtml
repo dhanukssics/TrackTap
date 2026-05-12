@@ -1,0 +1,400 @@
+﻿@model TrackTap.Models.StockUpdateModel
+@{
+
+}
+@*@using (Ajax.BeginForm("SubmitStockUpdate", "Laboratory", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "AddStockUpdateSuccess",
+        OnFailure = "AddStockUpdateFailed"
+    }, new { id = "form-add-exam" }))*@
+
+@using (Html.BeginForm())
+{
+    <div class="row" style="width:100%; padding-left: 10px;">
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Category : </label>
+                <br />
+                @Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetLabCategoriesAll(), new { @class = "form-control slct-lab-category-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;", id = "CategoryId" })
+                @Html.ValidationMessageFor(z => z.CategoryId)
+              
+            </div>
+        </div>
+
+        <div class="form-group col-sm-3">
+            <label>Items</label>
+            <br />
+            <select id="subject-drop-down" class="form-control slct-free-div-dropdown1" disabled>
+                <option>--Select Item --</option>
+            </select>
+            <span id="spn-error-Division" data-val="0" data-myval="10" style="color:red;"></span>
+        </div>
+
+
+
+        <div class="form-group col-sm-3">
+            <label>Unit</label>
+            <br />
+            @Html.TextBoxFor(m => m.Unit, new { @class = "form-control date-add", placeholder = "Unit", id = "subject-drop-downunit", required = "required", disabled = "disabled"})
+            @*<select id="subject-drop-downunit" class="form-control slct-free-div-dropdown1" disabled>
+                <option>--Select Unit --</option>
+            </select>
+            <span id="spn-error-Division" data-val="0" data-myval="10" style="color:red;"></span>*@
+        </div>
+      
+
+     
+
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Quantity : </label>
+                <br />
+                @Html.TextBoxFor(m => m.Quantity, new { autocomplete = "off", placeholder = "Price", @class = "form-control", id = "Quantity" })
+                @Html.ValidationMessageFor(z => z.Quantity)
+
+            </div>
+        </div>
+
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Price : </label>
+                <br />
+                @Html.TextBoxFor(m => m.Price, new { autocomplete = "off", placeholder = "Price", @class = "form-control", id = "Price" })
+                @Html.ValidationMessageFor(z => z.Price)
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Purchase Id : </label>
+                <br />
+                @Html.TextBoxFor(m => m.PurchaseId, new { autocomplete = "off", placeholder = "Purchase Id", @class = "form-control", id = "PurchaseId" })
+                @Html.ValidationMessageFor(z => z.PurchaseId)
+            </div>
+        </div>
+    </div>
+    <div class="row" style="width:100%; padding-left: 10px;">
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Supplir Name : </label>
+                <br />
+                @Html.TextBoxFor(m => m.SupplirName, new { autocomplete = "off", placeholder = "Supplir Name", @class = "form-control", id = "SupplirName" })
+                @Html.ValidationMessageFor(z => z.SupplirName)
+            </div>
+        </div>
+        <div class="form-group col-sm-3">
+            <div class="form-group">
+                <label style="color:black;">Status : </label>
+                <br />
+                @Html.EnumDropDownListFor(m => m.Status, "--Choose--", new { @class = "form-control", @data_live_search = "true", id = "Statusid" })
+                @Html.ValidationMessageFor(m => m.Status)
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div style="padding: 26px;">
+                <button type="submit" class="btn pay-now-btn" id="btn-stock-update">Save</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script type="text/javascript">
+
+
+
+
+        $(document).on('change', '#CategoryId', function () {
+            array = [];
+            var id = $(this).val();
+            $('#CategoryId').val($(this).val());
+
+           
+          
+
+            if (id != '') {
+             
+                $.ajax({
+                    url: '/Data/GetItemCategories?id=' + id,
+                    type: "GET",
+                    success: function (result) {
+                        if (result.list.length > 0) {
+                            $("#subject-drop-down").html("");
+                            $("#subject-drop-down").append($('<option></option>').val("").html('-- Select Item --'));
+                            $.each(result.list, function (i, item) {
+
+                                $("#subject-drop-down").append($('<option></option>').val(item.Value).html(item.Text));
+
+
+                            });
+
+                            var seen = {};
+                            jQuery('#subject-drop-down').children().each(function () {
+                                var txt = jQuery(this).attr('value');
+                                if (seen[txt]) {
+                                    jQuery(this).remove();
+                                } else {
+                                    seen[txt] = true;
+                                }
+                            });
+
+
+
+
+                            $("#subject-drop-down").prop("disabled", false);
+                            $('#optional-subjects-student-mark-list').html('');
+
+
+
+
+                        }
+                        else {
+                            $(".slct-free-div-dropdown1").html(""); // Division
+                            $(".slct-free-div-dropdown1").append($('<option></option>').val("").html('---'));
+                            $(".slct-free-div-dropdown1").prop("disabled", true);
+                            $('#optional-subjects-student-mark-list').html('');
+                        }
+                    }
+                });
+            }
+            else {
+                $(".slct-free-div-dropdown").html(""); // Division
+                $(".slct-free-div-dropdown").append($('<option></option>').val("").html('---'));
+                $(".slct-free-div-dropdown").prop("disabled", true);
+                $('#optional-subjects-student-mark-list').html('');
+            }
+        });
+
+
+        // for units
+
+        $(document).on('change', '#subject-drop-down', function () {
+            array = [];
+            var id = $(this).val();
+            $('#subject-drop-down').val($(this).val());
+
+             
+
+            if (id != '') {
+                $.ajax({
+                    url: '/Data/GetUnitCategories?id=' + id,
+                    type: "GET",
+                    success: function (result) {
+                        if (result.list.length > 0) {
+                            $("#subject-drop-downunit").html("");
+                           //  $("#subject-drop-downunit").val($(this).val());
+                         //   $("#subject-drop-downunit").append($('<option></option>').val("").html('-- Select Item --'));
+                              $.each(result.list, function (i, item) {
+
+                                $("#subject-drop-downunit").val(item.Value).html(item.Text);
+
+                            //    $("#subject-drop-downunit").append($('<option></option>').val(item.Value).html(item.Text));
+
+
+                            });
+
+                            var seen = {};
+                            jQuery('#subject-drop-downunit').children().each(function () {
+                                var txt = jQuery(this).attr('value');
+                                if (seen[txt]) {
+                                    jQuery(this).remove();
+                                } else {
+                                    seen[txt] = true;
+                                }
+                            });
+
+
+
+
+                            $("#subject-drop-downunit").prop("disabled", false);
+                            $('#optional-subjects-student-mark-list').html('');
+
+
+
+
+                        }
+                        else {
+                            $(".slct-free-div-dropdown1").html(""); // Division
+                            $(".slct-free-div-dropdown1").append($('<option></option>').val("").html('---'));
+                            $(".slct-free-div-dropdown1").prop("disabled", true);
+                            $('#optional-subjects-student-mark-list').html('');
+                        }
+                    }
+                });
+            }
+            else {
+                $(".slct-free-div-dropdown").html(""); // Division
+                $(".slct-free-div-dropdown").append($('<option></option>').val("").html('---'));
+                $(".slct-free-div-dropdown").prop("disabled", true);
+                $('#optional-subjects-student-mark-list').html('');
+            }
+        });
+
+
+
+
+        // save
+
+
+        $(document).ready(function () {
+            $('#btn-stock-update').click(function () {
+                var formData = new FormData();
+                // var totalFiles = document.getElementById("fileInput").files.length;
+
+
+                //  for (var i = 0; i < totalFiles; i++) {
+                //  var file = document.getElementById("fileInput").files[i];
+                var subid = $('#subject-drop-down').val().trim();
+             
+                var catid = $('#CategoryId').val().trim();
+                
+                var unit = $('#subject-drop-downunit').val().trim();
+               
+                var quantity = $('#Quantity').val().trim();
+               
+                var Price = $('#Price').val().trim();
+                
+                // var teacher = $("#teacherId option:selected").text().trim();
+                var PurchaseId = $('#PurchaseId').val().trim();
+               
+                var Supplier = $('#SupplirName').val().trim();
+               
+                var Statusid = $('#Statusid').val().trim();
+                
+
+
+
+                formData.append("CategoryId", catid);
+                formData.append("Item", subid);
+                formData.append("Price", Price);
+                formData.append("Unit", unit);
+                formData.append("Quantity", quantity);
+                formData.append("PurchaseId", PurchaseId);
+                formData.append("SupplirName", Supplier);
+                formData.append("Status", Statusid);
+
+                // }
+                $.ajax({
+                    type: "POST",
+                    url: '/Laboratory/SubmitStockUpdate',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+
+
+                       
+
+                      //  $("#temp").load(" #temp");
+
+
+                    },
+                    error: function (error) {
+
+                    }
+                });
+            });
+        });
+
+
+
+
+
+
+
+    </script>
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*@model TrackTap.Models.StockUpdateModel
+    @{
+
+    }
+    @using (Ajax.BeginForm("SubmitStockUpdate", "Laboratory", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "AddStockUpdateSuccess",
+        OnFailure = "AddStockUpdateFailed"
+    }, new { id = "form-add-exam" }))
+    {
+        <div class="row" style="width:100%; padding-left: 10px;">
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label style="color:black;">Category : </label>
+                    <br />
+                    @Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetLabCategories(Model.SchoolId), new { @class = "form-control slct-lab-category-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                    @Html.ValidationMessageFor(z => z.CategoryId)
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label style="color:black;">Item : </label>
+                    <br />
+                    @Html.TextBoxFor(m => m.Item, new { autocomplete = "off", placeholder = "Item",  @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.Item)
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label style="color:black;">Price : </label>
+                    <br />
+                    @Html.TextBoxFor(m => m.Price, new { autocomplete = "off", placeholder = "Price", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.Price)
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label style="color:black;">Purchase Id : </label>
+                    <br />
+                    @Html.TextBoxFor(m => m.PurchaseId, new { autocomplete = "off", placeholder = "Purchase Id", @class = "form-control" })
+                    @Html.ValidationMessageFor(z => z.PurchaseId)
+                </div>
+            </div>
+        </div>
+        <div class="row" style="width:100%; padding-left: 10px;">
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label style="color:black;">Supplir Name : </label>
+                    <br />
+                    @Html.TextBoxFor(m => m.SupplirName, new { autocomplete = "off", placeholder = "Supplir Name", @class = "form-control" ,id="supplier-auto-complete" })
+                    @Html.ValidationMessageFor(z => z.SupplirName)
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label style="color:black;">Status : </label>
+                    <br />
+                    @Html.EnumDropDownListFor(m => m.Status, "--Choose--", new { @class = "form-control", @data_live_search = "true" })
+                    @Html.ValidationMessageFor(m => m.Status)
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div style="padding: 26px;">
+                    <button type="submit"  class="btn pay-now-btn" id="btn-stock-update">Save</button>
+                </div>
+            </div>
+
+        </div>
+    }*@
+
+
+

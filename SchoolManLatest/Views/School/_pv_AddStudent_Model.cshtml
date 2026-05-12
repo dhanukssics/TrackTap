@@ -1,0 +1,199 @@
+﻿@model TrackTap.Models.StudentModel
+<style>
+    .isHidden {
+        display: none;
+    }
+
+    span {
+        color: red;
+    }
+    .borderStyleClass{
+     border: 1px solid #5a5a5a  !important;
+    }
+</style>
+
+<div class="modal-dialog" role="document" style="background-color: #fff;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Add Student</h4>
+        </div>
+    </div>
+    @using (Ajax.BeginForm("AddStudent", "School", null, new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "StudentAddSuccess",
+        OnFailure = "StudentAddFailed",
+    }, new { id = "form-login" }))
+    {
+        @Html.HiddenFor(m => m.StudentIdAfterSave, new { @value = 0 })
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="text-center">
+                        <label>Upload Profile Picture</label>
+                        <div id="dummyId"></div>
+                        <div class="upload-box" id="file_preview_grid" style="background-image: url(../Content/img/default-placeholder-1024x1024-960x960.png);">
+                            <input id="default-pic-browse" type="file" class="uploder-controler" />
+                            @Html.TextBoxFor(m => m.profilePic, new { type = "hidden" })
+                            @Html.TextBoxFor(m => m.bloodGroup, new { type = "hidden" })
+
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Name</label>
+                        @Html.TextBoxFor(m => m.studentName, new { @class = "form-control borderStyleClass", placeholder = "Name" })
+                        @Html.ValidationMessageFor(m => m.studentName)
+                    </div>
+                    <div class="form-group">
+                        <label>Father Name</label>
+                        @Html.TextBoxFor(m => m.parentName, new { @class = "form-control borderStyleClass", placeholder = "Parent Name" })
+                        @Html.ValidationMessageFor(m => m.parentName)
+                    </div>
+                    <div class="form-group">
+                        <label>Parent Email</label>
+                        @Html.TextBoxFor(m => m.parentEmail, new { @class = "form-control borderStyleClass", placeholder = "Parent Email" })
+                        @Html.ValidationMessageFor(m => m.parentEmail)
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        @Html.TextAreaFor(m => m.address, new { @class = "form-control", placeholder = "Address" })
+                        @Html.ValidationMessageFor(m => m.address)
+                    </div>
+                    <div class="form-group">
+                        <label>DOB</label>
+                        <div class="calendar-inp pos_icon_adj">
+                            <i class="fa fa-calendar" style="margin-left: 90%;"></i>
+                            @Html.TextBoxFor(m => m.DOBstring, new { @class = "form-control borderStyleClass", placeholder = ""  })
+                            @*@Html.ValidationMessageFor(m => m.DOBstring)*@
+                        </div>
+                    </div>
+                    <div class="col-sm-6" style="width:100%;">
+                        <div class="form-group">
+                            <label>Smart Phone User</label>
+                            <div style="margin-top: 5px;">
+                                @Html.RadioButtonFor(x => x.IsSmartPhoneUser, "0", new { type = "radio", name = "radiog_lite", id = "radioNo", @class = "form-group", @checked = "checked" })
+                                <span for="radioNo" style="color: black;">No</span>
+                                @Html.ValidationMessageFor(m => m.IsSmartPhoneUser)
+
+                                @Html.RadioButtonFor(x => x.IsSmartPhoneUser, "1", new { type = "radio", name = "radiog_lite", id = "radioYes", @class = "form-group" })
+                                <span for="radioYes" style="color: black;">Yes</span>
+                                @Html.ValidationMessageFor(m => m.IsSmartPhoneUser)
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- col-sm-6 End -->
+                <div class="col-sm-6">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>State</label>
+                                @Html.TextBoxFor(m => m.state, new { @class = "form-control borderStyleClass", placeholder = "State" })
+                                @Html.ValidationMessageFor(m => m.state)
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>City</label>
+                                @Html.TextBoxFor(m => m.city, new { @class = "form-control borderStyleClass", placeholder = "City" })
+                                @Html.ValidationMessageFor(m => m.city)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Class</label>
+                                @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.schoolId), "--Choose--", new { @class = "form-control pv_class-drop-down", @data_live_search = "true", name = "classDropdown", id = "classDataDropdown" })
+                                @Html.ValidationMessageFor(m => m.classId)
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Division</label>
+
+                                @Html.DropDownListFor(m => m.divisionId, new SelectList(
+                  new List<Object>{
+                       new { value = 0 , text = "--select division--"  }
+                    },
+                  "value",
+                  "text"
+                   ), new { @class = "form-control division_Select", @data_live_search = "true", @disabled = "disabled" })
+                                @Html.ValidationMessageFor(m => m.divisionId)
+
+                                @*<select id="pv_division-drop-down" class="form-control" disabled>
+                                        <option>-- Please select division --</option>
+                                    </select>
+                                    @Html.TextBoxFor(m => m.divisionId, new { type = "hidden" })*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Blood Group</label>
+                                <select class="form-control" id="slct-bloodGroup">
+                                    <option value="">--Choose--</option>
+                                    <option value="O−">O−</option>
+                                    <option value="O+">O+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="A+">A+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="AB+">AB+</option>
+                               
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <div style="margin-top: 5px;">
+                                    @Html.RadioButtonFor(x => x.gender, "M", new { type = "radio", name = "radiog_lite", id = "radio2", @class = "form-group", @checked = "checked" })
+                                    <span for="radio2" style="color: black;">Male</span>
+                                    @Html.ValidationMessageFor(m => m.gender)
+
+                                    @Html.RadioButtonFor(x => x.gender, "F", new { type = "radio", name = "radiog_lite", id = "radio1", @class = "form-group" })
+                                    <span for="radio1" style="color: black;">Female</span>
+                                    @Html.ValidationMessageFor(m => m.gender)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact No.</label>
+                        @Html.TextBoxFor(m => m.contactNo, new { @class = "form-control borderStyleClass", placeholder = "Contact No." })
+                        @Html.ValidationMessageFor(m => m.contactNo)
+                    </div>
+                    <div class="form-group">
+                        <label>Admission No.</label>
+                        @Html.TextBoxFor(m => m.admissionNo, new { @class = "form-control borderStyleClass", id = "studentAdmissionNo", placeholder = "Admission No." })
+                        <span id="spn-error-admissionNo" data-val="0" data-myval="10" style="color:red;"></span>
+                        @Html.ValidationMessageFor(m => m.admissionNo)
+                    </div>
+                    <div class="form-group">
+                        <label>Bus Name</label>
+                        @Html.DropDownListFor(m => m.BusId, TrackTap.DataLibrary.Data.DropdownData.GetBusName(Model.schoolId), "--Select Bus--", new { @class = "form-control pv_bus-drop-down" })
+                    </div>
+                    <div class="form-group">
+                        <label>Trip Number</label>
+                        @Html.TextBoxFor(m => m.tripNumber, new { @class = "form-control borderStyleClass", placeholder = "Trip Number" })
+                    </div>
+                    <div class="form-group">
+                        <label>RF Card Number</label>
+                        @Html.TextBoxFor(m => m.biometricId, new { @class = "form-control borderStyleClass", placeholder = "Card Number" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button class="btn pay-now-btn" id="studentStudentAdd">Save</button>
+            <button class="btn pay-now-btn" style="display:none;" id="studentStudentContinue">Continue</button>
+        </div>
+    }
+</div>

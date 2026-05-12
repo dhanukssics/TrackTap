@@ -1,0 +1,751 @@
+﻿@model TrackTap.Models.FeeModel
+
+@{
+    var student = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId);
+    decimal studBalance = student.StudentBalance();
+    //var paymentList = student.GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList(); // Archana commented this for Academic year of feeses
+   // var paymentList = student.GetStudentPaymentFeesWithAcademicYear(Model.AcademicYearId).OrderBy(z => z.DueDate).ToList();
+    var discountFee = student.Discount.ToList();
+    var commonFeeDiscount = student.GetStudentCommonFeeDiscount().ToList();
+}
+<input type="hidden" value="@student.SchoolId" id="schoolId" />
+<input type="hidden" value="@student.ClassId" id="classId" />
+<input type="hidden" value="@student.StudentId" id="studentId" />
+
+<style>
+    [data-event=disable] > td:not(:first-child) {
+        pointer-events: none;
+        opacity: .5;
+    }
+
+    [data-event=disable] > td {
+        background-color: #f1f1f1 !important;
+    }
+</style>
+<div class="form-group isHidden">
+    <h4 style="text-align: right;"><span style="float: left;">Payment Details</span> <button class="btn pay-now-btn" data-toggle="modal" data-target="#modalPayment"><i class="fa fa-plus"></i> Add Payment</button></h4>
+</div>
+@*@if (paymentList.Count >= 1)
+{*@
+    <input type="hidden" id="hfTotal" />
+    <div>
+        <div class="table-responsive">
+            <table class="table account-table" id="tbAcBill">
+                <tr id="thead">
+                    <th colspan="2">
+                        Category
+                    </th>
+
+                    <th>
+                        Items
+                    </th>
+                    <th>
+                        Units
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th >
+                        Price
+                    </th>
+
+                    <th style="width:10%; text-align: right;">
+                        Amount
+                    </th>
+                    <th> <button type="button" class="altera acrescimo" id="newRow">Add Row</button></th>
+                </tr>
+                <tbody id="bodyTable">
+                    @*@foreach (var fee in paymentList)
+                    {*@
+                    <tr data-id="tbRowAmount">
+                        <td style="width: 10px;">
+
+
+
+                            <span class="" id="Slno"></span>
+
+
+                        </td>
+
+                        <td>
+                            <div>
+
+
+                                @Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetLabCategoriesAll(), new { @class = "form-control slct-lab-category-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;", id = "CategoryId" })
+                                @Html.ValidationMessageFor(z => z.CategoryId)
+
+                                @*<select id="subject-drop-down" class="">
+                    <option>--Select Category --</option>
+                </select>*@
+
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            <div>
+                                <select id="subject-drop-down" class="" disabled>
+                                    <option>--Select Item --</option>
+                                </select>
+                            </div>
+                        </td>
+
+                        <td>
+                            @Html.TextBoxFor(m => m.Unit, new { @class = "form-control date-add", placeholder = "Unit", id = "subject-drop-downunit", required = "required", disabled = "disabled" })
+
+                        </td>
+
+                        <td>
+                            <input id="txt-Quantity" type="text" style="text-align: right;" value="" maxlength="4" size="4" />
+
+                        </td>
+
+                        <td>
+                            <input id="txt-Price" type="text" style="text-align: right;" value="" maxlength="6" size="6" />
+
+                        </td>
+
+
+                        <td style="width:15%; text-align: right;">
+
+
+
+
+                            <div>
+                                <input id="txt-amount" type="text" style="text-align: right;" value="" /><button type="button" style="color: red;opacity: 0.3;text-shadow: 01px 0 #f70c0c;" class="close" id="deletebutton" aria-label="Close" @*onclick="Remove(this)"*@><span aria-hidden="true">&times;</span></button>
+
+
+                            </div>
+
+
+
+                        </td>
+
+
+                    </tr>
+                    @*}*@
+                </tbody>
+                <tfoot>
+                    <tr>
+                        @*<td colspan="5" style="text-align:right">
+                            Previous Balance
+                        </td>*@
+                        <td id="tdBalance" style="text-align: right;background-color: #ffffff;" data-id="">
+                            @*@String.Format("{0:0.00}", studBalance)*@
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+
+                        </td>
+                        <td colspan="5">
+                            Total Amount
+                        </td>
+
+                       
+                        <td >
+                            <input id="tdTotal" type="text" style="text-align: right;" value="" />
+                        </td>
+                    </tr>
+                    @*<tr>
+                        <td colspan="5" style="text-align:right">
+                            Amount Payable
+                        </td>
+                        <td id="tdAmountPayable" style="text-align: right;">
+                            @String.Format("{0:0.00}", 0.00)
+                        </td>
+
+                    </tr>*@
+                </tfoot>
+            </table>
+        </div>
+        <div class="form-group text-right">
+            <div style="display:none;"><label>Pay</label><input type="text" id="paying-amount" style="margin-left:20px;"></div>
+            <div>
+                @*<button class="btn btn-peek" id="editCommonPayment" data-toggle="modal" data-target="#modalPaymentEdit"><i class="fa fa-edit"></i> Common Fee Discount</button>
+                <button class="btn btn-peek" id="editPayment" data-toggle="modal" data-target="#modalPaymentEdit"><i class="fa fa-edit"></i> Special Fee Discount</button>*@
+                <button class="btn pay-now-btn" addition-test="test00" id="btn-save-bill"><i class="fa fa-save"></i> Save</button>
+            </div>
+            @*<button class="btn pay-now-btn" id="btn-Print-bill" onclick="printContent('tbAcBill')"><i class="fa fa-print"></i> Print</button>*@
+        </div>
+    </div>
+@*}*@
+@*else
+{
+    <div class="table-responsive">
+        <table class="table account-table" id="tbAcBill">
+            <tr id="thead">
+                <th colspan="2">
+                    Particulars
+                </th>
+                <th>
+                    Discount
+                </th>
+                <th></th>
+                <th style="width:20%; text-align: right;">
+                    Amount
+                </th>
+            </tr>
+            <tbody id="bodyTable"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" style="text-align:right">
+                        Previous Balance
+                    </td>
+                    <td id="tdBalance" style="text-align: right;" data-id="@studBalance">
+                        @String.Format("{0:0.00}", studBalance)
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        Total Fee
+                    </td>
+                    <td id="tdTotal" style="text-align: right;">
+                        0.00
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="form-group text-right isHidden" id="div-adv-pay">
+        <button class="btn btn-peek" id="editCommonPayment" data-toggle="modal" data-target="#modalPaymentEdit"><i class="fa fa-edit"></i> Common Fee Discount</button>
+        <button class="btn btn-peek" id="editPayment" data-toggle="modal" data-target="#modalPaymentEdit"><i class="fa fa-edit"></i> Special Fee Discount</button>
+        <button class="btn pay-now-btn" test-unit="test" id="btn-save-bill"><i class="fa fa-save"></i> Save</button>
+      
+    </div>
+}*@
+<script>
+
+
+
+
+
+
+
+
+    $(document).on('click', '[data-toggle="tclose"]', function () {
+        var e = $(this), p = $(e).parent().parent();
+        $(p).remove();
+        sumTotal();
+    });
+
+    $(document).ready(function () {
+        //$('[data-id="chekIp"]').attr('checked', 'checked');
+        $('[data-id="chekIp"]').each(function () {
+            AddRemoveFee(this);
+            //  $(this).trigger('click');
+        });
+        sumTotal();
+    });
+    //$(document).on('click', '.fa-remove', function () {
+    //    sumTotal();
+    //});
+
+    function sumTotal() {
+        //alert();
+        var val = 0;
+        var textBoxVal = 0;
+        var payable = 0;
+
+        $("input:checked").each(function () {
+            textBoxVal = parseFloat($(this).parents('tr').find("#txt-amount").val());
+
+            if (!textBoxVal) {
+                textBoxVal = 0;
+            }
+
+            val = parseFloat(val) + parseFloat(textBoxVal);
+        });
+        //$('*[data-amount]').each(function () {
+        //    // val = parseFloat(val) + parseFloat($(this).attr('data-amount'));
+        //    if ($(this).is(':checked')) {
+        //        val = parseFloat(val) + parseFloat($(this).attr('data-amount'));
+        //    }
+        //});
+        $('#hfTotal').val(val);
+        $('#tdTotal').html(parseFloat(val));
+        var balance = $('#tdBalance').attr('data-id');
+        console.log(balance);
+
+        payable = parseFloat(val) - parseFloat(balance);
+        if (payable < 0) {
+
+            payable = 0;
+        }
+        console.log(Math.abs(payable));
+        $('#tdAmountPayable').html(parseFloat(Math.abs(payable)));
+    }
+
+    $(document).on('click', '[data-id="chekIp"]', function () {
+        AddRemoveFee(this);
+        var f = $(this), p = $(f).parents('tr');
+        if ($(f).is(':checked')) {
+            $(this).attr('checked', 'checked');
+            var t = $(p).html(), h = '<tr data-event="" data-id="tbRowAmount">' + t + '</tr>';
+            $('#bodyTable').prepend(h);
+            $(p).remove();
+            sumTotal();
+            //AddRemoveFee($('[data-id="chekIp"]'));
+            //console.log($('#chekIp'));
+            console.log(f);
+        }
+        else {
+            sumTotal();
+            $(this).removeAttr('checked', 'checked');
+            var t = $(p).html(), h = '<tr data-event="disable" data-id="tbRowAmount">' + t + '</tr>';
+            $('#bodyTable').append(h);
+            $(p).remove();
+            //AddRemoveFee($('[data-id="chekIp"]'));
+            //alert('Archana');
+            console.log(t);
+            //----------------------------------------------------------------------
+            var full = f.text().split(',');
+            for (var i = full.length - 1; i >= 0; i--) {
+                var one = full[i].split('^');
+                //alert(one[1]);
+
+            }
+        }
+
+    });
+    $(document).on('click', '[data-remo="adv"]', function () {
+        AddRemoveFee(this);
+        var f = $(this), p = $(f).parents('tr');
+        if ($(f).is(':checked')) {
+            $(this).attr('checked', 'checked');
+            var t = $(p).html(), h = '<tr data-event="" data-id="tbRowAmount">' + t + '</tr>';
+            $('#bodyTable').prepend(h);
+            $(p).remove();
+            sumTotal();
+            //AddRemoveFee($('[data-id="chekIp"]'));
+        }
+        else {
+            sumTotal();
+            $(this).removeAttr('checked', 'checked');
+            var t = $(p).html(), h = '<tr data-event="disable" data-id="tbRowAmount">' + t + '</tr>';
+            $('#bodyTable').append(h);
+            $(p).remove();
+            //AddRemoveFee($('[data-id="chekIp"]'));
+        }
+
+    });
+
+    var array = [];
+    function AddRemoveFee(source) {
+        //var btnStatus = $('#hfBtnStatus').val();
+
+
+        var feeId = $(source).attr("data-fee");
+        var specialId = feeId.split('^');
+        if ($(source).is(":checked")) {
+            // it is checked
+            array.push(feeId);
+            // $('#btn-homework').attr('disabled', false);
+            console.log(JSON.stringify(array));
+        }
+        else {
+            for (var i = array.length - 1; i >= 0; i--) {
+                if (array[i] == feeId) {
+                    array.splice(i, 1);
+                }
+            }
+            //if (array.length == 0) {
+            //    $('#btn-homework').attr('disabled', true);
+            //}
+            console.log(JSON.stringify(array));
+        }
+    }
+
+    //$("#btn-save-bill").click(function () {
+    //    var item = new Object();
+    //    item.SchoolId = $('#schoolId').val();
+    //    item.ClassId = $('#classId').val();
+    //    item.StudentId = $('#studentId').val();
+    //    item.FeeDetails = array.toString();
+    //    $.post("/School/StudentMainBillPay/", item, function (result) {
+    //        console.log(JSON.stringify(result))
+    //        if (result.status) {
+    //            if (result.status) {
+    //                alert('hi')
+    //                //toastrSuccess(result.msg);
+    //                //location.reload();
+    //                printViewData();
+    //            }
+    //            else {
+    //                toastrError(result.msg);
+    //            }
+    //        }
+    //    });
+    //});
+
+    //function printViewData()
+    //{
+    //    var studentMainId = $('#studentId').val();
+    //    $.ajax({
+    //        url: '/School/PrintData/' + studentMainId,
+    //        type: "GET",
+    //        dataType: 'html',
+    //        success: function (data) {
+    //            $('#billingList').html(data);
+    //            //$.validator.unobtrusive.parse($("#billingList"));
+    //            //$('#billingList').modal('show');
+    //            //alert('GGG')
+    //        }
+    //    });
+    //}
+
+
+    // jibin 9/24/2020
+
+
+
+    
+        $(document).on('change', '#CategoryId', function () {
+            array = [];
+            var id = $(this).val();
+            $('#CategoryId').val($(this).val());
+
+            alert(id)
+          
+
+            if (id != '') {
+             
+                $.ajax({
+                    url: '/Data/GetItemCategories?id=' + id,
+                    type: "GET",
+                    success: function (result) {
+                        if (result.list.length > 0) {
+                            $("#subject-drop-down").html("");
+                            $("#subject-drop-down").append($('<option></option>').val("").html('-- Select Item --'));
+                            $.each(result.list, function (i, item) {
+
+                                $("#subject-drop-down").append($('<option></option>').val(item.Value).html(item.Text));
+
+
+                            });
+
+                            var seen = {};
+                            jQuery('#subject-drop-down').children().each(function () {
+                                var txt = jQuery(this).attr('value');
+                                if (seen[txt]) {
+                                    jQuery(this).remove();
+                                } else {
+                                    seen[txt] = true;
+                                }
+                            });
+
+
+
+
+                            $("#subject-drop-down").prop("disabled", false);
+                            $('#optional-subjects-student-mark-list').html('');
+
+
+
+
+                        }
+                        else {
+                            $("#subject-drop-down").html(""); // Division
+                            $("#subject-drop-down").append($('<option></option>').val("").html('---'));
+                            $("#subject-drop-down").prop("disabled", true);
+                            $('#optional-subjects-student-mark-list').html('');
+                        }
+                    }
+                });
+            }
+            else {
+                $(".slct-free-div-dropdown").html(""); // Division
+                $(".slct-free-div-dropdown").append($('<option></option>').val("").html('---'));
+                $(".slct-free-div-dropdown").prop("disabled", true);
+                $('#optional-subjects-student-mark-list').html('');
+            }
+        });
+
+
+        // for units
+
+
+
+
+
+
+     
+          $(document).on('change', '#subject-drop-down', function () {
+            array = [];
+            var id = $(this).val();
+            $('#subject-drop-down').val($(this).val());
+
+            alert(id)
+
+            if (id != '') {
+                $.ajax({
+                    url: '/Data/GetUnitCategories?id=' + id,
+                    type: "GET",
+                    success: function (result) {
+                        if (result.list.length > 0) {
+                            $("#subject-drop-downunit").html("");
+                         
+                              $.each(result.list, function (i, item) {
+
+                                $("#subject-drop-downunit").val(item.Value).html(item.Text);
+
+                     
+
+                            });
+
+                            var seen = {};
+                            jQuery('#subject-drop-downunit').children().each(function () {
+                                var txt = jQuery(this).attr('value');
+                                if (seen[txt]) {
+                                    jQuery(this).remove();
+                                } else {
+                                    seen[txt] = true;
+                                }
+                            });
+
+
+
+
+                          
+
+
+
+                        }
+                       
+                    }
+                });
+            }
+            
+          });
+
+
+    // for price
+    
+          $(document).on('change', '#subject-drop-down', function () {
+            array = [];
+            var id = $(this).val();
+            $('#subject-drop-down').val($(this).val());
+
+   
+
+            if (id != '') {
+                $.ajax({
+                    url: '/Data/GetPriceCategories?id=' + id,
+                    type: "GET",
+                    success: function (result) {
+                        if (result.list.length > 0) {
+                            $("#txt-Price").html("");
+                         
+                              $.each(result.list, function (i, item) {
+
+                                $("#txt-Price").val(item.Value).html(item.Text);
+
+                     
+
+                            });
+
+                            var seen = {};
+                            jQuery('#txt-Price').children().each(function () {
+                                var txt = jQuery(this).attr('value');
+                                if (seen[txt]) {
+                                    jQuery(this).remove();
+                                } else {
+                                    seen[txt] = true;
+                                }
+                            });
+
+
+
+
+                          
+
+
+
+                        }
+                       
+                    }
+                });
+            }
+            
+          });
+
+
+
+
+    // price end
+
+
+ $(document).on('click', '#newRow', function() {
+
+
+
+       // find sum
+       
+     var amount = parseFloat($('#txt-amount').val());
+   
+     var total = parseFloat($('#tdTotal').val());
+    
+     if (total == amount)
+     {
+    $('#tdTotal').val(amount);
+     }
+     else
+     {
+          $('#tdTotal').val(amount + total);
+     }
+       
+           
+      
+ 
+
+         
+                var Slno = $("#Slno");
+                var CategoryId = $("#CategoryId");
+                var Items = $("#subject-drop-down");
+
+                var Unit = $("#subject-drop-downunit");
+                var Quantity = $("#txt-Quantity");
+                var Price= $("#txt-Price");
+                var Amount = $("#txt-amount");
+             
+
+                //Get the reference of the Table's TBODY element.
+                var tBody = $("#tbAcBill > TBODY")[0];
+
+                //Add Row.
+     var row = tBody.insertRow(-1);
+
+     var cell = $(row.insertCell(-1));
+     cell.html(Slno.text() -1);
+    
+                //Add Name cell.
+                var cell = $(row.insertCell(-1));
+                cell.html(CategoryId.val() );
+
+                //Add Country cell.
+                cell = $(row.insertCell(-1));
+                cell.html(Items.val());
+
+                cell = $(row.insertCell(-1));
+                cell.html(Unit.val());
+
+                cell = $(row.insertCell(-1));
+                cell.html(Quantity.val());
+
+                 cell = $(row.insertCell(-1));
+                cell.html(Price.val());
+
+                cell = $(row.insertCell(-1));
+                cell.html(Amount.val());
+
+            //cell = $(row.insertCell(-1));
+            //cell.html($("#deletebutton"));
+
+                //Clear the TextBoxes.
+                 $('#txt-Price').val('');
+                 $('#txt-Quantity').val('');
+    
+});
+
+    $("#tbAcBill").on("click", "#deletebutton", function () {
+
+        var Amount = $("#tdTotal").val();
+        alert(Amount);
+   $(this).closest("tr").remove();
+});
+
+    //jibin 9/24/2020
+
+
+    var input = $("#Slno")
+  
+    $("#Slno").html(1);
+    
+    $("#newRow").click(function () {
+       
+        var someValue = $("#Slno").text();
+
+ 
+         $("#Slno").text( Number($("#Slno").text()) + 1 ); 
+              
+              
+    });
+
+
+    // amount Calculation
+
+    $(document).ready(function () {
+$("#tdTotal").on("blur", function () {
+    if ($(this).val().length == 0) {
+        $(this).val("0");
+    }
+});
+$("#tdTotal").trigger("blur");
+
+ });
+
+
+    var calculateChange = function () {
+
+   var Gtotal = parseFloat($('#tdTotal').val());
+     alert(Gtotal)
+  var qty = parseFloat($('#txt-Quantity').val());
+  var pri = parseFloat($('#txt-Price').val());
+  var total = qty * pri;
+
+  if (!isNaN(total)) { 
+      $('#txt-amount').val(total);
+   
+       var Granttotal = parseFloat($('#tdTotal').val());
+         if (Granttotal == 0) {
+             var AmountValue = parseFloat($('#txt-amount').val());
+             alert(AmountValue);
+      
+               $('#tdTotal').val( AmountValue);
+      }
+        }
+
+}
+
+$('#txt-Quantity').on('change', calculateChange);
+  $('#txt-Price').on('change', calculateChange);
+  $('#txt-amount').on('change', calculateChange);
+
+
+    function Remove(button) {
+        alert('do you want to delete');
+                //Determine the reference of the Row using the Button.
+                var row = $(button).closest("TR");
+                var name = $("TD", row).eq(0).html();
+                if (confirm("Do you want to delete: " + name)) {
+                    //Get the reference of the Table.
+                    var table = $("#tbAcBill")[0];
+
+                    //Delete the Table row using it's Index.
+                    table.deleteRow(row[0].rowIndex);
+                }
+            };
+
+    
+
+    //unique id
+    
+     window.unique_id_counter = 0;
+     
+      var uniqid = function(){
+          var id;
+   
+    while(true){
+        window.unique_id_counter++ ;
+        id = 'S' + window.unique_id_counter ;
+        return id
+       
+    }
+}
+
+
+    // unique id
+
+
+</script>

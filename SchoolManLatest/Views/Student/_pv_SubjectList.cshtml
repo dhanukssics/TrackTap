@@ -1,0 +1,38 @@
+﻿
+@model TrackTap.Models.SubjectsModel
+@{
+    var subjectDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetAllSubjects();
+}
+<thead>
+    <tr>
+        <th>
+            Slno
+        </th>
+        <th>
+            Subjects
+        </th>
+        <th>
+
+        </th>
+    </tr>
+</thead>
+<tbody>
+    @{
+        int i = 1;
+        foreach (var sub in subjectDetails)
+        {
+            <tr>
+                <td class="ng-teacherDetails-click" data-staffid="@sub.SubId">
+                    @i
+                </td>
+                <td class="ng-teacherDetails-click" data-staffid="@sub.SubId">
+                    @sub.SubjectName
+                </td>
+                <td data-teacherid="@sub.SubId">
+                    <button class="delete-subject-tr btn-peek" data-SubId="@sub.SubId"><i class="fa fa-trash "></i></button>
+                </td>
+            </tr>
+            i++;
+        }
+    }
+</tbody>

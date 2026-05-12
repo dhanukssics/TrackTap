@@ -1,0 +1,188 @@
+﻿@model TrackTap.Models.FeeModel
+
+<!-------------------------------------->
+<style>
+    .modal-dialog {
+        width: 60% !important;
+        height: 42% !important;
+        margin: 0 auto;
+        margin-top: 1.3%;
+        padding: 0;
+    }
+
+    #form-inputbox tr td, #form-inputbox tr, .custome-table tr td {
+        vertical-align: top !important;
+    }
+</style>
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Add Payment</h4>
+        </div>
+        @using (Ajax.BeginForm("AddAdditionalFeeStudent", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddFeeStudentSuccess",
+            OnFailure = "ajaxFailure",
+        }, new { id = "form-login" }))
+        {
+            <div class="modal-body">
+                <div class="table-responsive">
+
+                    @Html.HiddenFor(m => m.FeeId)
+                    @Html.HiddenFor(m => m.StudentId)
+                    @* @Html.HiddenFor(m => m.SchoolId, new { Value = Model.SchoolId })*@
+                    <table class="table custome-table table-striped" style="margin:0px; height: 478px; overflow: auto; display: block;">
+                        <tr>
+                            <th>
+                                Particulars
+                            </th>
+                            <th style="width:20%; text-align: right;">
+                                Amount
+                            </th>
+                        </tr>
+                        <tr id="form-inputbox">
+                            <td>
+                               <input type="text" class="form-control my_form" autocomplete="off" id="autoFeeId" placeholder="Fee name" maxlength=50 />
+                            </td>
+                            <td style="width:20%; text-align: right;">
+                                <input  class="form-control my_form"  id="Amount" type = "number" autocomplete="off"  placeholder="Amount" />
+                            </td>
+                        </tr>
+                        @foreach (var data in new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetSpecialFeeList())
+                        {
+                            <tr>
+                                <td>
+                                    <span style="margin-left: 15px;" class="addpayment-fee-input">@data.FeeName</span>
+                                </td>
+                                <td style="width:20%; text-align: right;">
+                                    <input class="form-control my_form addpayment-fee-input" data-id="@data.FeeId" autocomplete="off" placeholder="Amount" type="number" min="0"/>
+                                </td>
+                            </tr>
+                        }
+                       
+                        <tr id="append-div-dev"></tr>
+                        @*<tr>
+                                <td style="font-weight: 700; text-align: center;" colspan="2">
+                                    <button class="btn btn-link"><i class="fa fa-plus"></i> Add More</button>
+                                </td>
+                            </tr>*@
+                    </table>
+
+                </div>
+            </div>
+            <div class="modal-footer" style="padding:13px !important;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" id="save-add-payment" class="btn pay-now-btn">Add</button>
+            </div>}
+    </div>
+</div>
+@*<script id="fee-suggest-template" type="application/html-template">
+        <li> <a data-id="{{feeId}}">{{feeName}}</a> <input type="hidden" value="{{feeName}}" /></li>
+    </script>*@
+<!-- Modal -->
+<script>
+
+    //var template = $('#form-inputbox').clone().html();
+    //$('#append-div-dev').append(template);
+    $(document).ready(function () {
+        $('#FeeId').val(0);
+        FeeHead();
+    });
+    function FeeHead() {
+        $.ajax({
+            url: '/School/GetAllFeeHead',
+            type: "POST",
+            dataType: 'json',
+            global: false,
+            success: function (data) {
+                var options = {
+                    // data: ["blue", "green", "pink", "red", "yellow"]
+                    data: data.result,
+                    list: {
+                        match: {
+                            enabled: true
+                        }
+                    },
+
+
+                };
+                $("#autoFeeId").easyAutocomplete(options);
+                console.log("inc");
+
+                //console.log(options)
+            }
+        });
+    }
+    var delay = (function () {
+        var timer = 0;
+        return function (callback, ms) {
+            clearTimeout(timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+    //$('#autoFeeId').keyup(function () {
+    //    delay(function () {
+    //        $('#FeeId').val(0);
+    //        var searchText = $('#autoFeeId').val();
+    //        if (searchText.length >= 1) {
+    //            ClearSchoolSuggestion();
+    //            GetFeeSuggestion(searchText);
+    //            //$('#no-result').hide();
+    //            //$('#school-suggestion').show();
+    //        }
+    //        else {
+    //            $('#fee-suggestion').hide();
+    //            //$('#no-result').hide();
+    //            ClearSchoolSuggestion();
+    //        }
+    //    }, 300);
+    //});
+    function GetFeeSuggestion(searchText) {
+        ClearSchoolSuggestion();
+        $.ajax({
+            url: '/School/GetFeeSuggestByText/' + searchText,
+            type: "GET",
+            dataType: 'json',
+            global: false,    // this makes sure ajaxStart is not triggered
+            success: function (result) {
+                if (result.status && result.list.length > 0) {
+                    var template = $('#fee-suggest-template').clone().html();
+                    $.each(result.list, function (i, val) {
+                        var content = template.replace('{{feeId}}', result.list[i].feeId)
+                                              .replace('{{feeName}}', result.list[i].feeName)
+                        $('#fee-suggestion-ul').append(content);
+                        $('#fee-suggestion-ul').children('li').children('a').click(function () {
+                            var feeId = $(this).attr('data-id');
+                            $('#FeeId').val(feeId);
+                            console.log(feeId);
+                            var dataweneed = $(this).html();
+                            var splitdata = dataweneed.split(","), bv = $(this).html();
+                            console.log(splitdata[0]);
+                            $('#autoFeeId').val(bv);
+                            //  console.log($('#location').val(splitdata[1]));
+                            $('#fee-suggestion').hide();
+                        });
+                    });
+                    $('#fee-suggestion').show();
+                    //  $('#school-suggestion-no-result').hide();
+                }
+                else {
+                    // $('#school-suggestion-no-result').show();
+                    $('#fee-suggestion').hide();
+                    // $('#no-result').hide();
+
+                    ClearSchoolSuggestion();
+                }
+            }
+        });
+    }
+    function ClearSchoolSuggestion() {
+        $('#fee-suggestion').hide();
+        $('#fee-suggestion-ul').html('');
+    }
+
+
+
+</script>

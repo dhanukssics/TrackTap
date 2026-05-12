@@ -1,0 +1,147 @@
+﻿@model TrackTap.Models.LoginModel
+@{
+    var staffs = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetStaffDetails();
+    var staff1 = new TrackTap.DataLibrary.Data.School(Model.SchoolId);
+    var WagesShowsSettings = staff1.GetCurrentStatusOfWagesEmployees();
+
+}
+
+
+<thead>
+    <tr>
+        <th>
+            Slno
+        </th>
+        <th>
+            Name
+        </th>
+        <th>
+            Permanent / Wages
+        </th>
+        <th>
+            Email
+        </th>
+        <th>
+            Password
+        </th>
+        <th>
+            Added On
+        </th>
+       
+        <th>
+
+        </th>
+    </tr>
+</thead>
+<tbody>
+    @{
+
+        if (WagesShowsSettings == false)
+        {
+
+            int i = 1;
+            foreach (var staff in staffs)
+            {                
+                var staffMain = new TrackTap.DataLibrary.Data.School(Model.SchoolId).Staff(staff.UserId);
+
+                if(staffMain.IsPermanent == true || staffMain.IsPermanent == null)
+                { 
+
+            <tr style="cursor: pointer !important;">
+                <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                    @i
+                </td>
+                <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                    @staff.Name
+                </td>
+                @if (staffMain.IsPermanent == null)
+                {
+                    <td class="ng-teacherDetails-click" data-teacherid="@staffMain.StaffId">
+                        NA
+                    </td>
+                }
+                else if (staffMain.IsPermanent == true)
+                {
+                    <td class="ng-teacherDetails-click" data-teacherid="@staffMain.StaffId">
+                        Permanent
+                    </td>
+                }
+                else
+                {
+                    <td class="ng-teacherDetails-click" data-teacherid="@staffMain.StaffId">
+                        Wages
+                    </td>
+                }
+                <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                    @staff.Username
+                </td>
+
+                <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                    @staff.Password
+                </td>
+                <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                    @staff.TimeStamp.ToString("dd-MM-yyyy")
+                </td>
+                <td data-teacherid="@staff.UserId">
+                    <button class="delete-teacher-tr btn-peek" data-staffid="@staff.UserId"><i class="fa fa-trash "></i></button>
+                    <button class="edit-staff-tr pay-now-btn" data-staffid="@staff.UserId"><i class="fa fa-edit "></i></button>
+                </td>
+            </tr>
+                    i++;
+                }
+            }
+        }
+        else
+        {
+            int i = 1;
+            foreach (var staff in staffs)
+            {
+                var staffMain = new TrackTap.DataLibrary.Data.School(Model.SchoolId).Staff(staff.UserId);
+                                
+                    <tr style="cursor: pointer !important;">
+                        <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                            @i
+                        </td>
+                        <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                            @staff.Name
+                        </td>
+                        @if (staffMain.IsPermanent == null)
+                        {
+                            <td class="ng-teacherDetails-click" data-teacherid="@staffMain.StaffId">
+                                NA
+                            </td>
+                        }
+                        else if (staffMain.IsPermanent == true)
+                        {
+                            <td class="ng-teacherDetails-click" data-teacherid="@staffMain.StaffId">
+                                Permanent
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="ng-teacherDetails-click" data-teacherid="@staffMain.StaffId">
+                                Wages
+                            </td>
+                        }
+                        <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                            @staff.Username
+                        </td>
+
+                        <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                            @staff.Password
+                        </td>
+                        <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">
+                            @staff.TimeStamp.ToString("dd-MM-yyyy")
+                        </td>
+                        <td data-teacherid="@staff.UserId">
+                            <button class="delete-teacher-tr btn-peek" data-staffid="@staff.UserId"><i class="fa fa-trash "></i></button>
+                            <button class="edit-staff-tr pay-now-btn" data-staffid="@staff.UserId"><i class="fa fa-edit "></i></button>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            
+
+        }
+    }
+</tbody>

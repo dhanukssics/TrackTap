@@ -1,0 +1,172 @@
+﻿@model TrackTap.Models.AddClassFees
+@{
+    ViewBag.Title = "Fee";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+    var school = new TrackTap.DataLibrary.Data.School(Model.SchoolId);
+}
+<style>
+    span {
+        color: red;
+    }
+</style>
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>Fee</h3>
+            <div class="form-group text-right">
+                <button class="btn pay-now-btn btn-add-fee">Add Fee</button>
+            </div>
+            @using (Ajax.BeginForm("AddFeeClass", "School", null, new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnSuccess = "AddFeeClassSuccess",
+                OnFailure = "ajaxFailure",
+            }, new { id = "form-login" }))
+            {
+                @Html.HiddenFor(m => m.DataList)
+                @Html.HiddenFor(m => m.SchoolId, new { Value = Model.SchoolId })
+                <div class="center-block-md">
+                    <div class="form-group">
+                        <label>Fee Name</label>
+                        @Html.DropDownListFor(m => m.FeeId, new TrackTap.DataLibrary.Data.DropdownData().RefreshSchoolFees(Model.SchoolId), "--Choose--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true", style="width:280px;" })
+                        @Html.ValidationMessageFor(m => m.FeeId)
+                    </div>
+                    @{
+                        var obj = new TrackTap.Models.ViewFeeClass();
+                        obj.SchoolId = Model.SchoolId;
+                        obj.FeeId = 0;
+                    }
+                    <div id="div-load-class" style="width:100%; display:inline-block;">
+                        @Html.Partial("~/Views/School/_pv_ViewFeeClass.cshtml", obj)
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" style="display:none;" id="btn-submit-feeclass" class="btn pay-now-btn">Add Fee</button>
+                        <button type="button" class="btn pay-now-btn" disabled id="btn-dummysubmit-feeclass">Add Fee Amount</button>
+                    </div>
+                </div>
+                        }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFeeAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+</div>
+
+<script>
+
+    function radioOnclick(data) {
+
+        $('#feeType').val(data);
+    }
+
+    $(document).on('click', '.btn-add-fee', function () {
+
+        $.ajax({
+            url: '/School/AddFeePartialView',
+            type: "GET",
+            dataType: 'html',
+            success: function (data) {
+                $('#modalFeeAdd').html(data);
+                $.validator.unobtrusive.parse($("#modalFeeAdd"));
+                $('#modalFeeAdd').modal('show');
+            }
+        });
+
+    });
+
+
+    $(document).on('change', '.slct-fee-dropdwn', function () {
+        RefreshFeeclassView();
+        $('#btn-dummysubmit-feeclass').prop('disabled', true)
+    });
+
+    function RefreshFeeclassView() {
+
+        $.ajax({
+            url: '/School/ViewFeeClass/' + $(".slct-fee-dropdwn option:selected").val(),
+            type: "GET",
+            dataType: 'html',
+            success: function (data) {
+                $('#div-load-class').html(data);
+                //if ($('#div-load-class').children().length == 0) {
+                //    $('#div-load-class').text("No Class To Update!");
+                //    $(".head h5").html("your new header");
+                //}
+            }
+        });
+
+    }
+
+    $(document).on('click', '#btn-dummysubmit-feeclass', function () {
+
+        var list = [];
+        $('.feeclass-div').each(function (i, obj) {
+            var source = $(this);
+            var amount = $(source).find('.loop-class-amount').val();
+            if (amount != "") {
+                var classId = $(source).attr('data-classid');
+                var divisionId = $(source).attr('data-divisionId');
+                var Obj = new Object();
+                Obj.classId = classId;
+                Obj.amount = amount;
+                Obj.divisionId = divisionId;
+                list.push(Obj);
+            }
+        });
+        $('#DataList').val(JSON.stringify(list));
+        console.log($('#DataList').val());
+        $('#btn-submit-feeclass').trigger('click');
+    });
+
+    function AddFeeSuccess(result) {
+        if (result.status) {
+            //console.log(result.list)
+            toastrSuccess(result.msg);
+            $('#modalFeeAdd').modal('hide');
+            window.location.href = "/School/FeeList";
+            var options = $(".slct-fee-dropdwn");
+            options.children("option").remove();
+            options.append($("<option />").val(0).text("--Choose--"));
+            $.each(result.list, function () {
+                options.append($("<option />").val(this.Value).text(this.Text));
+            });
+        }
+        else {
+            toastrError(result.msg);
+            $('#modalFeeAdd').modal('hide');
+        }
+    }
+
+    function AddFeeClassSuccess(result) {
+
+        if (result.status) {
+            //console.log(result.list)
+            toastrSuccess(result.msg);
+
+            setTimeout(function () {
+                RefreshFeeclassView();
+            }, 250);
+
+        }
+        else {
+            toastrError(result.msg);
+        }
+
+    }
+
+    $(document).on('keyup', '.loop-class-amount', function () {
+
+
+        $('#btn-dummysubmit-feeclass').prop('disabled', true)
+        $('.loop-class-amount').each(function (i, obj) {
+            var source = $(this);
+            if ($(source).val() != "") {
+                $('#btn-dummysubmit-feeclass').prop('disabled', false)
+            }
+        });
+
+
+    });
+
+</script>

@@ -1,0 +1,25 @@
+﻿
+@model TrackTap.Models.SubjectsModel
+
+@using (Ajax.BeginForm("SubmitAddSubject", "Student", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddSubjectSuccess",
+    OnFailure = "AddSubjectFailed"
+}, new { id = "form-add-exam" }))
+{
+    <div class="row">
+        <div id="new-account-div" class="dev-adj-style">
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.SubjectName, new { autocomplete = "off", placeholder = "Subject", @class = "form-control" })
+                @Html.ValidationMessageFor(z => z.SubjectName)
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn pay-now-btn" id="btn-Subject">Save</button>
+    </div>
+}
+<script>
+
+</script>

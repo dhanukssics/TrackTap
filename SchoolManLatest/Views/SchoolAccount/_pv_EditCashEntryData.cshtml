@@ -1,0 +1,122 @@
+﻿
+
+@model TrackTap.Models.CashEntryModel
+@{
+
+}
+
+@using (Ajax.BeginForm("EditCashEntry", "SchoolAccount", null, new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnSuccess = "AddCashEntrySuccess",
+    OnFailure = "AddCashEntryFailed",
+}, new { id = "form-login" }))
+{
+    @Html.HiddenFor(m => m.CashId, new { @value = Model.CashId, id = "edit-cashData-id" })
+    <div class="col-md-6">
+        <div class="form-group gap_bottom">
+            <div class="col-md-3">
+                <label>Type</label>
+            </div>
+            <div class="col-md-5">
+                @Html.EnumDropDownListFor(m => m.TypeId, new { @class = "form-control pv_account-type", @data_live_search = "true", name = "classDropdown", id = "cash-entry-type-idd", @readonly = "readonly", @disabled = true })
+                @Html.ValidationMessageFor(m => m.TypeId)
+            </div>
+            <div class="col-md-4 " id="chkDiv">
+                @Html.CheckBoxFor(m => m.AdvanceStatus, new { @class = "", id = "cash-check-advance-id", @readonly = "readonly", @disabled = true })
+                <span>Advance </span>
+            </div>
+        </div>
+
+        <div class="form-group gap_bottom">
+            <div class="col-md-3">
+                <label>Date</label>
+            </div>
+            <div class="col-md-9 calendar-inp pos_icon_adj">
+                @Html.TextBoxFor(m => m.EntryDateString, new { @class = "form-control date-cashentry-add", placeholder = "", @readonly = "readonly", @disabled = true })
+                <i class="fa "></i>
+                @Html.ValidationMessageFor(m => m.EntryDateString)
+            </div>
+        </div>
+
+        <div class="form-group gap_bottom">
+            <div class="col-md-3">
+                <label>Voucher No</label>
+            </div>
+            <div class="col-md-9">
+                @Html.TextBoxFor(m => m.VoucherNo, new { autocomplete = "off", placeholder = "Voucher No", @readonly = "readonly", @class = "form-control", @disabled = true })
+                @Html.ValidationMessageFor(z => z.VoucherNo)
+            </div>
+        </div>
+
+        <div class="form-group gap_bottom">
+            <div class="col-md-3">
+                <label>Account Head</label>
+            </div>
+            <div class="col-md-9">
+                @Html.DropDownListFor(m => m.HeadId, TrackTap.DataLibrary.Data.DropdownData.GetAccountHeads(Model.SchoolId), "--Choose--", new { @class = "form-control edit-accHead-drop-down", @data_live_search = "true", name = "classDropdown", id = "cash-entry-head-id" })
+                @Html.ValidationMessageFor(m => m.HeadId)
+            </div>
+        </div>
+
+        <div class="form-group gap_bottom">
+            <div class="col-md-3">
+                <label>SubLedger</label>
+            </div>
+            <div class="col-md-9 isHidden" id="sub-view-through-head">
+                @Html.DropDownListFor(m => m.SubLedgerId, new SelectList(
+                  new List<Object>{
+                       new { value = 0 , text = "--select division--"  }
+                    },
+                  "value",
+                  "text"
+                   ), new { @class = "form-control ", @data_live_search = "true", @disabled = "disabled", id = "SubLedgerId_Edit" })
+                @Html.ValidationMessageFor(m => m.SubLedgerId)
+            </div>
+            <div class="col-md-9" id="sub-view-through-search">
+                @Html.TextBoxFor(m => m.SubLedgerData, new { autocomplete = "off", placeholder = "Amount", @readonly = "readonly", @class = "form-control", id = "default-selected-subledger" })
+            </div>
+        </div>
+
+        <div class="form-group gap_bottom">
+            <div class="col-md-3">
+                <label>Amount</label>
+            </div>
+            <div class="col-md-9">
+                @Html.TextBoxFor(m => m.Amount, new { autocomplete = "off", placeholder = "Amount", @class = "form-control", @readonly = "readonly", @disabled = true })
+                @Html.ValidationMessageFor(z => z.Amount)
+            </div>
+        </div>
+
+        <div class="form-group gap_bottom">
+            <div class="col-md-3">
+                <label>Narration</label>
+            </div>
+            <div class="col-md-9">
+                @Html.TextBoxFor(m => m.Narration, new { autocomplete = "off", placeholder = "Narration", @class = "form-control" })
+                @Html.ValidationMessageFor(z => z.Narration)
+            </div>
+        </div>
+
+        <div class="form-group gap_bottom">
+            <div class="col-md-3">
+                <button type="button" id="btn-edit-cancel-cashbook" class="btn pay-now-btn">Cancel</button>
+            </div>
+            <div class="col-md-9">
+                <div>
+                    <button type="submit" id="btn-edit-save-cashbook" class="btn pay-now-btn">Edit</button>
+                    <button type="button" id="btn-cashbook-Clear-Feild" style="background:#898e98;" class="btn">Clear</button>
+                </div>
+            </div>
+        </div>
+        @*<div class="form-group gap_bottom">
+                <div class="modal-footer">
+                    <div class="modal-footer">
+                        <button type="button" id="btn-edit-cancel-cashbook" class="btn pay-now-btn">Cancel</button>
+                        <button type="submit" id="btn-edit-save-cashbook" class="btn pay-now-btn">Edit</button>
+                        <button type="button" id="btn-cashbook-Clear-Feild" style="background:#898e98;" class="btn">Clear</button>
+                    </div>
+                </div>
+            </div>*@
+    </div>
+}

@@ -1,0 +1,72 @@
+﻿@model TrackTap.Models.SchoolModel
+
+@{
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+
+<section class="login-without" style="min-height: 555px;">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-md-5">
+                <div class="login">
+                    <div class="login-form fullWid">
+                        <h3>Student Detail</h3>
+                        <div class="form-group">
+                            @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetSchoolPaymentGatwayList().OrderBy(z=>z.Text), "--School Name--", new { @class = "newDes", @data_live_search = "true", @style= "    background-color: #2f7e86;" })
+                        </div>
+                        <div class="form-group">
+                            <input id="admission" style="height:47px;" class="newDes" placeholder="Admission Number" />
+                        </div>
+                        <p>Please contact school for admission Number</p>
+                     <div id="std-detail-3">
+
+                     </div>
+                    </div>
+                </div>
+            </div><!-- /col-md-5 -->
+
+
+        </div><!-- /row -->
+    </div><!-- /container -->
+</section>
+<script>
+
+    (function ($) {
+        $.fn.delayKeyup = function (callback, ms) {
+            var timer = 0;
+            $(this).keyup(function () {
+                clearTimeout(timer);
+                timer = setTimeout(callback, ms);
+            });
+            return $(this);
+        };
+    })(jQuery);
+
+    $('#admission').delayKeyup(function () {
+        var searchText = $('#admission').val();
+        var schoolId = $('#classId').val();
+
+        if (searchText.length > 2) {
+            
+            $.ajax({
+                url: '/Account/SearchAdmission/' + searchText + '~' + schoolId,
+                type: "GET",
+                dataType: 'html',
+                success: function (data) {
+                  
+                        $('#std-detail-3').html(data);
+
+                   
+                }
+            });
+
+        }
+        else {
+            $('#search-suggestion-no-result').hide();
+            ClearSuggestion();
+        }
+    }, 500);
+
+</script>

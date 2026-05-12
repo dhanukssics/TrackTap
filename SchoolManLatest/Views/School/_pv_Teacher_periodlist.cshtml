@@ -1,0 +1,37 @@
+﻿@model TrackTap.Models.TeacherId
+@{
+    var teacher = new TrackTap.DataLibrary.Data.Teacher(Model.teacherId);
+}
+
+<thead>
+    <tr>
+        <th>
+            Period
+        </th>
+        <th>
+            Class
+        </th>
+        <th style="width:10%;">
+            Day
+        </th>
+    </tr>
+</thead>
+<tbody>
+    @if (teacher != null)
+    {
+        foreach (var item in teacher.TeacherClass)
+        {
+            <tr>
+                <td>
+                    4
+                </td>
+                <td>
+                    X/C
+                </td>
+                <td>
+                    Monday
+                </td>
+            </tr>
+        }
+    }
+</tbody>

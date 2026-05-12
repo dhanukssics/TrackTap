@@ -1,0 +1,31 @@
+﻿@model TrackTap.Models.FeeAlertDataModel
+@{
+   
+    //Model.SalaryType =(new TrackTap.ClassLibrary.SalaryType)type;
+    
+}
+<div class="col-md-12 col-md-offset-1 style=" margin-bottom 70%; margin-top 3%;"">
+    <div class="salary-setup-main">
+        @using (Ajax.BeginForm("SaveSalaryType", "School", null, new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "AddSalaryTypeSuccess",
+            OnFailure = "AddSalaryTypeFailed"
+        }, new { id = "form-login" }))
+        {
+            <div class="form-group">
+                <label>School Salary Type</label>
+                <span>
+                    @Html.EnumDropDownListFor(m => m.SalaryType, new { @class = "form-control", @data_live_search = "true", name = "classDropdown" ,style="width:50%;"})
+                    @Html.ValidationMessageFor(m => m.SalaryType)
+                </span>
+            </div>
+            <div class="form-group">
+                <span class="col-md-12" style="float: left; margin-top:15px;">
+                    <button type="submit" class="btn pay-now-btn">Save </button>
+                </span>
+            </div>
+
+        }
+    </div>
+</div>

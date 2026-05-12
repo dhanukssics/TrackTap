@@ -1,0 +1,196 @@
+﻿@model TrackTap.Models.FeeModel
+@{
+    DateTime startDate = Model.StartDate;
+    DateTime endDate = Model.EndDate;
+    long schoolId = Model.SchoolId;
+    var data = new TrackTap.DataLibrary.Data.School(schoolId).GetDetailedCollectionReportDate(startDate, endDate).OrderBy(z => z.BillNo);
+    decimal total = data.Sum(x => x.Amount);
+}
+
+
+
+<div class="table-responsive">
+    <table class="table custome-table table-Detailed-Collection-Report-list" id="example">
+
+
+        <thead>
+            <tr>
+                <th style="text-align: center;">
+                    Slno
+                </th>
+                <th>
+                    Bill No
+                </th>
+                <th>
+                    Date
+                </th>
+                <th>
+                    Student Name
+                </th>
+                <th>
+                    Class / Div
+                </th>
+
+                <th>
+                    Particulars
+                </th>
+                <th>
+                    Amount
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                long BillNo = 0;
+                int i = 1;
+                foreach (var one in data)
+                {
+                    <tr>
+                        @if (BillNo != one.BillNo)
+                {
+                            <td style="text-align: center;">
+                                @i
+                            </td>
+                            <td>
+                                @one.BillNo.ToString()
+                            </td>
+                            <td>
+                                @Convert.ToDateTime(one.TimeStamp).ToString("dd-MM-yyyy")
+                            </td>
+                            <td>
+                                @one.StudentName
+                            </td>
+                            <td>
+                                @one.Class.ClassName / @one.DivisionName
+                            </td>
+                            i = i + 1;
+                        }
+                        else
+                        {
+                            <td class="tableTopBor"></td>
+                            <td class="tableTopBor"></td>
+                            <td class="tableTopBor"></td>
+                            <td class="tableTopBor"></td>
+                            <td class="tableTopBor"></td>
+                        }
+                        @try
+                {
+                    if (one.FeeClass.DueDate != null)
+                    {
+                                <td style="padding-left: 10px; ">@one.Fee.FeeName @String.Format("{0:y}", one.FeeClass.DueDate)</td>
+                            }
+                        }
+
+                        catch (Exception ex)
+                        {
+                            var student = new TrackTap.DataLibrary.Data.Student(one.StudentId);
+                            bool isThere = student.IsDueBill(@one.FeeGuid);
+                            if (isThere)
+                            {
+                                <td style="padding-left: 10px; ">@one.Fee.FeeName Due</td>
+                            }
+                            else
+                            {
+                                if (one.BillType == 2)
+                                {
+                                    <td style="padding-left: 10px; ">@one.Fee.FeeName Fine</td>
+                                }
+                                else
+                                {
+                                    <td style="padding-left: 10px; ">@one.Fee.FeeName</td>
+                                }
+                            }
+                        }
+                        <td>
+                            @String.Format("{0:0.00}", one.Amount)
+                        </td>
+                    </tr>
+
+                    BillNo = one.BillNo ?? 0;
+
+                }
+            }
+            @*</tbody>
+            <tfoot>*@
+            <tr>
+
+                <td style="padding: 5px; font-weight: bold;">
+                    Total Amount
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="font-weight: bold;">
+                    @String.Format("{0:0.00}", total)
+                </td>
+
+            </tr>
+            @*</tfoot>*@
+        </tbody>
+        <tfoot>
+           
+            <tr>
+
+                <td style="padding: 5px; font-weight: bold;">
+                    Total Amount
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="font-weight: bold;">
+                    @String.Format("{0:0.00}", total)
+                </td>
+
+            </tr>
+            </tfoot>
+</table>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable({
+            dom: 'Bfrtip',
+            "ordering": false,
+            buttons: [
+                //'print'
+                'copy',
+                {
+                    extend: 'csv',
+                    text: 'CSV',
+                    title: 'Detailed Collection Report'
+                },
+
+                {
+                    extend: 'excel',
+                    text: 'Excel',
+                    title: 'Detailed Collection Report'
+                },
+                {
+                    extend: 'pdf',
+                    text: 'PDF',
+                    title: 'Detailed Collection Report'
+                },
+
+                {
+                    extend: 'print',
+                    text: 'Print',
+                    
+                    customize: function (win) {
+                        
+                        $(win.document.messageTop)
+                        .css('text-align', 'center')
+                        
+                    },
+                    title: 'Detailed Collection Report'
+                }
+                
+            ]
+        });
+    });
+
+</script>

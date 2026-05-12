@@ -1,0 +1,46 @@
+﻿
+@model TrackTap.Models.SchoolModelForIdSupreAdmin
+@{
+
+    ViewBag.Title = "SMSAllStudent";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+
+<h3>Student Message</h3>
+<br />
+<div class="row">
+    <div class="form-group col-sm-3">
+        <div class="form-group">
+            <label>School </label>
+            <br />
+            @Html.DropDownListFor(m => m.SchoolNames, TrackTap.DataLibrary.Data.DropdownData.GetAllSchool(), "-- Choose --", new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true" })
+           
+        </div>
+    </div>
+
+</div>
+<br />
+<div class="row">
+    <div id="student-list">
+
+    </div>
+</div>
+
+<script>
+    $(document).on('change', '.slct-mark-dropdwn1', function () {
+
+        var dataId = $(".slct-mark-dropdwn1 option:selected").val();
+
+        $.ajax({
+            url: '/SuperAdmin/GetAllStudentSchool/' + dataId,
+            type: "GET",
+            dataType: 'html',
+            success: function (data) {
+                $('#student-list').html(data);
+            }
+        });
+
+    })
+</script>

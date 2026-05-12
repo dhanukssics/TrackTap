@@ -1,0 +1,189 @@
+
+
+.inv-title {
+	margin-bottom: 30px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #d0d0d0;
+}
+
+.inv-title h3 {
+	color: #232323;
+	font-size: 23px;
+}
+
+.school-form {
+	position: relative;
+	margin-bottom: 30px;
+}
+
+.school-form label {
+	color: #757575;
+	font-size: 16px;
+	font-weight: 600;
+	margin-bottom: 10px;
+}
+
+.school-form input[type=text], .school-form input[type=password], .school-form input[type=number], .school-form input[type=email], .school-form input[type=date] {
+	height: 44px;
+	background: #fff;
+	border-color: #cacaca;
+}
+
+.school-form-icon {
+	position: relative;
+}
+
+.school-form-icon input[type=text]{
+	padding-right: 46px;
+}
+
+.school-form-icon i {
+	position: absolute;
+	top: 50%;
+	right: 15px;
+	font-size: 18px;
+	transform: translate(0,-50%);
+}
+
+.school-form-buttons {
+	display: flex;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-box;
+	display: -webkit-flex;
+	justify-content: center;
+	margin-top: 50px;
+}
+
+.school-form-buttons > button, .school-form-buttons > input[type=submit], .school-form-buttons > input[type=button] {
+	width: 165px;
+	outline: none;
+	font-size: 17px;
+	margin: 0px 10px;
+	font-weight: bold;
+	padding: 12px 20px;
+	border-radius: 35px;
+	box-shadow: none;
+}
+
+.grey-btn {
+	color: #fff;
+	background: #b4b4b4;
+}
+
+.grey-btn:hover {
+	color: #fff;
+	background: #989898;
+}
+
+.green-btn {
+	color: #fff;
+	background: #0cc934;
+}
+
+.green-btn:hover {
+	color: #fff;
+	background: #09bb2e;
+}
+
+.blue-btn {
+	color: #fff;
+	background: #2a58ad;
+}
+
+.blue-btn:hover {
+	color: #fff;
+	background: #17469d;
+}
+
+.school-invtry-table {
+	min-height: 300px;
+	max-height: 400px;
+    overflow-y: auto;
+}
+
+.school-invtry-table thead tr th {
+	color: #fff;
+	font-size: 17px;
+	padding: 12px 15px;
+	background: #006ba6;
+	border-bottom: none;
+}
+
+.school-invtry-table thead tr th:first-child {
+	border-radius: 10px 0px 0px 0px;
+}
+
+.school-invtry-table thead tr th:last-child {
+	border-radius: 0px 10px 0px 0px;
+}
+
+.school-invtry-table tbody tr td {
+	font-size: 15px;
+	padding: 7px 15px;
+	background: #fff;
+	vertical-align: middle;
+}
+
+.table-btns {
+	display: flex;
+	justify-content: flex-start;
+}
+
+.table-btns > * {
+	margin: 0px 5px;
+}
+
+.edt-table-btn {
+	width: 75px;
+	color: #fff;
+	border-radius: 35px;
+	background: #deac15;
+}
+
+.dlt-table-btn {
+	width: 75px;
+	color: #fff;
+	border-radius: 35px;
+	background: #d01530;
+}
+
+.add-table-btn {
+	width: 75px;
+	color: #fff;
+	border-radius: 35px;
+	background: #0cc934;
+}
+
+.list-stocks table {
+	border-spacing:0 8px;
+	border-collapse: separate;
+}
+
+.list-stocks table thead tr {
+	color: #2b2b2b;
+	font-size: 17px;
+}
+
+.list-stocks table thead tr th {
+	padding: 5px 25px;
+}
+
+.list-stocks table tbody tr {
+	color: #fff;
+	font-size: 16px;
+	border-radius: 10px;
+	background-image: linear-gradient(to right, #006ba6 , #003b71);
+}
+
+.list-stocks table tbody tr td {
+	padding: 15px 25px;
+}
+
+.list-stocks table tbody tr td:first-child {
+	border-radius: 10px 0px 0px 10px;
+}
+
+.list-stocks table tbody tr td:last-child {
+	border-radius: 0px 10px 10px 0px;
+}

@@ -1,0 +1,409 @@
+﻿
+@model TrackTap.Models.DayBookReportModelStock
+@{
+    DateTime startDate = Model.FromDate;
+    DateTime endDate = Model.ToDate;
+    long schoolId = Model.SchoolId;
+    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    //  var list = school.GetDayBookReportStock(startDate, endDate, schoolId).ToList();
+    string schoolName = Model.SchoolName;
+    string heading = Model.Heading;
+
+    bool ishideaccount = new TrackTap.DataLibrary.Data.School(schoolId).GetAccountHide();
+    if (school != null)
+    {
+        // var list = school.DayBookReportDetailsCollectionAfterHide(startDate, endDate);
+        var list = school.GetDayBookReportStock(startDate, endDate, schoolId).ToList();
+        <thead>
+            <tr>
+                <td colspan="8" style="text-align:center; font-weight:bold;font-size:22; display:none;">
+                    @schoolName
+                </td>
+            </tr>
+            <tr>
+                <td colspan="8" style="text-align:center; font-weight:normal;font-size:18; display:none;">
+                    Day Book Report
+                </td>
+            </tr>
+            <tr>
+                <td colspan="8" style="text-align:center; font-weight:normal;font-size:12; display:none;">
+                    @heading
+                </td>
+            </tr>
+
+            <tr>
+                <th>
+                    VoucherNo - BillNo
+                </th>
+                <th>
+                    Type
+                </th>
+                <th>
+                    Bank/Cash
+                </th>
+                <th>
+                    Account Head
+                </th>
+
+                <th>
+                    Income
+                </th>
+                <th>
+                    Expense
+                </th>
+                <th>
+                    Narration
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (list.Count() != 0)
+            {
+                int slno = 1;
+                int status = 0;
+                string vouchno = "";
+
+                foreach (var item in list)
+                {
+                    <tr>
+                        <td style="color:red; font-weight:bold; text-align:left;" colspan="8">
+                            @*<label style="margin-right: 10px;">
+                                    <input id="chkBox-user" class="checkbox-input" type="checkbox" />
+                                    <span class="checkbox-virtual"></span>
+                                </label>*@
+                            @item.EnterDate.ToShortDateString()
+                        </td>
+
+                    </tr>
+
+
+                    //   foreach (var one in item._list.OrderBy(x => x.VoucherNo))
+                    //   {
+                    string billno = "";
+                    string[] splitdata = item.VoucherNumber.Split('-');
+                    if (splitdata.Length > 1)
+                    {
+                        billno = Convert.ToString(splitdata[1]);
+                    }
+                    <tr>
+                        <td>
+                            @if (status == 1 && vouchno == item.VoucherNumber)
+                            {
+                                if (billno != "")
+                                {
+                                    string serial = slno - 1 + "-" + billno;
+                                    @serial;
+                                    slno--;
+                                }
+                                else
+                                {
+                                    int serial = slno - 1;
+                                    @serial;
+                                    slno--;
+                                }
+
+                            }
+                            else
+                            {
+                                if (billno != "")
+                                {
+                                    string serialnumber = slno + "-" + billno;
+
+                                    @serialnumber;
+                                }
+                                else
+                                {
+                                    @slno;
+                                }
+                            }
+
+                        </td>
+                        <td style="text-align:center;">
+                            @item.VoucherType
+                        </td>
+                        <td style="text-align:center;">
+                            @item.Bank_Cash
+                        </td>
+                        <td>
+                            @item.AccHeadName
+                        </td>
+
+                        <td>
+                            @String.Format("{0:0.00}", item.Income)
+                        </td>
+                        <td>
+                            @String.Format("{0:0.00}", item.Expense)
+                        </td>
+                        <td>
+                            @item.Narration
+                        </td>
+                    </tr>
+                    if (item.VoucherType == "C")
+                    {
+                        status = 1;
+                        vouchno = item.VoucherNumber;
+
+
+                    }
+                    else
+                    {
+                        status = 0;
+
+                    }
+                    slno++;
+
+                    // }
+
+
+                }
+            }
+
+
+        </tbody>
+
+
+        <tfoot>
+            <tr>
+                <td style="font-weight:bold">
+                    Total
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td style="font-weight:bold">
+                    @list.Sum(x => x.Income)
+                </td>
+                <td style="font-weight:bold">
+                    @list.Sum(x => x.Expense)
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+            </tr>
+        </tfoot>
+
+    }
+
+
+
+    @*else
+        {
+            var list1 = school.DayBookReportDetailsCollections(startDate, endDate);
+            <thead>
+                <tr>
+                    <td colspan="8" style="text-align:center; font-weight:bold;font-size:22; display:none;">
+                        @schoolName
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="text-align:center; font-weight:normal;font-size:18; display:none;">
+                        Day Book Report
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="text-align:center; font-weight:normal;font-size:12; display:none;">
+                        @heading
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>
+                        VoucherNo - BillNo
+                    </th>
+                    <th>
+                        Type
+                    </th>
+                    <th>
+                        Bank/Cash
+                    </th>
+                    <th>
+                        Account Head
+                    </th>
+                    <th>
+                        Sub Ledger
+                    </th>
+                    <th>
+                        Income
+                    </th>
+                    <th>
+                        Expense
+                    </th>
+                    <th>
+                        Narration
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (list1.Count() != 0)
+                {
+                    foreach (var item in list1)
+                    {
+                        <tr>
+                            <td style="color:red; font-weight:bold; text-align:left;" colspan="8">
+                                <label style="margin-right: 10px;">
+                                    <input id="chkBox-user" class="checkbox-input" type="checkbox" />
+                                    <span class="checkbox-virtual"></span>
+                                </label>
+                                @item.EnterDate.ToShortDateString()
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td style="font-weight:bold">Opening Balance</td>
+                            <td></td>
+                            <td style="font-weight:bold">
+                                @String.Format("{0:0.00}", item.Opening)
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        foreach (var one in item._list.OrderBy(x => x.VoucherNo))
+                        {
+                            <tr>
+                                <td>
+                                    @one.VoucherNo
+                                </td>
+                                <td style="text-align:center;">
+                                    @one.TransactionType
+                                </td>
+                                <td style="text-align:center;">
+                                    @one.FromStatus
+                                </td>
+                                <td>
+                                    @one.AccountHeadName
+                                </td>
+                                <td>
+                                    @one.SubLedger
+                                </td>
+                                <td>
+                                    @String.Format("{0:0.00}", one.IncomeAmount)
+                                </td>
+                                <td>
+                                    @String.Format("{0:0.00}", one.ExpenseAmount)
+                                </td>
+                                <td>
+                                    @one.Narration
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td style="font-weight:bold">Closing Balance</td>
+                            <td></td>
+                            <td style="font-weight:bold">
+                                @String.Format("{0:0.00}", item.Closing)
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
+                    }
+
+                }
+
+            </tbody>
+
+        }*@
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*<thead>
+        <tr>
+            <th>
+                Voucher No
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Bank/Cash
+            </th>
+            <th>
+                Account Head
+            </th>
+            <th>
+                Credit/Income
+            </th>
+            <th>
+                Expense/Debit
+            </th>
+            <th>
+                Narration
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            foreach (var one in data)
+            {
+                <tr>
+                    <td>
+                        @one.VoucherNumber
+                    </td>
+                    <td>
+                        @one.VoucherType
+                    </td>
+                    <td>
+                        @one.Bank_Cash
+                    </td>
+                    <td>
+                        @one.AccHeadName
+                    </td>
+                    <td>
+                        @one.Income
+                    </td>
+                    <td>
+                        @one.Expense
+                    </td>
+                    <td>
+                        @one.Narration
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>*@

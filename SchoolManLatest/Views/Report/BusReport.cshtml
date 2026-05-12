@@ -1,0 +1,169 @@
+﻿@model TrackTap.Models.BusReportModel
+@{
+    ViewBag.Title = "BusReport";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+}
+
+@Html.HiddenFor(z => z.SchoolId, new { Value = @Model.SchoolId })
+@*@Html.HiddenFor(z => z.ClassId, new { Value = 0 })
+    @Html.HiddenFor(z => z.DivisionId, new { Value = 0 })*@
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                        <label>Bus Name : </label>
+                        <br />
+                    @Html.DropDownListFor(z => z.BusModel.BusName, new SelectList(Model.BusNames_Lists, "BusName", "BusName"), "BusName", new { @id = "select_BusName", @class = "form-control" })
+
+                        
+                        @*@Html.DropDownListFor(m => m.AcademicYearId, TrackTap.DataLibrary.Data.DropdownData.GetOtherAcademicYear(), "All", new { @class = "form-control slct-academic-year-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                        @Html.ValidationMessageFor(z => z.AcademicYearId)*@
+                    </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    <label>Trip : </label>
+                        <br />
+                        <select class="form-control" id="select_Trip">
+                            <option>Select</option>
+                        </select>
+                        @*@Html.DropDownListFor(m => m.ClassId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.SchoolId), "All", new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                        @Html.ValidationMessageFor(z => z.ClassId)*@
+                    @*<label>Class :</label>
+                        <select class="form-control slct-mark-dropdwn1" disabled></select>
+                        <span id="class-required-exam-add" style="display:none; color:red;"></span>*@
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    @*<label>Employee type :</label>*@
+                    @*<select class="form-control slct-mark-dropdwn1" id="select_EmpType">
+                        <option value="1">All</option>
+                        <option value="2">Staff</option>
+                        <option value="3">Teacher</option>
+                    </select>*@
+                    @*<span id="division-required-exam-add" style="display:none; color:red;"></span>*@
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <div class="form-group">
+                    @*<label>Fees : </label>
+                        <br />*@
+                    @*@Html.DropDownListFor(m => m.FeeId, TrackTap.DataLibrary.Data.DropdownData.GetFeeses(Model.SchoolId), "All", new { @class = "form-control slct-fee-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                        @Html.ValidationMessageFor(z => z.FeeId)*@
+                </div>
+            </div>
+            <div class="form-group col-sm-3">
+                <button class="btn pay-now-btn" id="btn-Print-bill" onclick="printContent('print-trial-bal')"><i class="fa fa-print"></i> Print</button>
+                <button class="btn pay-now-btn" id="btn-excel-trial-bal"><i class="fa fa-table"></i> Excel</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <div class="col-md-12" id="print-trial-bal">
+                <h3 style="text-align:center;">Bus Report</h3><h5 style="text-align:center;"></h5>
+                @*<table class="table custome-table" id="outstanding-report-list"></table>*@
+                <div id="div_getBusReport">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function IntializeDataTable() {
+        $(".table-BusReport-list").dataTable().fnDestroy()
+        $(".table-BusReport-list").dataTable();
+    }
+
+    $(function () {
+        $(".table-student-list").dataTable();
+    });
+
+    $("#select_BusName").change(function () {
+        var name = $(this).val();
+        $("#select_Trip").html("");
+        $("#select_Trip").append("<option>Select</option>");
+        $.ajax({
+            url: '/Report/TripLists',
+            type: "POST",
+            data: { 'name': name },
+            dataType: 'JSON',
+            success: function (data) {
+
+                $.each(data.Trip_Lists, function (key, value) {
+                    $("#select_Trip").append($("<option></option>").attr("value", value.TripNumber).text(value.TripNumber));
+                });
+            }
+        });
+
+    });
+
+    $("#select_Trip").change(function () {
+        var Obj = new Object();         
+
+        Obj.BusName = $("#select_BusName option:selected").val();
+        Obj.TripNumber = $(this).val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Content("~/Report/BusReport_students")',
+            data: Obj,
+            success: function (result) {
+                $('#div_getBusReport').html('');
+                $('#div_getBusReport').html(result);
+                IntializeDataTable();
+            }
+        });
+
+        //$.ajax({
+        //    url: '/Reseller/AgentTransactionsLists_Pagination',
+        //    type: "POST",
+        //    data: obj,
+        //    dataType: 'html',
+        //    success: function (data) {
+        //        $('#ul-agenttransactionlist-pagination').html(data);
+        //    }
+        //});
+
+    });
+
+    @*function BusReport(number) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Content("~/Report/SalaryReport_staff_Teacher")',
+            data: { "number": parseInt(number) },
+            success: function (result) {
+                $('#div_getSalaryReport_Teacher_Staff').html('');
+                $('#div_getSalaryReport_Teacher_Staff').html(result);
+                IntializeDataTable();
+            }
+        });
+    }*@
+            //$(document).ready(function () {
+            //    SalaryReport(0);
+            //});
+
+            function printContent(el) {
+                var restorepage = document.body.innerHTML;
+                var printcontent = document.getElementById(el).innerHTML;
+                document.body.innerHTML = printcontent;
+                window.print();
+                document.body.innerHTML = restorepage;
+                window.location.href = '/Report/BusReport';
+            }
+
+            $(document).on('click', '#btn-excel-trial-bal', function () {
+
+                $("#div_getBusReport").table2excel({
+                    name: "Table2Excel",
+                    filename: "Outstanding Report" ,
+                    fileext: ".xls"
+                });
+            });
+
+
+</script>
+
+

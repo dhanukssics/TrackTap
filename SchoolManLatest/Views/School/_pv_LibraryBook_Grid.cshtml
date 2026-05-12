@@ -1,0 +1,91 @@
+﻿
+@model TrackTap.Models.LibraryModels
+@{
+    var books = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetAllBook();
+}
+
+
+<thead>
+    <tr>
+        <th>
+            No
+        </th>
+        <th>
+            Serial Number
+        </th>
+        <th>
+            RandomNumber
+        </th>
+        <th>
+            Title
+        </th>
+        <th>
+            Author
+        </th>
+        <th>
+            Category
+        </th>
+        <th>
+            Status
+        </th>
+        <th>
+
+        </th>
+    </tr>
+</thead>
+<tbody>
+    @{
+        int i = 1;
+        foreach (var book in books)
+        {
+            <tr >
+                <td class="">
+                    @i
+                </td>
+                <td class="">
+                    @book.serialNo
+                </td>
+                <td class="">
+                    @book.RandomNumber
+                </td>
+                <td class="">
+                    @book.title
+                </td>
+                <td class="">
+                    @book.author
+                </td>
+                <td class="">
+                    @book.Category.categoryName
+                </td>
+                <td class="">
+                    @if (book.status == 0)
+                    {
+                        <p>Available</p>
+                    }
+                    else if (book.status == 1)
+                    {
+                        <p>Issued</p>
+                    }
+                </td>
+                <td>
+                    <button class="delete-book-tr btn-peek" data-id="@book.bookId"><i class="fa fa-trash "></i></button>
+                    <button class="edit-staff-tr pay-now-btn" data-id="@book.bookId"><i class="fa fa-edit "></i></button>
+                    @if (book.status == 0)
+                    {
+                        <button class="issue-book-tr pay-now-btn" data-id="@book.bookId">Issue</button>
+                    }
+                    else if (book.status == 1)
+                    {
+                        <button class="accept-book-tr btn-peek" data-id="@book.bookId">Accept</button>
+                    }
+                  
+                    <button class="btn-md btn-peek" data-id="@book.bookId" id="btn-view-detail">View</button>
+
+                    <button class="btn-md btn-peek" data-id="@book.RandomNumber" id="btn-Print-detail">Print</button>
+
+                </td>
+            </tr>
+            i++;
+        }
+    }
+</tbody>

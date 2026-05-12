@@ -1,0 +1,110 @@
+﻿
+@model TrackTap.Models.SchoolModel
+
+@{
+    ViewBag.Title = "BankFee";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<section class="login-without" style="min-height: 555px;">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-md-5">
+                <div class="login">
+                    <div class="login-form fullWid">
+                        <h3>Bank Fee</h3>
+                        <div class="form-group">
+                            @*  @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetSchoolPaymentGatwayList().OrderBy(z => z.Text), "--School Name--", new { @class = "newDes", @data_live_search = "true", @style = "    background-color: #2f7e86;" })*@
+
+                            @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetSchoolPaymentGatwayList().OrderBy(z => z.Text), "--School Name--", new { @class = "form-control", @data_live_search = "true" })
+
+
+                        </div>
+                        <div class="form-group">
+                            <label>Percentage of bank fee</label>
+                            @*<input id="BankFee" style="height:47px;" class="newDes" placeholder="bank fee" maxlength="2" />*@
+
+                            <input type="number" id="txt-BankFee"  class="form-control" placeholder="bank fee" />
+
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" id="btn-save" class="btn btn-primary">Save</button>
+
+                            
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div><!-- /col-md-5 -->
+
+
+        </div><!-- /row -->
+    </div><!-- /container -->
+</section>
+
+
+<script>
+
+    $(document).on('change', '#classId', function () {
+
+        var ob = new Object();
+        ob.SchoolId = $('#classId option:selected').val();
+
+        $.ajax({
+            url: "/SuperAdmin/GetBankFee",
+            type: "POST",
+            dataType: 'json',
+            data: ob,
+            global: false,
+            success: function (response) {
+                if (response.status) {
+                   // toastrSuccess(response.msg);
+
+                    $("#txt-BankFee").val(response.msg);
+
+                }
+                else {
+                    toastrError(response.msg);
+
+                }
+            },
+        });
+
+    });
+
+
+
+    $("#btn-save").click(function () {
+       
+        var ob = new Object();
+        ob.SchoolName = $('#classId option:selected').text();
+        ob.SchoolId = $('#classId option:selected').val();
+        ob.Amount = $("#txt-BankFee").val();
+
+        $.ajax({
+            url: "/SuperAdmin/SaveBankFee",
+            type: "POST",
+            dataType: 'json',
+            data: ob,
+            global: false,
+            success: function (response) {
+                if (response.status) {
+                    toastrSuccess(response.msg);
+                    
+                }
+                else {
+                    toastrError(response.msg);
+                    
+                }
+            },
+        });
+
+    });
+</script>
+

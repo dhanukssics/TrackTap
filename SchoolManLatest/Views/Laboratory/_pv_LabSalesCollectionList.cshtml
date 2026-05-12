@@ -1,0 +1,90 @@
+﻿@model TrackTap.Models.StockUpdateModel
+@{
+    //  var stockList = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCurrentCollectionReport(Model.CategoryId);
+    List<TrackTap.DataLibrary.Data.StockSales> stockList = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCurrentCollectionReport(Model.CategoryId);
+    var total = stockList.Sum(x => x.Price);
+
+}
+
+<thead>
+    <tr>
+        <th>
+            SLNO
+        </th>
+        @*<th>
+                Category
+            </th>*@
+        <th>
+            ITEM
+        </th>
+        <th>
+            STOCK ID
+        </th>
+        <th>
+            PRICE
+        </th>
+
+        <th>
+            STOCK
+        </th>
+
+    </tr>
+</thead>
+<tbody>
+    @{
+        if (stockList != null)
+        {
+            int i = 1;
+            foreach (var item in stockList)
+            {
+                <tr style="cursor: pointer !important;">
+                    <td>
+                        @i
+                    </td>
+                    @*<td>
+                            @item.LabName
+                        </td>*@
+                    <td>
+                        @item.Item
+                    </td>
+                    <td>
+                        @item.StockId
+                    </td>
+                    <td>
+                        @item.Price
+                    </td>
+
+                    <td>
+                        @item.StockQuantity
+                    </td>
+
+                </tr>
+                i++;
+            }
+        }
+        else
+        {
+
+        }
+    }
+</tbody>
+<tfoot>
+    <tr>
+        <td style="font-weight:bold">
+            Total
+        </td>
+        <td>
+        </td>
+        <td>
+        </td>
+
+        <td style="font-weight:bold">
+            @total
+        </td>
+        <td>
+        </td>
+        <td>
+        </td>
+
+    </tr>
+</tfoot>

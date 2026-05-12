@@ -1,0 +1,364 @@
+﻿@model TrackTap.Models.AccountHide
+@{
+    ViewBag.Title = "AccoundHandling";
+    Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
+}
+@{ 
+//DateTime startDate = Model.FromDate;
+//DateTime endDate = Model.ToDate;
+long schoolId = Model.SchoolId;
+var school = new TrackTap.DataLibrary.Data.School(schoolId);
+////var data = school.GetDayBookReport(startDate, endDate, schoolId).ToList();
+//var list = school.DayBookReportDetailsCollection(startDate, endDate);
+//string schoolName = school.SchoolName;
+//string heading = "DAY BOOK REPORT";
+}
+
+<div class="cust-nav">    <input type="hidden" value="0" id="hfvouchertype" />
+    <input type="hidden" value="@schoolId" id="hfschoolid" />
+    <input type="hidden" value="@school.SchoolName" id="hfschoolname" />
+
+    <ul class="nav nav-tabs">
+        <li class="active" id="tab1"><a data-toggle="tab" href="#tab1_PartialView">Reciept</a></li>
+        <li id="tab2"><a data-toggle="tab" href="#tab2_PartialView">Payment</a></li>
+        <li id="tab3"><a data-toggle="tab" href="#tab3_PartialView">Contra</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="row">
+            <div class="form-group col-sm-2">
+                <label>Start</label>
+                <div class="with-icon">
+                    <input type="text" class="form-control daybook-start-date date-dayBookReport" data-date-end-date="0d" value="@Model.FromDate.ToString("dd-MM-yyyy")">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+
+            <div class="form-group col-sm-2">
+                <label>End</label>
+                <div class="with-icon">
+                    <input type="text" class="form-control daybook-end-date date-dayBookReport" data-date-end-date="0d" value="@Model.EndDate.ToString("dd-MM-yyyy")">
+                    <i class="fa fa-calendar"></i>
+                </div>
+            </div>
+            <div class="col-sm-2 col-md-2" style="margin-top: 26px;">
+                <button type="button" class="btn btn-sm btn-info btn-search" id="searchReceiptData">Search</button>
+            </div>
+
+        </div>
+
+        @Html.HiddenFor(z => z.SelectedData, new { Value = "" })
+
+        <div id="tab1_PartialView" class="tab-pane fade in active">
+            @Html.Partial("~/Views/School/_pv_Receipt_AccountHandling.cshtml", Model)
+        </div>
+        <div id="tab2_PartialView" class="tab-pane fade">
+            @Html.Partial("~/Views/School/_pv_Payment_AccountHandling.cshtml", Model)
+        </div>
+        <div id="tab3_PartialView" class="tab-pane fade">
+            @Html.Partial("~/Views/School/_pv_Contra_AccountHandling.cshtml", Model)
+        </div>
+
+    </div>
+</div>
+
+<style>
+.custome-table > table {
+    width: 100%;
+}    
+.table-headings {
+    margin: 10px auto;
+    text-align: center;
+}
+.table-headings h6 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 5px 0;
+}
+.custome-table tr td {
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #000;
+    padding: 15px !important;
+    border-bottom: 3px solid transparent !important;
+}
+</style>
+
+<script>
+
+    $(document).ready(function () {
+        var vouchertype = $('#hfvouchertype').val();
+        if (vouchertype == 0) {
+            searchDayBookDataWithDate();
+        }
+
+    });
+
+
+    $('.date-dayBookReport').datepicker({
+        format: 'dd-mm-yyyy',
+        autoclose: true,
+        todayHighlight: true
+    });
+
+
+    $(document).on('click', '#searchReceiptData', function () {       
+        searchDayBookDataWithDate();      
+    });
+   
+    function searchDayBookDataWithDate() {
+        var date = $('.daybook-start-date').val();
+        var res = date.split("-");
+        var dd = res[0];
+        var mm = res[1];
+        var yyyy = res[2];
+        var start = mm + '-' + dd + '-' + yyyy;
+
+        date = $('.daybook-end-date').val();
+        res = date.split("-");
+        dd = res[0];
+        mm = res[1];
+        yyyy = res[2];
+        var end = mm + '-' + dd + '-' + yyyy;
+
+        var vouchertype = $('#hfvouchertype').val();
+
+        $.ajax({
+            url: '/School/DayBookReportHide/' + start + '~' + end + '~' + vouchertype,
+            type: "GET",
+            dataType: 'html',
+            success: function (data) {
+                if (vouchertype == 0)
+                {
+                  //alert("res")
+                  $('#tab1_PartialView').html('');
+                  $('#tab1_PartialView').html(data);
+                 // FillGroupsInEdit1();
+                }
+                else if (vouchertype == 1)
+                {
+                    //alert("pay")
+                    $('#tab2_PartialView').html('');
+                    $('#tab2_PartialView').html(data);
+                 //   FillGroupsInEdit2();
+                }
+                else {
+                    //alert("contra")
+                    $('#tab3_PartialView').html('');
+                    $('#tab3_PartialView').html(data);
+                  //  FillGroupsInEdit3();
+                }
+               
+                //IntializeDataTable();
+            }
+        });
+    }
+    function FillGroupsInEdit1() {
+        debugger;
+        var data = $('#grdata').val();
+        if (data != "") {
+            var list = data.split("~");
+            if (list != null) {
+
+                for (var i = 0; i < list.length; i++) {
+                    var roleId = list[i];
+                    $(".ckb-receipt-item").each(function () { 
+                        var allId = $(this).val();
+                        if (roleId == allId) {
+                            $(this).prop('checked', true);
+                        }
+                    });
+                }
+            }
+        }
+
+
+    };
+
+
+    $("#tab1").on("click", function () {
+        $('#hfvouchertype').val(0);
+        searchDayBookDataWithDate();
+    });
+
+    $("#tab2").on("click", function () {
+        $('#hfvouchertype').val(1);
+        searchDayBookDataWithDate();
+    });
+    $("#tab3").on("click", function () {
+        $('#hfvouchertype').val(2);
+        searchDayBookDataWithDate();
+    });
+
+    $(document).on('click', '.selectallreceipt', function () {
+      
+        if (this.checked) {
+            $('.ckb-receipt-item').each(function () {
+                $(".ckb-receipt-item").prop('checked', true);
+            })
+        } else {
+            $('.ckb-receipt-item').each(function () {
+                $(".ckb-receipt-item").prop('checked', false);
+            })
+        }
+    });
+    $(document).on('click', '.selectallpayment', function () {
+        //  debugger;
+        if (this.checked) {
+            $('.ckb-payment-item').each(function () {
+                $(".ckb-payment-item").prop('checked', true);
+            })
+        } else {
+            $('.ckb-payment-item').each(function () {
+                $(".ckb-payment-item").prop('checked', false);
+            })
+        }
+    });
+
+    $(document).on('click', '.selectallcontra', function () {
+        //  debugger;
+        if (this.checked) {
+            $('.ckb-contra-item').each(function () {
+                $(".ckb-contra-item").prop('checked', true);
+            })
+        } else {
+            $('.ckb-contra-item').each(function () {
+                $(".ckb-contra-item").prop('checked', false);
+            })
+        }
+    });
+
+    //Receipt save
+    $(document).on('click', '#btn-dummy-addaccountsReciept', function () {
+        SelectedListReceipt();
+        submit();
+    });
+    var list = [];
+    function SelectedListReceipt() {
+        list = [];
+        $('.ckb-receipt-item').each(function () {
+            if ($(this).prop("checked") == true) {
+                
+                var obj = new Object();
+                obj.EnterDate = $(this).attr('data-enterdate');
+                obj.VoucherNo = $(this).attr('data-voucherno');
+                obj.TransactionType = $(this).attr('data-transactiontype');
+                obj.FromStatus = $(this).attr('data-fromstatus');
+                obj.AccountHeadName = $(this).attr('data-accountheadname');
+                obj.SubLedger = $(this).attr('data-subledger');
+                obj.IncomeAmount = $(this).attr('data-incomeamount');
+                obj.ExpenseAmount = $(this).attr('data-expenseamount');
+                obj.Narration = $(this).attr('data-narration');
+                list.push(obj);
+            }
+        });
+        //setTimeout(function () {
+            if (list.length > 0) {
+               
+                $('#SelectedData').val(JSON.stringify(list));
+           }
+        //}, 200)
+       
+    };
+
+    //Receipt save end
+
+    //Payment save
+    $(document).on('click', '#btn-dummy-addaccountsPayment', function () {
+        SelectedListPayment();
+        submit();
+    });
+    function SelectedListPayment() {
+        list = [];
+        $('.ckb-payment-item').each(function () {
+            if ($(this).prop("checked") == true) {
+                var obj = new Object();
+                obj.EnterDate = $(this).attr('data-enterdate');
+                obj.VoucherNo = $(this).attr('data-voucherno');
+                obj.TransactionType = $(this).attr('data-transactiontype');
+                obj.FromStatus = $(this).attr('data-fromstatus');
+                obj.AccountHeadName = $(this).attr('data-accountheadname');
+                obj.SubLedger = $(this).attr('data-subledger');
+                obj.IncomeAmount = $(this).attr('data-incomeamount');
+                obj.ExpenseAmount = $(this).attr('data-expenseamount');
+                obj.Narration = $(this).attr('data-narration');
+                list.push(obj);
+            }
+        });
+       
+            if (list.length > 0) {
+                $('#SelectedData').val(JSON.stringify(list));
+            }
+      
+    };
+
+    //Payment save end
+
+    //Contra save
+
+    $(document).on('click', '#btn-dummy-addaccountsContra', function () {
+        SelectedListContra();
+        submit();
+    });
+    function SelectedListContra() {
+        list = [];
+        $('.ckb-contra-item').each(function () {
+            if ($(this).prop("checked") == true) {
+                var obj = new Object();
+                obj.EnterDate = $(this).attr('data-enterdate');
+                obj.VoucherNo = $(this).attr('data-voucherno');
+                obj.TransactionType = $(this).attr('data-transactiontype');
+                obj.FromStatus = $(this).attr('data-fromstatus');
+                obj.AccountHeadName = $(this).attr('data-accountheadname');
+                obj.SubLedger = $(this).attr('data-subledger');
+                obj.IncomeAmount = $(this).attr('data-incomeamount');
+                obj.ExpenseAmount = $(this).attr('data-expenseamount');
+                obj.Narration = $(this).attr('data-narration');
+                list.push(obj);
+            }
+        });
+      
+            if (list.length > 0) {
+              
+                $('#SelectedData').val(JSON.stringify(list));
+            }
+        
+    };
+
+    //Contra save end
+
+
+    function submit() {
+      
+        var ob = new Object();
+        ob.accounthidedetails = $('#SelectedData').val();
+        ob.SchoolId = $('#hfschoolid').val();
+        ob.SchoolName = $('#hfschoolname').val();
+        ob.VoucherType = $('#hfvouchertype').val();
+        ob.startdate = $('.daybook-start-date').val();
+        ob.endingdate = $('.daybook-end-date').val();
+        
+       
+        $.ajax({
+            url: "/School/SubmitAccountHidedetails",
+            type: "POST",
+            dataType: 'json',
+            data: ob,
+            global: false,
+            success: function (response) {
+                if (response.status) {                   
+                    toastrSuccess(response.msg);
+                   // window.location.href = '/Curriculum/Exam';
+                }
+                else {
+                    toastrError(response.msg);
+                    //window.location.href = '/Module/UserTypeDefineHome/';
+                }
+            },
+        });
+    }
+
+
+   
+
+</script>
