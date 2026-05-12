@@ -140,7 +140,7 @@ namespace TrackTap.Repository
         {
             try
             {
-                var classDetails = new TrackTap.DataLibrary.Data.Division(divisionId);
+                var classDetails = new TrackTap.Data.Division(divisionId);
                 long headId = 0;
                 bool status = false;
                 string msg = "Failed";

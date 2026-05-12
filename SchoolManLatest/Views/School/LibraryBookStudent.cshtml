@@ -51,7 +51,7 @@
                 <tbody>
                     @{
                         int i = 1;
-                        foreach (var student in new TrackTap.DataLibrary.Data.LibraryBook(Model.bookId).GetBookStudentList().OrderByDescending(z=>z.studentBookId))
+                        foreach (var student in new TrackTap.Data.LibraryBook(Model.bookId).GetBookStudentList().OrderByDescending(z=>z.studentBookId))
                         {
                             <tr>
                                 <td class="">

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TrackTap.ClassLibrary.Utility;
 
-namespace TrackTap.DataLibrary.Data
+namespace TrackTap.Data
 {
     public class WebsiteService : BaseReference
     {

@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.ReceiptPaymentModel
 @{
-    var receiptPayment = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetReceiptPayment(Model.StartDate, Model.EndDate);
+    var receiptPayment = new TrackTap.Data.School(Model.SchoolId).GetReceiptPayment(Model.StartDate, Model.EndDate);
 
 }
 <div class="row">

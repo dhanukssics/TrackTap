@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.FeeModel
 @{
     ViewBag.Title = "Assign Discount";
-    var students = new TrackTap.DataLibrary.Data.Division(Model.DivisionId).GetStudentDetails().OrderBy(z => z.StundentName).ToList();
+    var students = new TrackTap.Data.Division(Model.DivisionId).GetStudentDetails().OrderBy(z => z.StundentName).ToList();
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
 }
 <style>
@@ -41,7 +41,7 @@
                 <h5 class="head-box">Save Discount</h5>
                 <div class="row" style="margin-top: 1%;">
                     <div class="col-sm-4">
-                        @Html.DropDownListFor(m => m.FeeId, new TrackTap.DataLibrary.Data.DropdownData().RefreshSchoolFees(Model.SchoolId), "--Choose Fee--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true" })
+                        @Html.DropDownListFor(m => m.FeeId, new TrackTap.Data.DropdownData().RefreshSchoolFees(Model.SchoolId), "--Choose Fee--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true" })
                         <span id="val_fee" class="isHidden" style="color:red">* Select fee</span>
                     </div>
                     <div class="col-sm-4">

@@ -8,7 +8,7 @@
     string schoolName = Model.SchoolName;
     string heading = Model.Heading;
 
-    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var school = new TrackTap.Data.School(schoolId);
     var data = school.Report_GetLedgerReport(startDate, endDate, schoolId, headId, subId);
 
     var accounthead_List = data.Select(x => x.AccountHead).Distinct().ToArray();

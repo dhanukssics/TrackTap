@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.BankBookModel
 @{
     long schoolId = Model.SchoolId;
-    decimal currentBalance = new TrackTap.DataLibrary.Data.School(schoolId).GetBankCurrentBalance(Model.BankId);
+    decimal currentBalance = new TrackTap.Data.School(schoolId).GetBankCurrentBalance(Model.BankId);
 }
 <div>
     <label style="margin-right:50px;">Current Balance : @String.Format("{0:0.00}", currentBalance) / -</label>

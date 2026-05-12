@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.FeeAlertDataModel
 @{
-    Model.IsHideAccounts = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetAccountHide();
+    Model.IsHideAccounts = new TrackTap.Data.School(Model.SchoolId).GetAccountHide();
 
 }
 <div class="col-md-12 col-md-offset-1 style=" margin-bottom 70%; margin-top 3%;"">

@@ -3,7 +3,7 @@
     ViewBag.Title = "Balance Sheet";
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
 
-    var balanceSheet = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetBalanceSheet();
+    var balanceSheet = new TrackTap.Data.School(Model.schoolId).GetBalanceSheet();
     //var liab = balanceSheet.Where(z => z.accountType == 4).ToList();
     //var asst = balanceSheet.Where(z => z.accountType == 3).ToList();
     //var count = liab.Count >= asst.Count ? liab.Count : asst.Count;

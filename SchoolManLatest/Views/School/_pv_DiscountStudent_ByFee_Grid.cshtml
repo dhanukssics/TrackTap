@@ -1,6 +1,6 @@
 ﻿    @model TrackTap.Models.FeeModel
 @{
-    var students = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetStudentDetailsByFeeDiscount(Model.FeeId).OrderBy(z => z.StundentName).ToList();
+    var students = new TrackTap.Data.School(Model.SchoolId).GetStudentDetailsByFeeDiscount(Model.FeeId).OrderBy(z => z.StundentName).ToList();
 
 }
 <div class="table-responsive">

@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.PrintBill
 
 @{
-    var student = new TrackTap.DataLibrary.Data.Student(Model.studentId);
+    var student = new TrackTap.Data.Student(Model.studentId);
     var studentData = student.GetStudentData();
     long billNo = Model.billNumber;
     long Amount = Model.Amount;

@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "Staff List";
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
-    var school = new TrackTap.DataLibrary.Data.School(Model.schoolId);
+    var school = new TrackTap.Data.School(Model.schoolId);
     var logo = school.FilePath;
     var diary = school.GetSchoolDiaryLink();
 }

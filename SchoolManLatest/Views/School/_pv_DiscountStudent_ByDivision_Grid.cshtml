@@ -1,6 +1,6 @@
 ﻿ @model TrackTap.Models.SchoolModel
 @{
-    var discounts = new TrackTap.DataLibrary.Data.Division(Model.divisionId).GetStudentDiscountList();
+    var discounts = new TrackTap.Data.Division(Model.divisionId).GetStudentDiscountList();
 }
 <div class="table-responsive">
     <table class="table custome-table table-student-list">

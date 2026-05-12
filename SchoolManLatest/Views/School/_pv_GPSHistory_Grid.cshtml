@@ -1,7 +1,7 @@
 ﻿
 @model TrackTap.Models.SchoolModel
 @{
-    var trips = new TrackTap.DataLibrary.Data.WebsiteService().GetTripByDate(Model.curredntDateTime, Model.schoolId);
+    var trips = new TrackTap.Data.WebsiteService().GetTripByDate(Model.curredntDateTime, Model.schoolId);
     var x = 0;
 }
 

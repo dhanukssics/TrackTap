@@ -1,22 +1,22 @@
 ﻿@model TrackTap.Models.SchoolModel
 
 @{
-    List<TrackTap.DataLibrary.Data.Student> students;
+    List<TrackTap.Data.Student> students;
 
 
     if (Model.divisionId != 0)
     {
-         students = new TrackTap.DataLibrary.Data.Division(Model.divisionId).GetStudentDetails();
+         students = new TrackTap.Data.Division(Model.divisionId).GetStudentDetails();
     }
     else
     {
         if (Model.classId != 0)
         {
-            students = new TrackTap.DataLibrary.Data.Class(Model.classId).GetStudentDetails();
+            students = new TrackTap.Data.Class(Model.classId).GetStudentDetails();
         }
         else
         {
-            students = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetStudentDetails().OrderBy(z => z.StundentName).ToList();
+            students = new TrackTap.Data.School(Model.schoolId).GetStudentDetails().OrderBy(z => z.StundentName).ToList();
         }
     }
 

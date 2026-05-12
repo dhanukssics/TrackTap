@@ -33,7 +33,7 @@
                     <br />
                     @*@Html.EnumDropDownListFor(m => m.userType, new { @class = "form-control", id = "user-type-type" })
                     @Html.ValidationMessageFor(m => m.userType)*@
-                    @Html.DropDownListFor(m => m.SchoolId, TrackTap.DataLibrary.Data.DropdownData.GetSchoolList(), new { @class = "form-control" })
+                    @Html.DropDownListFor(m => m.SchoolId, TrackTap.Data.DropdownData.GetSchoolList(), new { @class = "form-control" })
                     @Html.ValidationMessageFor(m => m.SchoolId)
                 </div>
             </div>          

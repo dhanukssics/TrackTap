@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.FeeModel
 @{
-    var fees = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId).GetStudentCommonFeeList();
+    var fees = new TrackTap.Data.Student(Model.SchoolModel.studentId).GetStudentCommonFeeList();
 }
 @using (Ajax.BeginForm("CommonFeeDiscountStudentFee", "School", null, new AjaxOptions
 {

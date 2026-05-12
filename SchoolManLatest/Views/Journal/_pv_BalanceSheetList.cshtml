@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.TrialBalanceModel
 @{
     var headName = "Balance Sheet as on " + @Model.Today.ToString("dd-MMM-yyyy");
-    var balanceSheet = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetBalanceSheetList();
+    var balanceSheet = new TrackTap.Data.School(Model.SchoolId).GetBalanceSheetList();
 }
 <div class="row">
     @Html.HiddenFor(m => m.Today, new { Value = Model.Today })

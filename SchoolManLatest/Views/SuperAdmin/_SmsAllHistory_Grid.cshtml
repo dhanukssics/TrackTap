@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.FeeModel
 @{
-    var data = new TrackTap.DataLibrary.Data.Admin().GetAllSmsCount(Model.StartDate, Model.EndDate).ToList();
+    var data = new TrackTap.Data.Admin().GetAllSmsCount(Model.StartDate, Model.EndDate).ToList();
 }
 <style>
     .numbCenter {

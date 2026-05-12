@@ -3,7 +3,7 @@
     DateTime startDate = Model.StartDate;
     DateTime endDate = Model.EndDate;
     long schoolId = Model.SchoolId;
-    var data = new TrackTap.DataLibrary.Data.School(schoolId).GetDetailedCollectionReportDate(startDate, endDate).OrderBy(z => z.BillNo);
+    var data = new TrackTap.Data.School(schoolId).GetDetailedCollectionReportDate(startDate, endDate).OrderBy(z => z.BillNo);
     decimal total = data.Sum(x => x.Amount);
 }
 
@@ -83,7 +83,7 @@
 
                         catch (Exception ex)
                         {
-                            var student = new TrackTap.DataLibrary.Data.Student(one.StudentId);
+                            var student = new TrackTap.Data.Student(one.StudentId);
                             bool isThere = student.IsDueBill(@one.FeeGuid);
                             if (isThere)
                             {

@@ -18,7 +18,7 @@
                     @Html.DropDownListFor(z => z.BusModel.BusName, new SelectList(Model.BusNames_Lists, "BusName", "BusName"), "BusName", new { @id = "select_BusName", @class = "form-control" })
 
                         
-                        @*@Html.DropDownListFor(m => m.AcademicYearId, TrackTap.DataLibrary.Data.DropdownData.GetOtherAcademicYear(), "All", new { @class = "form-control slct-academic-year-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                        @*@Html.DropDownListFor(m => m.AcademicYearId, TrackTap.Data.DropdownData.GetOtherAcademicYear(), "All", new { @class = "form-control slct-academic-year-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                         @Html.ValidationMessageFor(z => z.AcademicYearId)*@
                     </div>
             </div>
@@ -29,7 +29,7 @@
                         <select class="form-control" id="select_Trip">
                             <option>Select</option>
                         </select>
-                        @*@Html.DropDownListFor(m => m.ClassId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.SchoolId), "All", new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                        @*@Html.DropDownListFor(m => m.ClassId, TrackTap.Data.DropdownData.GetClasses(Model.SchoolId), "All", new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                         @Html.ValidationMessageFor(z => z.ClassId)*@
                     @*<label>Class :</label>
                         <select class="form-control slct-mark-dropdwn1" disabled></select>
@@ -51,7 +51,7 @@
                 <div class="form-group">
                     @*<label>Fees : </label>
                         <br />*@
-                    @*@Html.DropDownListFor(m => m.FeeId, TrackTap.DataLibrary.Data.DropdownData.GetFeeses(Model.SchoolId), "All", new { @class = "form-control slct-fee-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                    @*@Html.DropDownListFor(m => m.FeeId, TrackTap.Data.DropdownData.GetFeeses(Model.SchoolId), "All", new { @class = "form-control slct-fee-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                         @Html.ValidationMessageFor(z => z.FeeId)*@
                 </div>
             </div>

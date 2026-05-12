@@ -55,7 +55,7 @@ namespace TrackTap.Controllers
         public object GetAllSupplierName()
         {
             long SchoolId = _user.SchoolId;
-            var result = new TrackTap.DataLibrary.Data.WebsiteService().GetAllSupplierList(SchoolId);
+            var result = new TrackTap.Data.WebsiteService().GetAllSupplierList(SchoolId);
             return Json(new { Status = true, Message = "", result = result }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
@@ -480,7 +480,7 @@ namespace TrackTap.Controllers
         public IActionResult StockBillingDetails(string id)
         {
             long studentId = Convert.ToInt32(id);
-            var student = new TrackTap.DataLibrary.Data.Student(studentId);
+            var student = new TrackTap.Data.Student(studentId);
             FeeModel model = new FeeModel();
             model.SchoolModel = new SchoolModel();
             model.SchoolModel.studentName = student.StundentName;
@@ -763,7 +763,7 @@ namespace TrackTap.Controllers
 
                 //if (stock.Price!=0   /*isAmountEdit != 0*/)
                 //{
-                //    var paymentList = new TrackTap.DataLibrary.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
+                //    var paymentList = new TrackTap.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
                 //    var dueFee = paymentList.Where(z => z.FeeGuid == payment.FeeGuid).FirstOrDefault();
                 //    if (dueFee != null)
                 //    {

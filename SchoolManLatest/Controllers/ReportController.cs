@@ -68,7 +68,7 @@ namespace TrackTap.Controllers
                 
                 // var a11 = aa.
 
-                var data = await new TrackTap.DataLibrary.Data.School(model.SchoolId).GetOutStandingData_new(model.ClassId, model.DivisionId, model.FeeId, model.FromDate, model.ToDate);
+                var data = await new TrackTap.Data.School(model.SchoolId).GetOutStandingData_new(model.ClassId, model.DivisionId, model.FeeId, model.FromDate, model.ToDate);
                 Session["datalists"] =  data;
 
                 return PartialView("~/Views/Report/_OutstandingReportMultipleList.cshtml", model);
@@ -281,7 +281,7 @@ namespace TrackTap.Controllers
 
 
 
-            //var results =  TrackTap.DataLibrary.Data.School(schoolId).GetDetailedCollectionReportDate(startDate, endDate).OrderBy(z => z.BillNo);
+            //var results =  TrackTap.Data.School(schoolId).GetDetailedCollectionReportDate(startDate, endDate).OrderBy(z => z.BillNo);
             return PartialView("~/Views/Report/_pv_DetailedCollectionReportList.cshtml", model);
         }
 
@@ -644,7 +644,7 @@ namespace TrackTap.Controllers
             }
             else
             {
-                var result = TrackTap.DataLibrary.Data.DropdownData.GetSubLedgerList(id);
+                var result = TrackTap.Data.DropdownData.GetSubLedgerList(id);
                 result.Add(new SelectListItem { Text = "All", Value = "0" });
                 return Json(new { status = result.Count > 0, list = result.OrderBy(x => x.Value).ToList() }, JsonRequestBehavior.AllowGet);
             }

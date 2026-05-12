@@ -2,8 +2,8 @@
 
 @{
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
-    var senderDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetSenderDetails();
-    var feeIncomeData = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetFeeIncomeHead();
+    var senderDetails = new TrackTap.Data.School(Model.SchoolId).GetSenderDetails();
+    var feeIncomeData = new TrackTap.Data.School(Model.SchoolId).GetFeeIncomeHead();
     if (feeIncomeData != null)
     {
         Model.FeeIncomeHead = new TrackTap.Models.FeeIncomeAccountHead();
@@ -194,7 +194,7 @@
                                 {
                                     <div class="form-group">
                                         <label style="width:100px; float:left; font-weight: normal;">Fee Name:</label>
-                                        @Html.DropDownListFor(m => m.feeId, new TrackTap.DataLibrary.Data.DropdownData().SchoolSpecialFeesList(Model.SchoolId), "--Choose Fee--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true", @style = "width:calc(100% - 160px);" })
+                                        @Html.DropDownListFor(m => m.feeId, new TrackTap.Data.DropdownData().SchoolSpecialFeesList(Model.SchoolId), "--Choose Fee--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true", @style = "width:calc(100% - 160px);" })
                                         @Html.ValidationMessageFor(z => z.feeId)
                                         @*<input class="form-control" placeholder="Name" type="text" />*@
                                     </div>
@@ -223,7 +223,7 @@
                                 {
                                     <div class="form-group">
                                         <label style="width:100px; float:left; font-weight: normal;">Fee Name:</label>
-                                        @Html.DropDownListFor(m => m.feeId, new TrackTap.DataLibrary.Data.DropdownData().SchoolSpecialFeesList(Model.SchoolId), "--Choose Fee--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true", @style = "width:calc(100% - 160px);" })
+                                        @Html.DropDownListFor(m => m.feeId, new TrackTap.Data.DropdownData().SchoolSpecialFeesList(Model.SchoolId), "--Choose Fee--", new { @class = "form-control slct-fee-dropdwn", @data_live_search = "true", @style = "width:calc(100% - 160px);" })
                                         @Html.ValidationMessageFor(z => z.feeId)
                                         @*<input class="form-control" placeholder="Name" type="text" />*@
                                     </div>

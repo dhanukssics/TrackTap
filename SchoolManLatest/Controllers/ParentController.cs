@@ -111,7 +111,7 @@ namespace TrackTap.Controllers
             long studentId = Convert.ToInt64(splitData[0]);
             string admissionNo = splitData[1];
 
-            var student = new TrackTap.DataLibrary.Data.Student(studentId);
+            var student = new TrackTap.Data.Student(studentId);
             FeeModel model = new FeeModel();
             if (student.StudentSpecialId == admissionNo)
             {
@@ -267,7 +267,7 @@ namespace TrackTap.Controllers
                 int isAmountEdit = Convert.ToInt16(splitData[5]);
                 if (isAmountEdit != 0)
                 {
-                    var paymentList = new TrackTap.DataLibrary.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
+                    var paymentList = new TrackTap.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
                     var dueFee = paymentList.Where(z => z.FeeGuid == payment.FeeGuid).FirstOrDefault();
                     if (dueFee != null)
                     {
@@ -855,7 +855,7 @@ namespace TrackTap.Controllers
 
         public PartialViewResult MessageSectionInnerView(string id)
         {
-            TrackTap.ClassLibrary.MapModel.ParentTeacherConversationMapModel model = new TrackTap.ClassLibrary.MapModel.ParentTeacherConversationMapModel();
+            TrackTap.MapModel.ParentTeacherConversationMapModel model = new TrackTap.MapModel.ParentTeacherConversationMapModel();
             string[] splitData = id.Split('~');
             model.length = Convert.ToInt32(splitData[0]);
             model.StudentId = splitData[1];

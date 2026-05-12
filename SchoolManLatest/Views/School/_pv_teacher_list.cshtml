@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.SchoolId
 @{
-    var school = new TrackTap.DataLibrary.Data.School(Model.schoolId);
+    var school = new TrackTap.Data.School(Model.schoolId);
     var WagesShowsSettings = school.GetCurrentStatusOfWagesEmployees();
 }
 

@@ -82,7 +82,7 @@
                 </select>
                 @*<-----------ARCHANA ---------------PROMOTION------------->*@
                 <h4 style="margin-top:10px;"><span>Academic Year</span> </h4>
-                @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.DataLibrary.Data.DropdownData.GetOtherAcademicYear(), new { @class = "form-control", @data_live_search = "true", id = "academic-year-dropdown-id-change",style= "width:25%;margin-bottom: 4px;margin-top: 4px;" })
+                @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.Data.DropdownData.GetOtherAcademicYear(), new { @class = "form-control", @data_live_search = "true", id = "academic-year-dropdown-id-change",style= "width:25%;margin-bottom: 4px;margin-top: 4px;" })
                 @Html.ValidationMessageFor(z => z.AcademicYearId)
                 @*<button class="btn pay-now-btn" data-toggle="model" id="btn-generate-prepaidInvoice">Prepaid Invoice</button>*@
                 @*</-----------ARCHANA----------ADD DISCOUNT------------------->*@
@@ -96,7 +96,7 @@
             <div class="form-group">
                 <div id="div-bakname" class="isHidden" style="width: 150px; float: right; margin-right:10px;">
                     <label>Bank Name</label>
-                    @Html.DropDownListFor(m => m.BankId, TrackTap.DataLibrary.Data.DropdownData.GetBankLists(Model.SchoolId), new { @class = "form-control accHead-drop-down" })
+                    @Html.DropDownListFor(m => m.BankId, TrackTap.Data.DropdownData.GetBankLists(Model.SchoolId), new { @class = "form-control accHead-drop-down" })
                     @Html.ValidationMessageFor(m => m.BankId)
                 </div>
 
@@ -135,7 +135,7 @@
 <div class="modal fade" id="addAdvancelModel">
 
     @{
-        var student = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId);
+        var student = new TrackTap.Data.Student(Model.SchoolModel.studentId);
         //var paymentList = student.GetStudentAdvancePaymentFees().OrderBy(z => z.DueDate).ToList();
         var discountFee = student.Discount.ToList();
     }

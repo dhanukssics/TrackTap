@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.ExamSubjectDetailsModel
 @{ 
-    var subjectList = new TrackTap.DataLibrary.Data.Exams(Model.ExamId).ExamSubjectsList.ToList();
+    var subjectList = new TrackTap.Data.Exams(Model.ExamId).ExamSubjectsList.ToList();
 }
 
 <thead>

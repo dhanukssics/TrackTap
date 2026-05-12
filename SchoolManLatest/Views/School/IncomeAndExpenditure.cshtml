@@ -3,7 +3,7 @@
     ViewBag.Title = "Income And Expenditure";
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
 
-    var incomeAndExp = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetIncomeAndExpenditure();
+    var incomeAndExp = new TrackTap.Data.School(Model.schoolId).GetIncomeAndExpenditure();
     //var exp = incomeAndExp.Where(z => z.accountType == 5).ToList();
     //var inc = incomeAndExp.Where(z => z.accountType == 6).ToList();
     //var count = exp.Count >= inc.Count ? exp.Count : inc.Count;

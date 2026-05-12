@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.FeeModel
 @{
-    var specialFees = new TrackTap.DataLibrary.Data.Division(Model.DivisionId).GetSpecialFeeStudentList(Model.FeeId);
+    var specialFees = new TrackTap.Data.Division(Model.DivisionId).GetSpecialFeeStudentList(Model.FeeId);
 }
 <div class="table-responsive">
     <table class="table custome-table table-student-list">

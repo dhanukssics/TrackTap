@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.SchoolModel
 @{
-    var trips = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetTripDetailById(Model.curredntDateTime, Model.busId);
+    var trips = new TrackTap.Data.School(Model.schoolId).GetTripDetailById(Model.curredntDateTime, Model.busId);
 }
 <table class="table custome-table">
     <thead>

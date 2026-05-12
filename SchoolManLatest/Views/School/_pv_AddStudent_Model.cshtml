@@ -106,7 +106,7 @@
                         <div class="col-sm-6">
                             <div class="form-group">
                                 <label>Class</label>
-                                @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.schoolId), "--Choose--", new { @class = "form-control pv_class-drop-down", @data_live_search = "true", name = "classDropdown", id = "classDataDropdown" })
+                                @Html.DropDownListFor(m => m.classId, TrackTap.Data.DropdownData.GetClasses(Model.schoolId), "--Choose--", new { @class = "form-control pv_class-drop-down", @data_live_search = "true", name = "classDropdown", id = "classDataDropdown" })
                                 @Html.ValidationMessageFor(m => m.classId)
                             </div>
                         </div>
@@ -176,7 +176,7 @@
                     </div>
                     <div class="form-group">
                         <label>Bus Name</label>
-                        @Html.DropDownListFor(m => m.BusId, TrackTap.DataLibrary.Data.DropdownData.GetBusName(Model.schoolId), "--Select Bus--", new { @class = "form-control pv_bus-drop-down" })
+                        @Html.DropDownListFor(m => m.BusId, TrackTap.Data.DropdownData.GetBusName(Model.schoolId), "--Select Bus--", new { @class = "form-control pv_bus-drop-down" })
                     </div>
                     <div class="form-group">
                         <label>Trip Number</label>

@@ -15,7 +15,7 @@
     </thead>
     <tbody>
         @{
-            var PurchaseDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetPurchaseByDate(Model.StartDate, Model.EndDate);
+            var PurchaseDetails = new TrackTap.Data.School(Model.SchoolId).GetPurchaseByDate(Model.StartDate, Model.EndDate);
             var index = 1;
             
         }

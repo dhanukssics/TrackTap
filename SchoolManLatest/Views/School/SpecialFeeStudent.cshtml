@@ -17,7 +17,7 @@
         <div class="row">
             <div class="form-group col-sm-4 ">
                 <label>Class</label>
-                @Html.DropDownListFor(m => m.ClassId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.SchoolId), "--Choose--", new { @class = "form-control class-drop-down", @data_live_search = "true" })
+                @Html.DropDownListFor(m => m.ClassId, TrackTap.Data.DropdownData.GetClasses(Model.SchoolId), "--Choose--", new { @class = "form-control class-drop-down", @data_live_search = "true" })
             </div>
             <div class="form-group col-sm-4 ">
                 <label>Division</label>

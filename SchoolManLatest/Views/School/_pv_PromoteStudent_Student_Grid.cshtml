@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.StudentModel
 
 @{ 
-    var students = new TrackTap.DataLibrary.Data.Division(Model.divisionId).GetStudentDetails().OrderBy(z => z.StundentName).ToList();
+    var students = new TrackTap.Data.Division(Model.divisionId).GetStudentDetails().OrderBy(z => z.StundentName).ToList();
 
 
 }

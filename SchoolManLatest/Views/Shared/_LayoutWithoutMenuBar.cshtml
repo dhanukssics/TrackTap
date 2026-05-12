@@ -95,7 +95,7 @@
             <div class="">
 
                 @{
-                    var userData = new TrackTap.DataLibrary.Data.Login((TrackTap.DataLibrary.tb_Login)Session["User"]);
+                    var userData = new TrackTap.Data.Login((TrackTap.DataLibrary.tb_Login)Session["User"]);
                     var allotedMenu = userData.GetUserMenuList();
                 }
                 <div class="body-containerNew">

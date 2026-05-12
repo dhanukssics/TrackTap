@@ -21,7 +21,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Class</label>
-                    @Html.DropDownListFor(m => m.ClassName, TrackTap.DataLibrary.Data.DropdownData.GetClassAllList(), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
+                    @Html.DropDownListFor(m => m.ClassName, TrackTap.Data.DropdownData.GetClassAllList(), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
                     @Html.ValidationMessageFor(z => z.ClassName)
                 </div>
                 <div class="form-group">
@@ -31,7 +31,7 @@
                 </div>
                 <div class="form-group">
                     <label>Academic Year</label>
-                    @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.DataLibrary.Data.DropdownData.GetCurrentAcademicYear(), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
+                    @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.Data.DropdownData.GetCurrentAcademicYear(), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
                     @Html.ValidationMessageFor(z => z.AcademicYearId)
                 </div>
             </div>

@@ -85,12 +85,12 @@
                     <ul>
                         <li>
                             @{
-                            var classes = new TrackTap.DataLibrary.Data.School(Model.schoolId).Divisions.ToList().OrderBy(z => z.ClassName);
+                            var classes = new TrackTap.Data.School(Model.schoolId).Divisions.ToList().OrderBy(z => z.ClassName);
                             var schoolAtnd = 0;
                             }
                             @foreach (var clas in classes)
                         {
-                            var attendance = new TrackTap.DataLibrary.Data.Division(clas.DivisionId).GetAttendanceCount(0).ToList();
+                            var attendance = new TrackTap.Data.Division(clas.DivisionId).GetAttendanceCount(0).ToList();
                             var totCount = attendance.Count;
                             var present = attendance.Where(z => z.AttendanceData == true).ToList().Count();
                             schoolAtnd = schoolAtnd + present;
@@ -109,7 +109,7 @@
                 </div>*@
                     @{
                         var currenttime = new TrackTap.Controllers.BaseController().CurrentTime;
-                        var school = new TrackTap.DataLibrary.Data.School(Model.schoolId);
+                        var school = new TrackTap.Data.School(Model.schoolId);
                         var classes = school.Divisions.Where(z => z.Class.PublishStatus == true).ToList().OrderBy(z => z.Class.ClassOrder);
                         var schoolAtnd = 0;
                         var totStudent = 0;
@@ -131,7 +131,7 @@
                             <tbody>
                                 @foreach (var clas in classes)
                                 {
-                                    var divisionDetail = new TrackTap.DataLibrary.Data.Division(clas.DivisionId);
+                                    var divisionDetail = new TrackTap.Data.Division(clas.DivisionId);
                                     var attendance = divisionDetail.GetAttendanceCount(0).ToList();
                                     var strength = divisionDetail.GetStudentCount();
                                     //var totCount = attendance.Count;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TrackTap.ClassLibrary;
 using TrackTap.ClassLibrary.Utility;
 
-namespace TrackTap.DataLibrary.Data
+namespace TrackTap.Data
 {
     public class School : BaseReference
     {
@@ -725,9 +725,9 @@ namespace TrackTap.DataLibrary.Data
         public List<ReceiptPaymentDataModel> GetReceiptPayment(DateTime startdate, DateTime enddate)
         {
 
-            var receiptPayment = new TrackTap.DataLibrary.Data.School(school.SchoolId).GetReceiptPaymentBankData();
-            var openingBankBalance = new TrackTap.DataLibrary.Data.School(school.SchoolId).GetReceiptPaymentBankDataByDate(startdate);
-            var cashInHand = new TrackTap.DataLibrary.Data.School(school.SchoolId).GetCashBookStatus(startdate, enddate);
+            var receiptPayment = new TrackTap.Data.School(school.SchoolId).GetReceiptPaymentBankData();
+            var openingBankBalance = new TrackTap.Data.School(school.SchoolId).GetReceiptPaymentBankDataByDate(startdate);
+            var cashInHand = new TrackTap.Data.School(school.SchoolId).GetCashBookStatus(startdate, enddate);
             decimal cashInHandRP = cashInHand.FirstOrDefault().OpeningBalance ?? 0;
             decimal closingBalanceRP = cashInHand.FirstOrDefault().ClosingBalance ?? 0;
 
@@ -1067,7 +1067,7 @@ namespace TrackTap.DataLibrary.Data
             }
             if (data.Count > data1.Count)
             {
-                var students = data.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.DataLibrary.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
+                var students = data.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
                 foreach (var item in students)
                 {
                     decimal totalAmount = 00;
@@ -1134,7 +1134,7 @@ namespace TrackTap.DataLibrary.Data
             }
             else
             {
-                var students = data1.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.DataLibrary.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
+                var students = data1.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
                 foreach (var item in students)
                 {
                     decimal totalAmount = 00;
@@ -1229,7 +1229,7 @@ namespace TrackTap.DataLibrary.Data
                 }
                 if (data.Count > data1.Count)
                 {
-                    var students = data.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.DataLibrary.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
+                    var students = data.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
                     foreach (var item in students)
                     {
                         decimal totalAmount = 00;
@@ -1296,7 +1296,7 @@ namespace TrackTap.DataLibrary.Data
                 }
                 else
                 {
-                    var students = data1.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.DataLibrary.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
+                    var students = data1.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
                     foreach (var item in students)
                     {
                         decimal totalAmount = 00;
@@ -1560,7 +1560,7 @@ namespace TrackTap.DataLibrary.Data
                 }
                 if (data.Count >data1.Count)
                 {
-                    var students = data.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.DataLibrary.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
+                    var students = data.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
                     foreach (var item in students)
                     {
                         decimal totalAmount = 00;
@@ -1627,7 +1627,7 @@ namespace TrackTap.DataLibrary.Data
                 }
                 else
                 {
-                    var students = data1.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.DataLibrary.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
+                    var students = data1.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
                     foreach (var item in students)
                     {
                         decimal totalAmount = 00;
@@ -1710,7 +1710,7 @@ namespace TrackTap.DataLibrary.Data
             var data = _Entities.Sp_BilledReport(school.SchoolId, startDate, endDate).ToList();//.Select(x => new SPOutstandingReportNew(x)).ToList();
             if (data.Count > 0)
             {
-                var students = data.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.DataLibrary.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
+                var students = data.Select(o => o.StudentId).Distinct().ToList().Select(o => new TrackTap.Data.Student(o)).ToList().OrderBy(x => x.StundentName);
                 foreach (var item in students)
                 {
                     decimal totalAmount = 00;

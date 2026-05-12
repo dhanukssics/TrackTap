@@ -21,14 +21,14 @@
             {
                 <div class="form-group col-sm-2">
                     <label>Class</label>
-                    @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetTeacherClass(Model.userId), "--Choose Class--", new { @class = "form-control class-teacher-drop-down", @data_live_search = "true" })
+                    @Html.DropDownListFor(m => m.classId, TrackTap.Data.DropdownData.GetTeacherClass(Model.userId), "--Choose Class--", new { @class = "form-control class-teacher-drop-down", @data_live_search = "true" })
                 </div>
             }
             else
             {
                 <div class="form-group col-sm-2">
                     <label>Class</label>
-                    @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.schoolId), "--Choose Class--", new { @class = "form-control class-drop-down", @data_live_search = "true" })
+                    @Html.DropDownListFor(m => m.classId, TrackTap.Data.DropdownData.GetClasses(Model.schoolId), "--Choose Class--", new { @class = "form-control class-drop-down", @data_live_search = "true" })
                 </div>
             }*@
 

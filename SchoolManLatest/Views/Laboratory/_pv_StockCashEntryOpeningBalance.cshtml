@@ -3,7 +3,7 @@
 @{
     long bankId = 0;
     int sourceId = 0;//From Status Cash ...0:Cash,1:Bill,2:Bank
-    var data = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetOpeningBalanceStock(Model.FromDate, bankId, sourceId);
+    var data = new TrackTap.Data.School(Model.SchoolId).GetOpeningBalanceStock(Model.FromDate, bankId, sourceId);
 }
 <div class="row">
     @if (data != null)

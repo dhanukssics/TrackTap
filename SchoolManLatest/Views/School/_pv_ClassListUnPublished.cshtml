@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.FilterModel
 @{
-    var school = new TrackTap.DataLibrary.Data.School(Model.schoolId);
+    var school = new TrackTap.Data.School(Model.schoolId);
 }
 <thead>
     <tr>
@@ -26,7 +26,7 @@
         if (school != null)
         {
             int i = 1;
-            var getClass = new List<TrackTap.DataLibrary.Data.Class>();
+            var getClass = new List<TrackTap.Data.Class>();
             if (Model.ClassName != string.Empty && Model.ClassName != null)
             {
                 getClass = school.Class.Where(z => z.ClassName.ToLower() == Model.ClassName.ToLower()).ToList().OrderBy(z => z.ClassOrder).ToList();

@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.StudentModel
 @{
-    var data = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetProgressData(Model.studentId, Model.classId, Model.divisionId);
+    var data = new TrackTap.Data.School(Model.schoolId).GetProgressData(Model.studentId, Model.classId, Model.divisionId);
 }
 <div class="modal-dialog" role="document" style="background-color: #fff;">
     <div class="modal-content">

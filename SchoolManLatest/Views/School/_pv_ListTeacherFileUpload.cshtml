@@ -1,7 +1,7 @@
 ﻿
 @model TrackTap.Models.TeacherFileUploadModel
 @{
-    var Files = new TrackTap.DataLibrary.Data.Teacher(Model.TeacherId).TeacherFiles();
+    var Files = new TrackTap.Data.Teacher(Model.TeacherId).TeacherFiles();
 }
 <thead>
     <tr>

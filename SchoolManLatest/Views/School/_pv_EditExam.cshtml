@@ -2,7 +2,7 @@
 
 @model TrackTap.Models.ExamsModel
 @{
-    var circular = new TrackTap.DataLibrary.Data.School(Model.SchoolId);
+    var circular = new TrackTap.Data.School(Model.SchoolId);
 }
 
 @using (Ajax.BeginForm("SubmitEditExam", "School", null, new AjaxOptions
@@ -27,7 +27,7 @@
                     <div class="col-sm-6">
                         <div class="form-group">
                             <label>Class</label>
-                            @Html.DropDownListFor(m => m.ClassId, new TrackTap.DataLibrary.Data.DropdownData().GetFreeClasses(Model.SchoolId), "--Choose--", new { @class = "form-control slct-alldivisions-dropdwn", @data_live_search = "true" })
+                            @Html.DropDownListFor(m => m.ClassId, new TrackTap.Data.DropdownData().GetFreeClasses(Model.SchoolId), "--Choose--", new { @class = "form-control slct-alldivisions-dropdwn", @data_live_search = "true" })
                             @Html.ValidationMessageFor(z => z.ClassId)
                         </div>
                     </div>

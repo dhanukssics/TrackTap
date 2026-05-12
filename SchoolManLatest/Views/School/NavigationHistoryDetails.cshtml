@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.SchoolModel
 @{
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
-    var trips = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetTripDetailById(Model.curredntDateTime,Model.busId);
+    var trips = new TrackTap.Data.School(Model.schoolId).GetTripDetailById(Model.curredntDateTime,Model.busId);
 }
 <style>
     .green-round {

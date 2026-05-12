@@ -1,7 +1,7 @@
 ﻿
 @model TrackTap.Models.AddDayBookModel
 @{
-    var data = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCashBookStatus(Model.startDate, Model.endDate);
+    var data = new TrackTap.Data.School(Model.SchoolId).GetCashBookStatus(Model.startDate, Model.endDate);
 }
 <div class="row">
     @if (data.Count > 0)

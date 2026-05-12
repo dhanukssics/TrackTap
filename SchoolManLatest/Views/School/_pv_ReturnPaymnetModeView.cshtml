@@ -32,7 +32,7 @@
                         <label>Bank Name</label>
                     </div>
                     <div class="col-md-7">
-                        @Html.DropDownListFor(m => m.BankId, TrackTap.DataLibrary.Data.DropdownData.GetBankLists(Model.SchoolId), new { @class = "form-control accHead-drop-down ",id="rtuen-BankId" })
+                        @Html.DropDownListFor(m => m.BankId, TrackTap.Data.DropdownData.GetBankLists(Model.SchoolId), new { @class = "form-control accHead-drop-down ",id="rtuen-BankId" })
                     </div>
                 </div>
 

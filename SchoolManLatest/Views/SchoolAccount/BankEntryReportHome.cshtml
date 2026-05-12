@@ -23,7 +23,7 @@
     <div class="form-group col-sm-3">
         <label>Bank</label>
         <div class="with-icon">
-            @Html.DropDownListFor(m => m.BankId, TrackTap.DataLibrary.Data.DropdownData.GetBankLists(Model.SchoolId), "All", new { @class = "form-control accHead-drop-down", id = "bank-Name-id" })
+            @Html.DropDownListFor(m => m.BankId, TrackTap.Data.DropdownData.GetBankLists(Model.SchoolId), "All", new { @class = "form-control accHead-drop-down", id = "bank-Name-id" })
         </div>
     </div>
     <div class="col-sm-2 col-md-2" style="margin-top: 26px;">

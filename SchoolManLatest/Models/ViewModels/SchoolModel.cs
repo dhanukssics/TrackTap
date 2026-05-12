@@ -41,7 +41,10 @@ namespace TrackTap.Models
 
         public string StudentSpecialId { get; set; }//   9/24/2020 jibin
 
-
+        public static implicit operator SchoolModel(SchoolModel v)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class Student
     {

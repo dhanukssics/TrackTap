@@ -123,7 +123,7 @@ namespace TrackTap.Controllers
                     ClassId = newClass.ClassId;
                 }
             }
-            return Json(new { status = status, msg = msg, classId = ClassId, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = status, msg = msg, classId = ClassId, list = new TrackTap.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
         }
         public object PublishUnPublishedClass(string id)
         {
@@ -149,7 +149,7 @@ namespace TrackTap.Controllers
                 }
             }
             message = status ? "Published" : "failed";
-            return Json(new { status = status, msg = message, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClassesUnPublished(_user.SchoolId) }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = status, msg = message, list = new TrackTap.Data.DropdownData().RefreshClassesUnPublished(_user.SchoolId) }, JsonRequestBehavior.AllowGet);
         }
         public IActionResult PromoteStudents()
         {

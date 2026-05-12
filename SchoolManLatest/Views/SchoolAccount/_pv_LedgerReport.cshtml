@@ -8,7 +8,7 @@
     string schoolName = Model.SchoolName;
     string heading = Model.Heading;
 
-    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var school = new TrackTap.Data.School(schoolId);
     var data = school.GetLedgerReport(startDate, endDate, schoolId, headId, subId);
 }
 

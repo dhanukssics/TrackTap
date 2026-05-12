@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.ViewFeeClass
 @{
-    //var classs = new TrackTap.DataLibrary.Data.WebsiteService().getAllClassByFeeId(Model.SchoolId, Model.FeeId).ToList(); // Archana Commended this method for include the division in fee
-    var classs = new TrackTap.DataLibrary.Data.WebsiteService().getAllClassDivisionByFeeId(Model.SchoolId, Model.FeeId).ToList();
+    //var classs = new TrackTap.Data.WebsiteService().getAllClassByFeeId(Model.SchoolId, Model.FeeId).ToList(); // Archana Commended this method for include the division in fee
+    var classs = new TrackTap.Data.WebsiteService().getAllClassDivisionByFeeId(Model.SchoolId, Model.FeeId).ToList();
 }
 
 @if (classs.Count > 0)

@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "ReceiptPayment";
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
-    var cashInHand = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCashBookStatus(Model.StartDate, Model.EndDate);
+    var cashInHand = new TrackTap.Data.School(Model.SchoolId).GetCashBookStatus(Model.StartDate, Model.EndDate);
 }
 
 <style>

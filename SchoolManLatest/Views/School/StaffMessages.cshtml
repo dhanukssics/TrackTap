@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "Messages";
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
-    var schoolDataModel = new TrackTap.ClassLibrary.PostModel.SchoolClassListPostModel();
+    var schoolDataModel = new TrackTap.PostModel.SchoolClassListPostModel();
     schoolDataModel.schoolId = Convert.ToString(Model.SchoolId);
     var DataResult = new TrackTap.Repository.SchoolRepository().GetAllStaffData(schoolDataModel);
 

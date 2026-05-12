@@ -92,7 +92,7 @@
                 <div class="row col-lg-12">
                     <div class="form-group col-lg-6">
                         <label>User Type</label>
-                        @Html.DropDownListFor(m => m.UserTypeId, new TrackTap.DataLibrary.Data.DropdownData().GetAllStaffUserTypesDataAdd(Model.SchoolId), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
+                        @Html.DropDownListFor(m => m.UserTypeId, new TrackTap.Data.DropdownData().GetAllStaffUserTypesDataAdd(Model.SchoolId), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
                     </div>
                     <div class="form-group col-lg-6">
                         <label>DOJ</label>

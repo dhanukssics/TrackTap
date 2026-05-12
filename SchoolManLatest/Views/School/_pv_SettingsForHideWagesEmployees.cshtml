@@ -1,7 +1,7 @@
 ﻿
 @model TrackTap.Models.FeeAlertDataModel
 @{
-    Model.IsShowWagesEmployees = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCurrentStatusOfWagesEmployees();
+    Model.IsShowWagesEmployees = new TrackTap.Data.School(Model.SchoolId).GetCurrentStatusOfWagesEmployees();
 
 }
 <div class="col-md-12 col-md-offset-1 style=" margin-bottom 70%; margin-top 3%;"">

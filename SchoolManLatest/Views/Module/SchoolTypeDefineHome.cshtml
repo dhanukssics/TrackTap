@@ -94,7 +94,7 @@
                 <div class="form-group">
                     <label>School </label>
                     <br />
-                    @Html.DropDownListFor(m => m.SchoolId, TrackTap.DataLibrary.Data.DropdownData.GetSchoolList(), new { @class = "form-control" })
+                    @Html.DropDownListFor(m => m.SchoolId, TrackTap.Data.DropdownData.GetSchoolList(), new { @class = "form-control" })
                     @Html.ValidationMessageFor(m => m.SchoolId)
                 </div>
             </div>

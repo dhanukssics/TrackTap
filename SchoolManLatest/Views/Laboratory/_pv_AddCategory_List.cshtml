@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.StockUpdateModel
 @{
-    var Categorydetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetLaboratoryCategory(Model.SchoolId);
-    var categorynames = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCategorynames();
+    var Categorydetails = new TrackTap.Data.School(Model.SchoolId).GetLaboratoryCategory(Model.SchoolId);
+    var categorynames = new TrackTap.Data.School(Model.SchoolId).GetCategorynames();
 
 }
 

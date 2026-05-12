@@ -50,7 +50,7 @@
                         <option value="20">XII-BS</option>
                         <option value="21">XII-CC</option>
                     </select>*@
-                    @Html.DropDownListFor(m => m.ClassName, TrackTap.DataLibrary.Data.DropdownData.GetClassList(), "--Choose--", new { @class = "form-control pv_class-drop-down", @data_live_search = "true", name = "classDropdown", id = "slct-class" })
+                    @Html.DropDownListFor(m => m.ClassName, TrackTap.Data.DropdownData.GetClassList(), "--Choose--", new { @class = "form-control pv_class-drop-down", @data_live_search = "true", name = "classDropdown", id = "slct-class" })
 
 
                     @Html.ValidationMessageFor(z => z.ClassName)

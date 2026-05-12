@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.AddDayBookModel
 @{
     DateTime date = Model.EntryDate;
-    var balanceHead = new TrackTap.DataLibrary.Data.School(Model.SchoolId).CurrentStatus();
+    var balanceHead = new TrackTap.Data.School(Model.SchoolId).CurrentStatus();
 
 }
 <style>

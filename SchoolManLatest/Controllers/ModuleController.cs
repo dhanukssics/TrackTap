@@ -73,7 +73,7 @@ namespace TrackTap.Controllers
                 {
                     foreach (var item in model.subListOnly)
                     {
-                        var mainDetails = new TrackTap.DataLibrary.Data.SchoolSubModule(item.Id);
+                        var mainDetails = new TrackTap.Data.SchoolSubModule(item.Id);
                         var sub = _Entities.tb_SchoolModuleDetails.Create();
                         sub.SchoolModuleId = main.Id;
                         sub.MainId = mainDetails.MainId;
@@ -238,7 +238,7 @@ namespace TrackTap.Controllers
               
                     foreach (var item in model.subListOnly)
                     {
-                        var mainDetails = new TrackTap.DataLibrary.Data.SchoolSubModule(item.Id);
+                        var mainDetails = new TrackTap.Data.SchoolSubModule(item.Id);
                         var sub = _Entities.tb_SchoolModuleDetails.Create();
                         sub.SchoolModuleId = schoolmodulemain.Id;
                         sub.MainId = mainDetails.MainId;

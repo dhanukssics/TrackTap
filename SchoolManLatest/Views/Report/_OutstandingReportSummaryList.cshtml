@@ -1,7 +1,7 @@
 ﻿
 @model TrackTap.Models.OutstandingReportModel
 @{
-    var data = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetOutStandingData(Model.ClassId, Model.DivisionId, Model.FeeId,Model.FromDate,Model.ToDate).ToList();
+    var data = new TrackTap.Data.School(Model.SchoolId).GetOutStandingData(Model.ClassId, Model.DivisionId, Model.FeeId,Model.FromDate,Model.ToDate).ToList();
 }
 <style>
     .numbCenter {

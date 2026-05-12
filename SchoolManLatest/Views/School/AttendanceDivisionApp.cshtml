@@ -1,11 +1,11 @@
 ﻿@model TrackTap.Models.SchoolModel
 @{
     ViewBag.Title = "Attendance Class";
-    var classModel = new TrackTap.ClassLibrary.PostModel.SchoolClassListPostModel();
+    var classModel = new TrackTap.PostModel.SchoolClassListPostModel();
 
     classModel.schoolId = Convert.ToString(Model.schoolId);
 
-    var DivModel = new TrackTap.ClassLibrary.PostModel.SchoolDivisionListPostModel();
+    var DivModel = new TrackTap.PostModel.SchoolDivisionListPostModel();
 
     DivModel.schoolId = Convert.ToString(Model.schoolId);
 
@@ -13,7 +13,7 @@
 
     var ClassList = ClassResult.Item3;
 
-    var bioDivision = new TrackTap.DataLibrary.Data.Admin().GetAllAppDivision(Model.schoolId);
+    var bioDivision = new TrackTap.Data.Admin().GetAllAppDivision(Model.schoolId);
 
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
 

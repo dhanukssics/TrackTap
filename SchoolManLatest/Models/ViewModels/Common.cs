@@ -29,7 +29,7 @@ namespace TrackTap.Models
     public class SchoolData
     {
         public SchoolValue value { get; set; }
-        public TrackTap.DataLibrary.Data.School Data { get; set; }
+        public TrackTap.Data.School Data { get; set; }
     }
     public class AddFee
     {

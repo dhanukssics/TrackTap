@@ -6,7 +6,7 @@
     long schoolId = Model.SchoolId;
     long headId = Model.HeadId;
     int typeId = Model.FilterTypeId;
-    var data = new TrackTap.DataLibrary.Data.School(schoolId).GetLedgerData(startDate, endDate, headId, typeId);
+    var data = new TrackTap.Data.School(schoolId).GetLedgerData(startDate, endDate, headId, typeId);
 }
 
 <style>

@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrackTap.ClassLibrary.Utility;
+using TrackTap.Models;
 
-namespace TrackTap.DataLibrary.Data
+namespace TrackTap.Data
 {
     public class Student : BaseReference
     {
-        private tb_Student student;
-        public Student(tb_Student obj) { student = obj; }
+        private TbStudent student;
+        public Student(TbStudent obj) { student = obj; }
         public Student(long id) { student = _Entities.tb_Student.FirstOrDefault(z => z.StudentId == id); }
         public long StudentId { get { return student.StudentId; } }
         public long SchoolId { get { return student.SchoolId; } }
@@ -36,8 +37,8 @@ namespace TrackTap.DataLibrary.Data
         public bool IsActive { get { return student.IsActive; } }
         public Nullable<long> ParentId { get { return student.ParentId; } }
         public string State { get { return student.State; } }
-        public string ClassName { get { return student.tb_Class.Class; } }
-        public Division Division { get { return new Data.Division(student.tb_Division); } }
+        public string ClassName { get { return student.Class.Class; } }
+        public Division Division { get { return new Data.Division(student.Division); } }
         public string DivisionName { get { return Division.DivisionName; } }
         public Bus Bus { get { return new Data.Bus(student.tb_Bus); } }
         public string BusSpecialId { get { return student.tb_Bus.BusSpecialId; } }

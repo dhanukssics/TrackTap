@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.FeeModel
 
 @{
-    var student = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId);
+    var student = new TrackTap.Data.Student(Model.SchoolModel.studentId);
     decimal studBalance = student.StudentBalance();
     var paymentList = student.GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
     var discountFee = student.Discount.ToList();

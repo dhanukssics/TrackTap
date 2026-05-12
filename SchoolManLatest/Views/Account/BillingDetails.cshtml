@@ -191,7 +191,7 @@
 <div class="modal fade" id="addAdvancelModel">
 
     @{
-        var student = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId);
+        var student = new TrackTap.Data.Student(Model.SchoolModel.studentId);
         var paymentList = student.GetStudentAdvancePaymentFees().OrderBy(z => z.DueDate).ToList();
         var discountFee = student.Discount.ToList();
     }

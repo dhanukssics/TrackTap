@@ -14,7 +14,7 @@
                 <div class="form-group">
                     <label>Class : </label>
                     <br />
-                    @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.schoolId), "-- Choose --", new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                    @Html.DropDownListFor(m => m.classId, TrackTap.Data.DropdownData.GetClasses(Model.schoolId), "-- Choose --", new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                     @Html.ValidationMessageFor(z => z.classId)
                 </div>
             </div>

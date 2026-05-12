@@ -97,9 +97,9 @@
             <div class="">
 
                 @{
-                    var userData = new TrackTap.DataLibrary.Data.Login((TrackTap.DataLibrary.tb_Login)Session["User"]);
+                    var userData = new TrackTap.Data.Login((TrackTap.DataLibrary.tb_Login)Session["User"]);
                     var allotedMenu = userData.GetUserMenuList();
-                    bool ishideaccount = new TrackTap.DataLibrary.Data.School(userData.SchoolId).GetAccountHide();
+                    bool ishideaccount = new TrackTap.Data.School(userData.SchoolId).GetAccountHide();
                 }
                 <div class="body-container">
                     @if (allotedMenu.Count() > 0)
@@ -318,18 +318,18 @@
                                     <ul class="responsive-menu">
 
                                         @{
-                                            var data = new List<TrackTap.DataLibrary.Data.UserModule>();
+                                            var data = new List<TrackTap.Data.UserModule>();
                                             if (userData.RoleId == 1)
                                             {
-                                                data = new TrackTap.DataLibrary.Data.School(userData.SchoolId, 0).GetTearhersModules();
+                                                data = new TrackTap.Data.School(userData.SchoolId, 0).GetTearhersModules();
                                             }
                                             else if (userData.RoleId == 3)//Teacher
                                             {
-                                                data = new TrackTap.DataLibrary.Data.Teacher(userData.UserId, 0).GetTearhersModules();
+                                                data = new TrackTap.Data.Teacher(userData.UserId, 0).GetTearhersModules();
                                             }
                                             else  //Staff
                                             {
-                                                data = new TrackTap.DataLibrary.Data.Staff(userData.UserId, 0).GetStaffModules(userData.SchoolId);
+                                                data = new TrackTap.Data.Staff(userData.UserId, 0).GetStaffModules(userData.SchoolId);
                                             }
 
                                         }

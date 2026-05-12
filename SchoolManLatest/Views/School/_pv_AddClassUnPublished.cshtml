@@ -55,7 +55,7 @@
                 <div class="form-group">
                     <label>Academic Year</label>
                     @*<input class="form-control" placeholder="Division" type="text" />*@
-                    @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.DataLibrary.Data.DropdownData.GetOtherAcademicYear(), "--Choose--", new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:auto;min-width:180px;" })
+                    @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.Data.DropdownData.GetOtherAcademicYear(), "--Choose--", new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:auto;min-width:180px;" })
                     @Html.ValidationMessageFor(z => z.AcademicYearId)
 
 

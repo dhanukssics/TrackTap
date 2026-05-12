@@ -37,11 +37,12 @@ namespace TrackTap.Controllers
         // GET: /Account/
         public DateTime currentTime = DateTime.UtcNow;
         private readonly SchoolDbContext _Entities;
-       
+        private readonly IWebHostEnvironment _environment;
 
-        public AccountController(SchoolDbContext Entities)
+        public AccountController(SchoolDbContext Entities, IWebHostEnvironment environment)
         {
             _Entities = Entities;
+            _environment = environment;
         }
         public IActionResult LoginPage()
         {
@@ -257,374 +258,530 @@ namespace TrackTap.Controllers
         {
             return View();
         }
-        public IActionResult CheckLogin(LoginModel model)
+        [HttpPost]
+        public async Task<IActionResult> CheckLogin(LoginModel model)
         {
             try
             {
-                if (model.userType == (int)UserRole.School)
+                if (model.userType == (int)UserRole.School ||
+                    model.userType == (int)UserRole.Staff ||
+                    model.userType == (int)UserRole.Teacher)
                 {
-                    var user = _Entities.tb_Login.Where(x => x.Username.ToLower() == model.Email.ToLower() && x.Password == model.Password && x.IsActive == true && x.RoleId == (int)UserRole.School).ToList().Where(a => a.Username.ToLower() == model.Email.ToLower() && a.Password == model.Password).FirstOrDefault();
-                    if (user != null)
+                    var user = await _Entities.TbLogins
+                        .FirstOrDefaultAsync(x =>
+                            x.Username.ToLower() == model.Email.ToLower() &&
+                            x.Password == model.Password &&
+                            x.IsActive &&
+                            x.RoleId == model.userType);
+
+                    if (user == null)
                     {
-                        FormsAuthentication.SetAuthCookie(user.UserId.ToString(), false);
-                        Response.Cookies["UserType"].Value = user.RoleId.ToString();
+                        return Json(new
+                        {
+                            status = false,
+                            msg = "Username/Password incorrect"
+                        });
+                    }
 
-                        Session["User"] = user;
-                        Session["UserType"] = user.RoleId;
-                        Session["IsAdmin"] = true; //Basheer on 27-09-2019 to set school as admin on 27-09-2019
+                    bool isAdmin = false;
 
-                        if (user.RoleId == (int)UserRole.School)
-                        {
-                            //Session.Timeout = 180;
-                            return Json(new { status = true, msg = "Success", userType = 1 }, JsonRequestBehavior.AllowGet);
-                        }
-                        else if (user.RoleId == (int)UserRole.Staff)
-                        {
-                            //ModelState.AddModelError("CustomError", "Username/Password not matching.");                      
-                            return Json(new { status = true, msg = "Success", userType = user.RoleId }, JsonRequestBehavior.AllowGet);
-                        }
-                        else if (user.RoleId == (int)UserRole.Teacher)
-                        {
-                            //ModelState.AddModelError("CustomError", "Username/Password not matching.");                      
-                            return Json(new { status = true, msg = "Success", userType = user.RoleId }, JsonRequestBehavior.AllowGet);
-                        }
-                        else
-                        {
-                            return Json(new { status = false, msg = "Username/Password incorrect" }, JsonRequestBehavior.AllowGet);
+                    if (user.RoleId == (int)UserRole.School)
+                    {
+                        isAdmin = true;
+                    }
+                    else if (user.RoleId == (int)UserRole.Teacher)
+                    {
+                        var teacher = await _Entities.TbTeachers
+                            .FirstOrDefaultAsync(x => x.UserId == user.UserId);
 
+                        if (teacher?.UserType != null)
+                        {
+                            isAdmin = await _Entities.TbUserModuleMains
+                                .Where(x =>
+                                    x.Id == teacher.UserType &&
+                                    x.IsActive)
+                                .Select(x => x.IsAdmin ?? false)
+                                .FirstOrDefaultAsync();
                         }
                     }
-                    else
-                    {
-                        return Json(new { status = false, msg = "Username/Password incorrect" }, JsonRequestBehavior.AllowGet);
 
-                    }
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier,
+                            user.UserId.ToString()),
+
+                        new Claim(ClaimTypes.Name,
+                            user.Username),
+
+                        new Claim(ClaimTypes.Role,
+                            user.RoleId.ToString())
+                    };
+
+                    var identity = new ClaimsIdentity(
+                        claims,
+                        CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var principal = new ClaimsPrincipal(identity);
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        principal);
+
+                    HttpContext.Session.SetString(
+                        "UserId",
+                        user.UserId.ToString());
+
+                    HttpContext.Session.SetString(
+                        "UserType",
+                        user.RoleId.ToString());
+
+                    HttpContext.Session.SetString(
+                        "IsAdmin",
+                        isAdmin.ToString());
+
+                    return Json(new
+                    {
+                        status = true,
+                        msg = "Success",
+                        userType = user.RoleId
+                    });
                 }
-                else if ((model.userType == (int)UserRole.Staff) || (model.userType == (int)UserRole.Teacher))
-                {
-                    var user = _Entities.tb_Login.Where(x => x.Username.ToLower() == model.Email.ToLower() && x.Password == model.Password && x.IsActive == true && (x.RoleId == (int)UserRole.Staff) || (x.RoleId == (int)UserRole.Teacher)).ToList().Where(a => a.Username.ToLower() == model.Email.ToLower() && a.Password == model.Password).FirstOrDefault();
-                    if (user != null)
-                    {
-                        FormsAuthentication.SetAuthCookie(user.UserId.ToString(), true);
-                        Response.Cookies["UserType"].Value = user.RoleId.ToString();
 
-                        Session["User"] = user;
-                        Session["UserType"] = user.RoleId;
-
-                        //Basheer for role module to check if loged person is admin or not on 27-09-2019
-
-
-                        if (user.RoleId == (int)UserRole.Teacher)
-                        {
-                            var isAdmin = _Entities.tb_Teacher.Where(x => x.UserId == user.UserId).FirstOrDefault();
-                            if (isAdmin.UserType != null)
-                            {
-                                bool IsAdminCheck = _Entities.tb_UserModuleMain.Where(x => x.Id == isAdmin.UserType && x.IsActive).Select(x => x.IsAdmin).FirstOrDefault() ?? false;
-                                Session["IsAdmin"] = IsAdminCheck;
-                            }
-                            else
-                            {
-                                Session["IsAdmin"] = false;
-                            }
-                        }
-                        else
-                        {
-                            Session["IsAdmin"] = false;
-                        }
-
-                        //Basheer code end here
-
-                        if (user.RoleId == (int)UserRole.School)
-                        {
-                            //Session.Timeout = 180;
-                            return Json(new { status = true, msg = "Success", userType = 1 }, JsonRequestBehavior.AllowGet);
-                        }
-                        else if (user.RoleId == (int)UserRole.Staff)
-                        {
-                            //ModelState.AddModelError("CustomError", "Username/Password not matching.");                      
-                            return Json(new { status = true, msg = "Success", userType = user.RoleId }, JsonRequestBehavior.AllowGet);
-                        }
-                        else if (user.RoleId == (int)UserRole.Teacher)
-                        {
-                            //ModelState.AddModelError("CustomError", "Username/Password not matching.");                      
-                            return Json(new { status = true, msg = "Success", userType = user.RoleId }, JsonRequestBehavior.AllowGet);
-                        }
-                        else
-                        {
-                            return Json(new { status = false, msg = "Username/Password incorrect" }, JsonRequestBehavior.AllowGet);
-
-                        }
-                    }
-                    else
-                    {
-                        return Json(new { status = false, msg = "Username/Password incorrect" }, JsonRequestBehavior.AllowGet);
-
-                    }
-                }
                 else if (model.userType == (int)UserRole.Parent)
                 {
+                    var parent = await _Entities.TbParents
+                        .FirstOrDefaultAsync(x =>
+                            x.Email.ToLower() == model.Email.ToLower()
+                            && (x.Password == model.Password
+                            || x.ContactNumber == model.Password)
+                            && x.IsActive);
 
-                    //Editted........old............
-                    // var parent = _Entities.tb_Parent.Where(x => x.Email.ToLower() == model.Email.ToLower() && x.Password == model.Password && x.IsActive == true).ToList().Where(a => a.Email.ToLower() == model.Email.ToLower() && a.Password == model.Password).FirstOrDefault();
-
-                    //Edited .............new............
-                    var parent = _Entities.tb_Parent.Where(x => x.Email.ToLower() == model.Email.ToLower() && (x.Password == model.Password || x.ContactNumber == model.Password) && x.IsActive == true).ToList().Where(a => a.Email.ToLower() == model.Email.ToLower() && (a.Password == model.Password || a.ContactNumber == model.Password)).FirstOrDefault();
-
-
-
-                    _parentUser = parent;
-                    if (parent != null)
+                    if (parent == null)
                     {
-                        FormsAuthentication.SetAuthCookie(parent.ParentId.ToString(), true);
-                        Response.Cookies["UserType"].Value = model.userType.ToString();
-                        Session["Parent"] = parent;
-                        Session["UserType"] = model.userType;
-                        Session["IsAdmin"] = false;  //Basheer to check if admin or not
-
-                        //Session.Timeout = 180;
-                        return Json(new { status = true, msg = "Success", userType = (int)UserRole.Parent }, JsonRequestBehavior.AllowGet);
+                        return Json(new
+                        {
+                            status = false,
+                            msg = "Username/Password incorrect"
+                        });
                     }
-                    else
+
+                    var claims = new List<Claim>
                     {
-                        return Json(new { status = false, msg = "Username/Password incorrect" }, JsonRequestBehavior.AllowGet);
+                        new Claim(ClaimTypes.NameIdentifier,
+                            parent.ParentId.ToString()),
 
-                    }
+                        new Claim(ClaimTypes.Name,
+                            parent.ParentName),
+
+                        new Claim(ClaimTypes.Role,
+                            UserRole.Parent.ToString())
+                    };
+
+                    var identity = new ClaimsIdentity(
+                        claims,
+                        CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var principal = new ClaimsPrincipal(identity);
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        principal);
+
+                    HttpContext.Session.SetString(
+                        "ParentId",
+                        parent.ParentId.ToString());
+
+                    HttpContext.Session.SetString(
+                        "UserType",
+                        ((int)UserRole.Parent).ToString());
+
+                    HttpContext.Session.SetString(
+                        "IsAdmin",
+                        "false");
+
+                    return Json(new
+                    {
+                        status = true,
+                        msg = "Success",
+                        userType = (int)UserRole.Parent
+                    });
                 }
-                else
+
+                return Json(new
                 {
-                    return Json(new { status = false, msg = "Username/Password incorrect" }, JsonRequestBehavior.AllowGet);
-
-                }
+                    status = false,
+                    msg = "Invalid User Type"
+                });
             }
-
             catch (Exception ex)
             {
-                return Json(new { status = false, msg = ex.InnerException.InnerException }, JsonRequestBehavior.AllowGet);
+                return Json(new
+                {
+                    status = false,
+                    msg = ex.Message
+                });
             }
         }
-
         [HttpPost]
-        public object SchoolRegistrationSubmit(SchoolRegisterModel model)
+        public async Task<IActionResult> SchoolRegistrationSubmit(SchoolRegisterModel model)
         {
-            bool Status = false;
-            string Message = "Failed";
+            bool status = false;
+            string message = "Failed";
+
             long schoolId = 0;
+
             string latData = "";
             string longData = "";
+
             try
             {
-                if (_Entities.tb_Login.Any(x => x.Username.ToLower() == model.emailaddress.ToLower() && x.IsActive))
+                bool emailExists = await _Entities.TbLogins
+                    .AnyAsync(x =>
+                        x.Username.ToLower() ==
+                        model.emailaddress.ToLower()
+                        && x.IsActive);
+
+                if (emailExists)
                 {
-                    Message = "Email Already Exists";
-                    return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
-                }
-                else
-                {
-                    try
+                    return Json(new
                     {
-                        var requestUri = string.Format("http://maps.googleapis.com/maps/api/geocode/xml?address={0}&sensor=false", Uri.EscapeDataString(model.address));
-                        var request = WebRequest.Create(requestUri);
-                        var response = request.GetResponse();
-                        var xdoc = XDocument.Load(response.GetResponseStream());
-                        var result = xdoc.Element("GeocodeResponse").Element("result");
-                        var locationElement = result.Element("geometry").Element("location");
-                        var lat = locationElement.Element("lat");
-                        var lon = locationElement.Element("lng");
-                        latData = lat.Value.ToString();
-                        longData = lon.Value.ToString();
-                    }
-                    catch (Exception ex)
-                    {
-
-                        latData = "9.387137";
-                        longData = "76.547018";
-                    }
-                    if (latData != "")
-                    {
-
-                        var school = _Entities.tb_School.Create();
-                        school.SchoolGuidId = Guid.NewGuid();
-                        school.SchoolName = model.schoolName;
-                        school.Address = model.address;
-                        school.Contact = model.contactNumber;
-                        school.IsActive = true;
-                        school.City = model.city;
-                        school.State = model.state;
-                        school.TimeStamp = CurrentTime;
-                        school.FilePath = model.FilePath;
-                        school.Website = model.website;
-                        school.Latitude = latData;
-                        school.Longitude = longData;
-                        _Entities.tb_School.Add(school);
-                        Status = _Entities.SaveChanges() > 0;
-                        if (Status)
-                        {
-                            var login = _Entities.tb_Login.Create();
-                            login.SchoolId = school.SchoolId;
-                            login.RoleId = 1;
-                            login.Name = school.SchoolName;
-                            login.Username = model.emailaddress;
-                            login.Password = model.password;
-                            login.IsActive = true;
-                            login.TimeStamp = CurrentTime;
-                            login.DisableStatus = false;
-                            login.LoginGuid = Guid.NewGuid();
-                            _Entities.tb_Login.Add(login);
-                            Status = _Entities.SaveChanges() > 0;
-                            Message = "Success";
-                        }
-                        schoolId = school.SchoolId;
-                        //return new Tuple<bool, string, School>(status, msg, schoolData);
-
-                    }
-                    else
-                    {
-                        Message = "Invalid Address";
-                        return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
-                    }
-
-                }
-                if (Status)
-                {
-                    var schoolData = _Entities.tb_School.Where(x => x.SchoolId == schoolId && x.IsActive).ToList().Select(x => new School(x)).FirstOrDefault();
-                    FormsAuthentication.SetAuthCookie(schoolData.Login.UserId.ToString(), true);
-                    Response.Cookies["UserType"].Value = ((int)UserRole.School).ToString();
-                    Session["User"] = _Entities.tb_Login.Where(x => x.UserId == schoolData.Login.UserId).FirstOrDefault();
-                    Session["UserType"] = ((int)UserRole.School).ToString();
-
-                    return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
-                }
-                else
-                {
-                    return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
+                        Status = false,
+                        Message = "Email Already Exists"
+                    });
                 }
 
+                try
+                {
+                    using var client = new HttpClient();
+
+                    var requestUri =
+                        $"https://maps.googleapis.com/maps/api/geocode/xml?address={Uri.EscapeDataString(model.address)}";
+
+                    var response = await client.GetStringAsync(requestUri);
+
+                    var xdoc = XDocument.Parse(response);
+
+                    var result = xdoc.Element("GeocodeResponse")
+                                     ?.Element("result");
+
+                    var locationElement = result?
+                        .Element("geometry")
+                        ?.Element("location");
+
+                    latData = locationElement?
+                        .Element("lat")?.Value ?? "";
+
+                    longData = locationElement?
+                        .Element("lng")?.Value ?? "";
+                }
+                catch
+                {
+                    latData = "9.387137";
+                    longData = "76.547018";
+                }
+
+                if (string.IsNullOrEmpty(latData))
+                {
+                    return Json(new
+                    {
+                        Status = false,
+                        Message = "Invalid Address"
+                    });
+                }
+
+                var school = new TbSchool
+                {
+                    SchoolGuidId = Guid.NewGuid(),
+                    SchoolName = model.schoolName,
+                    Address = model.address,
+                    Contact = model.contactNumber,
+                    IsActive = true,
+                    City = model.city,
+                    State = model.state,
+                    TimeStamp = DateTime.UtcNow,
+                    FilePath = model.FilePath,
+                    Website = model.website,
+                    Latitude = latData,
+                    Longitude = longData
+                };
+
+                await _Entities.TbSchools.AddAsync(school);
+
+                status = await _Entities.SaveChangesAsync() > 0;
+
+                if (!status)
+                {
+                    return Json(new
+                    {
+                        Status = false,
+                        Message = "Failed To Create School"
+                    });
+                }
+
+                var login = new TbLogin
+                {
+                    SchoolId = school.SchoolId,
+                    RoleId = (int)UserRole.School,
+                    Name = school.SchoolName,
+                    Username = model.emailaddress,
+                    Password = model.password,
+                    IsActive = true,
+                    TimeStamp = DateTime.UtcNow,
+                    DisableStatus = false,
+                    LoginGuid = Guid.NewGuid()
+                };
+
+                await _Entities.TbLogins.AddAsync(login);
+
+                status = await _Entities.SaveChangesAsync() > 0;
+
+                if (!status)
+                {
+                    return Json(new
+                    {
+                        Status = false,
+                        Message = "Failed To Create Login"
+                    });
+                }
+
+                schoolId = school.SchoolId;
+
+                var claims = new List<Claim>
+                {
+                    new Claim(
+                        ClaimTypes.NameIdentifier,
+                        login.UserId.ToString()),
+
+                    new Claim(
+                        ClaimTypes.Name,
+                        login.Username),
+
+                    new Claim(
+                        ClaimTypes.Role,
+                        UserRole.School.ToString())
+                };
+
+                var identity = new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    principal);
+
+                HttpContext.Session.SetString(
+                    "UserId",
+                    login.UserId.ToString());
+
+                HttpContext.Session.SetString(
+                    "UserType",
+                    ((int)UserRole.School).ToString());
+
+                HttpContext.Session.SetString(
+                    "IsAdmin",
+                    "true");
+
+                message = "Success";
+
+                return Json(new
+                {
+                    Status = true,
+                    Message = message
+                });
             }
             catch (Exception ex)
             {
-                return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
+                return Json(new
+                {
+                    Status = false,
+                    Message = ex.Message
+                });
             }
         }
-
         [HttpPost]
-        public object Contact(ContactUsModel model)
+        public async Task<IActionResult> Contact(ContactUsModel model)
         {
-            bool Status = false;
-            string Message = "Failed";
-            var email = model.email;
-            var contactNo = model.contactNo;
-            var schoolName = model.schoolName;
-            var message = model.message;
-            //var contact = new tb_ContactUs();
-            //contact.Name = model.name;
-            //contact.Email = model.email;
-            //contact.ContactNo = model.contactNo;
-            //contact.SchoolName = model.schoolName;
-            //contact.Message = model.message;
-            //contact.ReplyStatus = false;
-            //contact.IsActive = true;
-            //contact.ContactDate = CurrentTime;
-            //Entities.tb_ContactUs.Add(contact);
-            //Status = Entities.SaveChanges() > 0;
+            bool status = false;
 
-            //var state = false;
-            var description = "failed";
-            //try
-            //{
+            string message = "Failed";
 
-            //    var filePath = System.Web.Hosting.HostingEnvironment.MapPath(@"~/Content/email/ContactUs.html");
-            //    var emailTemplate = System.IO.File.ReadAllText(filePath);
-            //    var mailBody = emailTemplate.Replace("{{user}}", model.name);
-
-
-            //    Mail.Send("Child Academy - Contact", mailBody, model.name, new System.Collections.ArrayList { model.email });
-
-            //    state = true;
-            //    description = "success";
-
-            //}
-            //catch (Exception exx)
-            //{
-            //    state = false;
-            //    description = "Something went wrong";
-            //}
+            string description = "failed";
 
             try
             {
+                var filePath = Path.Combine(
+                    _environment.WebRootPath,
+                    "Content",
+                    "email",
+                    "ContactAdmin.html");
 
-                var filePath = System.Web.Hosting.HostingEnvironment.MapPath(@"~/Content/email/ContactAdmin.html");
-                var emailTemplate = System.IO.File.ReadAllText(filePath);
-                var mailBody = emailTemplate.Replace("{{user}}", model.name)
+                var emailTemplate =
+                    await System.IO.File.ReadAllTextAsync(filePath);
+
+                var mailBody = emailTemplate
+                    .Replace("{{user}}", model.name)
                     .Replace("{{messgae}}", model.message)
                     .Replace("{{email}}", model.email)
                     .Replace("{{contactNo}}", model.contactNo)
                     .Replace("{{schoolName}}", model.schoolName);
 
+                await SendMailAsync("School Man - ContactUs",mailBody,"info.schoolman@gmail.com");
 
-                Send("School Man - ContactUs", mailBody, "info.schoolman@gmail.com");
+                status = true;
 
-                Status = true;
                 description = "success";
-
             }
-            catch
+            catch (Exception ex)
             {
-                Status = false;
-                description = "Something went wrong";
+                status = false;
+
+                description = ex.Message;
             }
 
-            Message = Status ? description : "Something went wrong!";
-            return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
-        }
-        public PartialViewResult SearchAdmission(string id)
-        {
-            StudentModel model = new StudentModel();
-            string[] splitData = id.Split('~');
-            model.admissionNo = splitData[0];
-            model.schoolId = Convert.ToInt64(splitData[1]);
-            return PartialView("~/Views/Account/_pv_StudentDetailsNonLoginParent.cshtml", model);
-        }
+            message = status
+                ? description
+                : "Something went wrong!";
 
-        public IActionResult BillingDetails(string id)
+            return Json(new
+            {
+                Status = status,
+                Message = message
+            });
+        }
+        private async Task SendMailAsync(string subject,string body,string toEmail)
         {
+            using var message = new MailMessage();
+
+            message.Subject = subject;
+            message.Body = body;
+            message.IsBodyHtml = true;
+
+            message.To.Add(toEmail);
+
+            message.From = new MailAddress(
+                "info.schoolman@gmail.com");
+
+            using var smtp = new SmtpClient(
+                "smtp.gmail.com",
+                587);
+
+            smtp.Credentials = new NetworkCredential(
+                "info.schoolman@gmail.com",
+                "password");
+
+            smtp.EnableSsl = true;
+
+            await smtp.SendMailAsync(message);
+        }
+        public IActionResult SearchAdmission(string id)
+        {
+            var model = new StudentModel();
+
             string[] splitData = id.Split('~');
+
+            model.admissionNo = splitData[0];
+
+            model.schoolId = Convert.ToInt64(splitData[1]);
+
+            return PartialView(
+                "_pv_StudentDetailsNonLoginParent",
+                model);
+        }
+        public async Task<IActionResult> BillingDetails(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest();
+            }
+
+            string[] splitData = id.Split('~');
+
+            if (splitData.Length < 2)
+            {
+                return BadRequest();
+            }
+
             long studentId = Convert.ToInt64(splitData[0]);
+
             string admissionNo = splitData[1];
 
-            var student = new TrackTap.DataLibrary.Data.Student(studentId);
-            FeeModel model = new FeeModel();
-            if (student.StudentSpecialId == admissionNo)
+            var student = await _Entities.TbStudents
+                .FirstOrDefaultAsync(x =>
+                    x.StudentId == studentId);
+
+            if (student == null)
             {
-                model.SchoolModel = new SchoolModel();
-                model.SchoolModel.studentName = student.StundentName;
-                model.SchoolModel.classNumber = student.ClasssNumber; //Archana
-                model.SchoolModel.className = student.ClassName;
-                model.SchoolModel.division = student.DivisionName;
-                model.SchoolModel.classInCharge = student.Teacher == null ? "Not Assigned" : student.Teacher.TeacherName;
-                model.SchoolModel.classId = student.ClassId;
-                model.SchoolModel.studentId = studentId;
-                model.AdmissionNo = student.StudentSpecialId;
+                return NotFound();
             }
 
+            var model = new FeeModel();
+
+            if (student.StudentSpecialId == admissionNo)
+            {
+                model.SchoolModel = new SchoolModel
+                {
+                    studentName = student.StundentName,
+                    classNumber = student.ClasssNumber,
+                    className = student.Class.Class,
+                    division = student.Division.Division,
+                    //classInCharge = student.Teacher == null
+                    //    ? "Not Assigned"
+                    //    : student.Teacher.TeacherName,
+
+                    classId = student.ClassId,
+
+                    studentId = studentId
+                };
+
+                model.AdmissionNo = student.StudentSpecialId;
+            }
 
             return View(model);
         }
 
-        public PartialViewResult StudentHistoryBillPartialView(string id)
+        public IActionResult StudentHistoryBillPartialView(string id)
         {
-            FeeModel model = new FeeModel();
-            model.SchoolModel = new SchoolModel();
-            model.SchoolModel.studentId = Convert.ToInt64(id);
-            return PartialView("~/Views/Account/_pv_History_Billing_StudentFee_Model.cshtml", model);
+            var model = new FeeModel
+            {
+                SchoolModel = new SchoolModel
+                {
+                    studentId = Convert.ToInt64(id)
+                }
+            };
+
+            return PartialView(
+                "_pv_History_Billing_StudentFee_Model",
+                model);
         }
-        public PartialViewResult LoadTableForBilling(string id)
+        public IActionResult LoadTableForBilling(string id)
         {
-            FeeModel model = new FeeModel();
-            model.SchoolModel = new SchoolModel();
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest();
+            }
+
             string[] splitData = id.Split('~');
-            model.SchoolModel.studentId = Convert.ToInt64(splitData[1]);
-            model.BillNumber = Convert.ToInt64(splitData[0]);
-            return PartialView("~/Views/Account/_pv_History_PopupGrid.cshtml", model);
+
+            if (splitData.Length < 2)
+            {
+                return BadRequest();
+            }
+
+            var model = new FeeModel
+            {
+                SchoolModel = new SchoolModel
+                {
+                    studentId = Convert.ToInt64(splitData[1])
+                },
+
+                BillNumber = Convert.ToInt64(splitData[0])
+            };
+
+            return PartialView(
+                "_pv_History_PopupGrid",
+                model);
         }
 
 
@@ -677,7 +834,7 @@ namespace TrackTap.Controllers
                 int isAmountEdit = Convert.ToInt16(splitData[5]);
                 if (isAmountEdit != 0)
                 {
-                    var paymentList = new TrackTap.DataLibrary.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
+                    var paymentList = new TrackTap.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
                     var dueFee = paymentList.Where(z => z.FeeGuid == payment.FeeGuid).FirstOrDefault();
                     if (dueFee != null)
                     {

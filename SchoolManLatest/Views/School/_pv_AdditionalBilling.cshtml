@@ -50,7 +50,7 @@
                                 <input  class="form-control my_form"  id="Amount" type = "number" autocomplete="off"  placeholder="Amount" />
                             </td>
                         </tr>
-                        @foreach (var data in new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetSpecialFeeList())
+                        @foreach (var data in new TrackTap.Data.School(Model.SchoolId).GetSpecialFeeList())
                         {
                             <tr>
                                 <td>

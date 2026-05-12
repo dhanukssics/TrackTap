@@ -1,8 +1,8 @@
 ﻿
 @model TrackTap.Models.AttendanceModels
 @{
-    var studentList = new TrackTap.DataLibrary.Data.Division(Model.divisionId).GetStudentDetails();
-    var markedAttendances = new TrackTap.DataLibrary.Data.Division(Model.divisionId).GetAttendance(Model.maxDate, Model.minDate, Model.shift);
+    var studentList = new TrackTap.Data.Division(Model.divisionId).GetStudentDetails();
+    var markedAttendances = new TrackTap.Data.Division(Model.divisionId).GetAttendance(Model.maxDate, Model.minDate, Model.shift);
     var studentCount = studentList.Count();
 
 }

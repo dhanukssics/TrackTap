@@ -17,9 +17,9 @@
                     <div class="login-form fullWid">
                         <h3>Bank Fee</h3>
                         <div class="form-group">
-                            @*  @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetSchoolPaymentGatwayList().OrderBy(z => z.Text), "--School Name--", new { @class = "newDes", @data_live_search = "true", @style = "    background-color: #2f7e86;" })*@
+                            @*  @Html.DropDownListFor(m => m.classId, TrackTap.Data.DropdownData.GetSchoolPaymentGatwayList().OrderBy(z => z.Text), "--School Name--", new { @class = "newDes", @data_live_search = "true", @style = "    background-color: #2f7e86;" })*@
 
-                            @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetSchoolPaymentGatwayList().OrderBy(z => z.Text), "--School Name--", new { @class = "form-control", @data_live_search = "true" })
+                            @Html.DropDownListFor(m => m.classId, TrackTap.Data.DropdownData.GetSchoolPaymentGatwayList().OrderBy(z => z.Text), "--School Name--", new { @class = "form-control", @data_live_search = "true" })
 
 
                         </div>

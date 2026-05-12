@@ -1345,7 +1345,7 @@ namespace TrackTap.Repository
             }
         }
 
-        public Tuple<string , bool> SaveMark (TrackTap.ClassLibrary.PostModel.StudentMarks models)
+        public Tuple<string , bool> SaveMark (TrackTap.PostModel.StudentMarks models)
         {
             string msg = "Failed";
             bool status = false;
@@ -1423,14 +1423,14 @@ namespace TrackTap.Repository
 
         }
 
-        public Tuple<string, bool,List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>> MarkListView(ExamModel model)
+        public Tuple<string, bool,List<TrackTap.PostModel.ViewStudentMark>> MarkListView(ExamModel model)
         {
             string msg = "Failed";
             bool status = false;
             try
             {
-                List<TrackTap.ClassLibrary.PostModel.ViewStudentMark> lis_StudentMArk = new List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>();
-                List<TrackTap.ClassLibrary.PostModel.ViewStudentMark> _Obj = new List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>();
+                List<TrackTap.PostModel.ViewStudentMark> lis_StudentMArk = new List<TrackTap.PostModel.ViewStudentMark>();
+                List<TrackTap.PostModel.ViewStudentMark> _Obj = new List<TrackTap.PostModel.ViewStudentMark>();
 
                 long SchoolId = Convert.ToInt64(model.SchoolId);
                 long ClassId = Convert.ToInt64(model.ClassId);
@@ -1445,7 +1445,7 @@ namespace TrackTap.Repository
                     
                     foreach (var a1 in R1)
                     {
-                        TrackTap.ClassLibrary.PostModel.ViewStudentMark Items = new ClassLibrary.PostModel.ViewStudentMark();
+                        TrackTap.PostModel.ViewStudentMark Items = new ClassLibrary.PostModel.ViewStudentMark();
                         var R2 = _Entity.tb_StudentMarks.Where(x =>
                                   x.StudentId == a1.StudentId &&
                                   x.ExamId == model.ExamId &&
@@ -1479,29 +1479,29 @@ namespace TrackTap.Repository
                     status = true;
                     msg = "Success";
 
-                    return new Tuple<string, bool, List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>>(msg, status, _Obj);
+                    return new Tuple<string, bool, List<TrackTap.PostModel.ViewStudentMark>>(msg, status, _Obj);
                 }
                 else
                 {
-                    return new Tuple<string, bool, List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>>(msg, status, null);
+                    return new Tuple<string, bool, List<TrackTap.PostModel.ViewStudentMark>>(msg, status, null);
 
                 }
             }
             catch (Exception ex) {
                 msg = ex.Message;
-                return new Tuple<string, bool, List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>>(msg, status, null);
+                return new Tuple<string, bool, List<TrackTap.PostModel.ViewStudentMark>>(msg, status, null);
             }
            
         }
 
-        public Tuple<string, bool, List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>> ProgressCardExamNameList(ExamModel model)
+        public Tuple<string, bool, List<TrackTap.PostModel.ViewStudentMark>> ProgressCardExamNameList(ExamModel model)
         {
             string msg = "Failed";
             bool status = false;
             try
             {
-                List<TrackTap.ClassLibrary.PostModel.ViewStudentMark> lis_StudentMArk = new List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>();
-                List<TrackTap.ClassLibrary.PostModel.ViewStudentMark> _Obj = new List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>();
+                List<TrackTap.PostModel.ViewStudentMark> lis_StudentMArk = new List<TrackTap.PostModel.ViewStudentMark>();
+                List<TrackTap.PostModel.ViewStudentMark> _Obj = new List<TrackTap.PostModel.ViewStudentMark>();
 
                  
                 var R1 = _Entity.tb_Student.Where(z =>
@@ -1513,7 +1513,7 @@ namespace TrackTap.Repository
                     var R2 = _Entity.tb_Exams.Where(z => z.DivisionId == R1.DivisionId && z.IsActive == true).ToList();
                     foreach (var a1 in R2)
                     {
-                        TrackTap.ClassLibrary.PostModel.ViewStudentMark Mo = new ViewStudentMark();
+                        TrackTap.PostModel.ViewStudentMark Mo = new ViewStudentMark();
                         Mo.ExamId = a1.ExamId;
                         Mo.ExamName = a1.ExamName;
                         lis_StudentMArk.Add(Mo);
@@ -1524,30 +1524,30 @@ namespace TrackTap.Repository
                     status = true;
                     msg = "Success";
 
-                    return new Tuple<string, bool, List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>>(msg, status, _Obj);
+                    return new Tuple<string, bool, List<TrackTap.PostModel.ViewStudentMark>>(msg, status, _Obj);
                 }
                 else
                 {
-                    return new Tuple<string, bool, List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>>(msg, status, null);
+                    return new Tuple<string, bool, List<TrackTap.PostModel.ViewStudentMark>>(msg, status, null);
 
                 }
             }
             catch (Exception ex)
             {
                 msg = ex.Message;
-                return new Tuple<string, bool, List<TrackTap.ClassLibrary.PostModel.ViewStudentMark>>(msg, status, null);
+                return new Tuple<string, bool, List<TrackTap.PostModel.ViewStudentMark>>(msg, status, null);
             }
 
         }
 
-        public Tuple<string, bool, TrackTap.ClassLibrary.PostModel.ViewStudentMark> ProgressCardExamResults(ExamModel model)
+        public Tuple<string, bool, TrackTap.PostModel.ViewStudentMark> ProgressCardExamResults(ExamModel model)
         {
             string msg = "Failed";
             bool status = false;
             try
             {
-                 TrackTap.ClassLibrary.PostModel.ViewStudentMark lis_StudentMArk = new TrackTap.ClassLibrary.PostModel.ViewStudentMark();
-                 TrackTap.ClassLibrary.PostModel.ViewStudentMark _Obj = new TrackTap.ClassLibrary.PostModel.ViewStudentMark();
+                 TrackTap.PostModel.ViewStudentMark lis_StudentMArk = new TrackTap.PostModel.ViewStudentMark();
+                 TrackTap.PostModel.ViewStudentMark _Obj = new TrackTap.PostModel.ViewStudentMark();
 
 
                 var R1 = _Entity.tb_StudentMarks.Where(z => z.StudentId == model.StudentId && z.ExamId == model.ExamId).FirstOrDefault();
@@ -1586,18 +1586,18 @@ namespace TrackTap.Repository
                     status = true;
                     msg = "Success";
 
-                    return new Tuple<string, bool,  TrackTap.ClassLibrary.PostModel.ViewStudentMark>(msg, status, _Obj);
+                    return new Tuple<string, bool,  TrackTap.PostModel.ViewStudentMark>(msg, status, _Obj);
                 }
                 else
                 {
-                    return new Tuple<string, bool, TrackTap.ClassLibrary.PostModel.ViewStudentMark>(msg, status, null);
+                    return new Tuple<string, bool, TrackTap.PostModel.ViewStudentMark>(msg, status, null);
 
                 }
             }
             catch (Exception ex)
             {
                 msg = ex.Message;
-                return new Tuple<string, bool, TrackTap.ClassLibrary.PostModel.ViewStudentMark>(msg, status, null);
+                return new Tuple<string, bool, TrackTap.PostModel.ViewStudentMark>(msg, status, null);
             }
 
         }

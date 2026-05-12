@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.FeeModel
 
 @{
-    var student = new TrackTap.DataLibrary.Data.Student(Model.StudentId);
+    var student = new TrackTap.Data.Student(Model.StudentId);
     var paymentList = student.GetStudentPaidFees();
     var totalAmount=paymentList.Sum(x => x.Amount);
 }

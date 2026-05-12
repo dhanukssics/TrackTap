@@ -15,7 +15,7 @@
         <div class="form-group">
             <label>School </label>
             <br />
-            @Html.DropDownListFor(m => m.SchoolNames, TrackTap.DataLibrary.Data.DropdownData.GetAllSchool(), "-- Choose --", new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true" })
+            @Html.DropDownListFor(m => m.SchoolNames, TrackTap.Data.DropdownData.GetAllSchool(), "-- Choose --", new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true" })
            
         </div>
     </div>

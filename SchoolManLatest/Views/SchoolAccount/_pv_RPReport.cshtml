@@ -5,7 +5,7 @@
     DateTime endDate = Model.ToDate;
     long schoolId = Model.SchoolId;
     int Iscontra = Model.IsContra;
-    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var school = new TrackTap.Data.School(schoolId);
     var data = school.GetRPReport(startDate, endDate, schoolId, Iscontra);
     //decimal cashInHand = school.PaymentClosing(startDate, endDate);
     //decimal bankBalance = school.PaymentClosingBank(startDate, endDate);

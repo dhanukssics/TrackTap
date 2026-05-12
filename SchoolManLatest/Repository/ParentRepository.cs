@@ -1,44 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrackTap.MapModel;
-using TrackTap.PostModel;
-using TrackTap.Data;
-using System.Web;
-using System.IO;
-using System.Data.Entity;
+﻿
+using Microsoft.EntityFrameworkCore;
 using TrackTap.ClassLibrary;
+using TrackTap.Data;
+using TrackTap.MapModel;
+using TrackTap.Models;
+using TrackTap.PostModel;
+
 
 namespace TrackTap.Repository
 {
     public class ParentRepository
     {
-        public tb_tracktapEntities _Entity = new tb_tracktapEntities();
+        
         public DateTime currentTime = DateTime.UtcNow;
+        private readonly SchoolDbContext _Entity;
 
-        public Tuple<bool, string, tb_Parent> AddParent(ParentRegistrationPostModel model)
+
+        public ParentRepository(SchoolDbContext Entity)
         {
-            var status = false;
-            var msg = "Failed";
+            _Entity = Entity;
+        }
+        public async Task<Tuple<bool, string, TbParent>> AddParentAsync(
+    ParentRegistrationPostModel model)
+        {
+            bool status = false;
+            string msg = "Failed";
 
-            var parent = _Entity.tb_Parent.Create();
-            parent.ParentGuid = Guid.NewGuid();
-            parent.ParentName = model.ParentName;
-            parent.Address = model.Address;
-            parent.ContactNumber = model.ContactNumber;
-            parent.Email = model.Email;
-            parent.Password = model.Password;
-            parent.IsActive = true;
-            parent.City = model.City;
-            parent.State = model.State;
-            parent.TimeStamp = currentTime;
-            parent.FilePath = model.FilePath;
-            _Entity.tb_Parent.Add(parent);
-            status = _Entity.SaveChanges() > 0;
-            msg = status ? "Success" : "Failed";
-            return new Tuple<bool, string, tb_Parent>(status, msg, parent);
+            try
+            {
+                var parent = new TbParent
+                {
+                    ParentGuid = Guid.NewGuid(),
+                    ParentName = model.ParentName,
+                    Address = model.Address,
+                    ContactNumber = model.ContactNumber,
+                    Email = model.Email,
+                    Password = model.Password,
+                    IsActive = true,
+                    City = model.City,
+                    State = model.State,
+                    TimeStamp = DateTime.UtcNow,
+                    FilePath = model.FilePath
+                };
+
+                await _Entity.TbParents.AddAsync(parent);
+
+                status = await _Entity.SaveChangesAsync() > 0;
+
+                msg = status ? "Success" : "Failed";
+
+                return Tuple.Create(status, msg, parent);
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(
+                    false,
+                    ex.Message,
+                    new TbParent());
+            }
         }
 
         public Tuple<bool, string, tb_Parent> ParentLogin(ParentLoginPostModel model)

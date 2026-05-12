@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.AddAccountHeadModel
 @{
-    var accountDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetAccountDetails_new(Model.SchoolId);
+    var accountDetails = new TrackTap.Data.School(Model.SchoolId).GetAccountDetails_new(Model.SchoolId);
 }
 <thead>
     <tr>

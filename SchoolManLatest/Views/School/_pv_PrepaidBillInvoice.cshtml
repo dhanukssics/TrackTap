@@ -1,7 +1,7 @@
 ﻿
 @model TrackTap.Models.PrepaidInvoiceDataList
 @{
-    var student = new TrackTap.DataLibrary.Data.Student(Model.StudentId);
+    var student = new TrackTap.Data.Student(Model.StudentId);
     var studentData = student.GetStudentData();
     DateTime currentData = Model.CurrentDatetime;
 }

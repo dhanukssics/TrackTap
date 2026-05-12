@@ -441,7 +441,7 @@ namespace TrackTap.Controllers
             {
 
             }
-            var head = new TrackTap.DataLibrary.Data.SubLedgerData(model.SubLedgerId);
+            var head = new TrackTap.Data.SubLedgerData(model.SubLedgerId);
             model.HeadName = head.AccountHeadName;
             model.SubLedger = head.SubLedgerName;
             int type = Convert.ToInt32(model.TypeId);
@@ -1012,7 +1012,7 @@ namespace TrackTap.Controllers
             {
 
             }
-            var head = new TrackTap.DataLibrary.Data.SubLedgerData(model.SubLedgerId);
+            var head = new TrackTap.Data.SubLedgerData(model.SubLedgerId);
             model.HeadName = head.AccountHeadName;
             model.SubLedger = head.SubLedgerName;
             model.BankName = _Entities.tb_Banks.Where(x => x.BankId == model.BankId && x.IsActive).Select(x => x.BankName).FirstOrDefault();
@@ -1055,7 +1055,7 @@ namespace TrackTap.Controllers
                 string[] data = text.Split('~');
                 var bankId = Convert.ToInt64(data[1]);
                 decimal amountWithdraw = Convert.ToDecimal(data[0]);
-                var amount = new TrackTap.DataLibrary.Data.School(_user.SchoolId).GetBankCurrentBalance(bankId);
+                var amount = new TrackTap.Data.School(_user.SchoolId).GetBankCurrentBalance(bankId);
                 if (amountWithdraw <= amount)
                 {
                 }
@@ -1082,7 +1082,7 @@ namespace TrackTap.Controllers
                 long bankId = Convert.ToInt64(data[1]);
                 var accountbankId = Convert.ToInt64(data[2]);
                 var bankdata = _Entities.tb_BankBookData.Where(x => x.Id == bankId).FirstOrDefault();
-                var amount = new TrackTap.DataLibrary.Data.School(_user.SchoolId).GetBankCurrentBalance(accountbankId);
+                var amount = new TrackTap.Data.School(_user.SchoolId).GetBankCurrentBalance(accountbankId);
                 amount = amount + bankdata.Amount;
                 if (amountWithdraw <= amount)
                 {
@@ -1170,7 +1170,7 @@ namespace TrackTap.Controllers
             {
 
             }
-            var head = new TrackTap.DataLibrary.Data.AccountHead(model.HeadId);
+            var head = new TrackTap.Data.AccountHead(model.HeadId);
             model.HeadName = head.AccHeadName;
             int type = Convert.ToInt32(model.TypeId);
             if (type == 0)

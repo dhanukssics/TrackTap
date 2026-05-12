@@ -3,14 +3,14 @@
     var countincome = 1;
     var countexpence = 1;
     DateTime date = Model.Selecteddate;
-    // var income = new TrackTap.DataLibrary.Data.WebsiteService().IncomelistOnDate(Model.Selecteddate).ToList();
-    // var ExpencelistOnDate = new TrackTap.DataLibrary.Data.WebsiteService().ExpencelistOnDate(Model.Selecteddate).ToList();
+    // var income = new TrackTap.Data.WebsiteService().IncomelistOnDate(Model.Selecteddate).ToList();
+    // var ExpencelistOnDate = new TrackTap.Data.WebsiteService().ExpencelistOnDate(Model.Selecteddate).ToList();
     //var totalexpence = ExpencelistOnDate.Sum(x => x.Amount);
-    var balanceBD = new TrackTap.DataLibrary.Data.WebsiteService().BalancebdDate(date, Model.SchoolId);
+    var balanceBD = new TrackTap.Data.WebsiteService().BalancebdDate(date, Model.SchoolId);
 
-    var CurrentincomeList = new TrackTap.DataLibrary.Data.WebsiteService().IncomelistOnDate(date, Model.SchoolId).ToList();
+    var CurrentincomeList = new TrackTap.Data.WebsiteService().IncomelistOnDate(date, Model.SchoolId).ToList();
     var totalincome = CurrentincomeList.Sum(x => x.Amount);
-    var CurrentExpenceList = new TrackTap.DataLibrary.Data.WebsiteService().ExpencelistOnDate(date, Model.SchoolId).ToList();
+    var CurrentExpenceList = new TrackTap.Data.WebsiteService().ExpencelistOnDate(date, Model.SchoolId).ToList();
     var totalexpence = CurrentExpenceList.Sum(x => x.Amount);
     if (balanceBD > 0)
     {

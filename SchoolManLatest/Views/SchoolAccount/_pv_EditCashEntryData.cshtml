@@ -54,7 +54,7 @@
                 <label>Account Head</label>
             </div>
             <div class="col-md-9">
-                @Html.DropDownListFor(m => m.HeadId, TrackTap.DataLibrary.Data.DropdownData.GetAccountHeads(Model.SchoolId), "--Choose--", new { @class = "form-control edit-accHead-drop-down", @data_live_search = "true", name = "classDropdown", id = "cash-entry-head-id" })
+                @Html.DropDownListFor(m => m.HeadId, TrackTap.Data.DropdownData.GetAccountHeads(Model.SchoolId), "--Choose--", new { @class = "form-control edit-accHead-drop-down", @data_live_search = "true", name = "classDropdown", id = "cash-entry-head-id" })
                 @Html.ValidationMessageFor(m => m.HeadId)
             </div>
         </div>

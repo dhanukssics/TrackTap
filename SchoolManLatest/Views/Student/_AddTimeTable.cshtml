@@ -16,7 +16,7 @@
         <div class="form-group">
             <label style="color:black;">Class : </label>
             <br />
-            @Html.DropDownListFor(m => m.ClassId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.SchoolId), new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+            @Html.DropDownListFor(m => m.ClassId, TrackTap.Data.DropdownData.GetClasses(Model.SchoolId), new { @class = "form-control slct-mark-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
             @Html.ValidationMessageFor(z => z.ClassId)
         </div>
     </div>
@@ -32,7 +32,7 @@
         <div class="form-group">
             <label style="color:black;">Teacher : </label>
             <br />
-            @Html.DropDownListFor(m => m.TeacherId, TrackTap.DataLibrary.Data.DropdownData.GetTeachers(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+            @Html.DropDownListFor(m => m.TeacherId, TrackTap.Data.DropdownData.GetTeachers(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
             @Html.ValidationMessageFor(z => z.TeacherId)
         </div>
     </div>
@@ -40,7 +40,7 @@
         <div class="form-group">
             <label style="color:black;">Subject : </label>
             <br />
-            @Html.DropDownListFor(m => m.SubjectId, TrackTap.DataLibrary.Data.DropdownData.GetSubjectss(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+            @Html.DropDownListFor(m => m.SubjectId, TrackTap.Data.DropdownData.GetSubjectss(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
             @Html.ValidationMessageFor(z => z.SubjectId)
         </div>
     </div>

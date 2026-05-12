@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "Assign Discount";
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
-    var students = new TrackTap.DataLibrary.Data.Division(Model.DivisionId).GetStudentDetails().OrderBy(z => z.StundentName).ToList();
+    var students = new TrackTap.Data.Division(Model.DivisionId).GetStudentDetails().OrderBy(z => z.StundentName).ToList();
 }
 
 <style>

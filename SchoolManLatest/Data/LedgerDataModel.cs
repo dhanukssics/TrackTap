@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TrackTap.DataLibrary.Data
+namespace TrackTap.Data
 {
     public class LedgerDataModel
     {

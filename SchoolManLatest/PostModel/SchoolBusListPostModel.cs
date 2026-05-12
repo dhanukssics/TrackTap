@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackTap.ClassLibrary.PostModel
+namespace TrackTap.PostModel
 {
     public class SchoolBusListPostModel
     {

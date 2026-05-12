@@ -106,7 +106,7 @@ namespace TrackTap.Controllers
                         status = _Entities.SaveChanges() > 0;
                         msg = status ? "success" : "failed";
                     }
-                    return Json(new { status = status, msg = msg, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
+                    return Json(new { status = status, msg = msg, list = new TrackTap.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
@@ -131,7 +131,7 @@ namespace TrackTap.Controllers
 
                     status = _Entities.SaveChanges() > 0;
                     msg = status ? "success" : "failed";
-                    return Json(new { status = status, msg = msg, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
+                    return Json(new { status = status, msg = msg, list = new TrackTap.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex)
@@ -179,7 +179,7 @@ namespace TrackTap.Controllers
                         status = _Entities.SaveChanges() > 0;
                         msg = status ? "success" : "failed";
                     }
-                    return Json(new { status = status, msg = msg, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
+                    return Json(new { status = status, msg = msg, list = new TrackTap.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
@@ -204,7 +204,7 @@ namespace TrackTap.Controllers
 
                     status = _Entities.SaveChanges() > 0;
                     msg = status ? "success" : "failed";
-                    return Json(new { status = status, msg = msg, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
+                    return Json(new { status = status, msg = msg, list = new TrackTap.Data.DropdownData().RefreshClasses(model.SchoolId) }, JsonRequestBehavior.AllowGet);
                 }
             }
             catch (Exception ex)
@@ -242,7 +242,7 @@ namespace TrackTap.Controllers
                 }
             }
             message = status ? "Deleted" : "failed";
-            return Json(new { status = status, msg = message, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClassesUnPublished(_user.SchoolId) }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = status, msg = message, list = new TrackTap.Data.DropdownData().RefreshClassesUnPublished(_user.SchoolId) }, JsonRequestBehavior.AllowGet);
         }
 
         public object PublishClassUnPublished(string id)
@@ -269,7 +269,7 @@ namespace TrackTap.Controllers
                 }
             }
             message = status ? "Published" : "failed";
-            return Json(new { status = status, msg = message, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClassesUnPublished(_user.SchoolId) }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = status, msg = message, list = new TrackTap.Data.DropdownData().RefreshClassesUnPublished(_user.SchoolId) }, JsonRequestBehavior.AllowGet);
         }
 
         public PartialViewResult GetToPromotionStudentsByDivGrid(string id)
@@ -341,7 +341,7 @@ namespace TrackTap.Controllers
         public IActionResult BillingDetails(string id)
         {
             long studentId = Convert.ToInt32(id);
-            var student = new TrackTap.DataLibrary.Data.Student(studentId);
+            var student = new TrackTap.Data.Student(studentId);
             FeeModel model = new FeeModel();
             model.SchoolModel = new SchoolModel();
             model.SchoolModel.studentName = student.StundentName;
@@ -1087,7 +1087,7 @@ namespace TrackTap.Controllers
 
                 if (isAmountEdit != 0)
                 {
-                    var paymentList = new TrackTap.DataLibrary.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
+                    var paymentList = new TrackTap.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
                     var dueFee = paymentList.Where(z => z.FeeGuid == payment.FeeGuid).FirstOrDefault();
                     if (dueFee != null)
                     {
@@ -2077,7 +2077,7 @@ namespace TrackTap.Controllers
                 status = _Entities.SaveChanges() > 0;
                 message = status ? " Fee Added" : "failed";
             }
-            return Json(new { status = status, msg = message, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshSchoolFees(model.SchoolId) }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = status, msg = message, list = new TrackTap.Data.DropdownData().RefreshSchoolFees(model.SchoolId) }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -2304,7 +2304,7 @@ namespace TrackTap.Controllers
                 }
             }
             message = status ? "Deleted" : "failed";
-            return Json(new { status = status, msg = message, list = new TrackTap.DataLibrary.Data.DropdownData().RefreshClasses(_user.SchoolId) }, JsonRequestBehavior.AllowGet);
+            return Json(new { status = status, msg = message, list = new TrackTap.Data.DropdownData().RefreshClasses(_user.SchoolId) }, JsonRequestBehavior.AllowGet);
         }
 
         public PartialViewResult EditStudentModel(string id)
@@ -2312,7 +2312,7 @@ namespace TrackTap.Controllers
             var model = new EditStudentModel();
             model.studentId = Convert.ToInt64(id);
             model.schoolId = _user.SchoolId;
-            var student = new TrackTap.DataLibrary.Data.Student(model.studentId);
+            var student = new TrackTap.Data.Student(model.studentId);
             if (student != null)
             {
                 model.address = student.Address;
@@ -2568,7 +2568,7 @@ namespace TrackTap.Controllers
         {
             var model = new TeacherAddModel();
             model.schoolId = _user.SchoolId;
-            var salaryTpe = new TrackTap.DataLibrary.Data.School(_user.SchoolId).SalaryTypeStatus();
+            var salaryTpe = new TrackTap.Data.School(_user.SchoolId).SalaryTypeStatus();
             if (salaryTpe == 0)
             {
                 model.SalaryType = "Basic Salary";
@@ -3614,7 +3614,7 @@ namespace TrackTap.Controllers
             #region Account from Cancel
             try// Archana 29-11-2018 New bill cancel section for Account section
             {
-                var student = new TrackTap.DataLibrary.Data.Student(studentId);
+                var student = new TrackTap.Data.Student(studentId);
                 var studentPaidFee = student.StudentPaidAmountByBillNo(billNo);
                 decimal refundAmount = 0;
                 if (studentPaidFee == null)
@@ -4285,7 +4285,7 @@ namespace TrackTap.Controllers
             model.Selecteddate = CurrentTime;
             model.Selecteddate_From = CurrentTime.ToString();
             model.Selecteddate_To = CurrentTime.ToString();
-            Tuple<string, string, List<SmsHead>> tt = new TrackTap.DataLibrary.Data.WebsiteService().GetAllSmsHeadByDate(model.Selecteddate_From, model.Selecteddate_To, model.schoolId);
+            Tuple<string, string, List<SmsHead>> tt = new TrackTap.Data.WebsiteService().GetAllSmsHeadByDate(model.Selecteddate_From, model.Selecteddate_To, model.schoolId);
             ViewBag.msgCount = tt.Item1;
             ViewBag.TotalCount = tt.Item2;
             ViewBag.Result = tt.Item3;
@@ -4320,8 +4320,8 @@ namespace TrackTap.Controllers
         {
             SMSHistoryModel model = new SMSHistoryModel();
             long headId = Convert.ToInt64(id);
-            //ViewBag.Result = new TrackTap.DataLibrary.Data.SmsHead(headId).SmsHistory;
-            var data = new TrackTap.DataLibrary.Data.SmsHead(headId);
+            //ViewBag.Result = new TrackTap.Data.SmsHead(headId).SmsHistory;
+            var data = new TrackTap.Data.SmsHead(headId);
             if (data != null)
             {
                 model.headId = data.headId;
@@ -4352,27 +4352,27 @@ namespace TrackTap.Controllers
         public object GetAllFeeHead()
         {
             long schoolId = _user.SchoolId;
-            var result = new TrackTap.DataLibrary.Data.WebsiteService().gtGetAllFeeHead(schoolId);
+            var result = new TrackTap.Data.WebsiteService().gtGetAllFeeHead(schoolId);
             return Json(new { Status = true, Message = "", result = result }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public object GetAllExpenceAccountHeads()
         {
             long schoolId = _user.SchoolId;
-            var result = new TrackTap.DataLibrary.Data.WebsiteService().gtAllExpenceAccountHead(schoolId);
+            var result = new TrackTap.Data.WebsiteService().gtAllExpenceAccountHead(schoolId);
             return Json(new { Status = true, Message = "", result = result }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
         public object GetAllIncomeAccountHeads()
         {
             long schoolId = _user.SchoolId;
-            var result = new TrackTap.DataLibrary.Data.WebsiteService().gtAllIncomeAccountHead(schoolId);
+            var result = new TrackTap.Data.WebsiteService().gtAllIncomeAccountHead(schoolId);
             return Json(new { Status = true, Message = "", result = result }, JsonRequestBehavior.AllowGet);
         }
 
         public object GetIncomeAccountHeads(string id)
         {
-            var result = new TrackTap.DataLibrary.Data.WebsiteService().GetIncomeAccountHeads(id);
+            var result = new TrackTap.Data.WebsiteService().GetIncomeAccountHeads(id);
             return Json(new { Status = true, Message = "", result = result }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
@@ -4510,7 +4510,7 @@ namespace TrackTap.Controllers
                 model.Selecteddate_To = Selecteddate_To;
                 model.schoolId = _user.SchoolId;
             }
-            Tuple<string, string, List<SmsHead>> tt = new TrackTap.DataLibrary.Data.WebsiteService().GetAllSmsHeadByDate(model.Selecteddate_From, model.Selecteddate_To, model.schoolId);
+            Tuple<string, string, List<SmsHead>> tt = new TrackTap.Data.WebsiteService().GetAllSmsHeadByDate(model.Selecteddate_From, model.Selecteddate_To, model.schoolId);
             ViewBag.msgCount = tt.Item1;
             ViewBag.TotalCount = tt.Item2;
             ViewBag.Result = tt.Item3;
@@ -4780,7 +4780,7 @@ namespace TrackTap.Controllers
             var msg = "Failed";
             var status = false;
             long schoolId = _user.SchoolId;
-            var res = new TrackTap.DataLibrary.Data.WebsiteService().GetLatestExpParticular(id, schoolId);
+            var res = new TrackTap.Data.WebsiteService().GetLatestExpParticular(id, schoolId);
             if (res != null)
             {
                 status = true;
@@ -4797,7 +4797,7 @@ namespace TrackTap.Controllers
             var status = false;
             long schoolId = _user.SchoolId;
 
-            var res = new TrackTap.DataLibrary.Data.WebsiteService().GetLatestIncParticular(id, schoolId);
+            var res = new TrackTap.Data.WebsiteService().GetLatestIncParticular(id, schoolId);
             if (res != null)
             {
                 status = true;
@@ -5047,7 +5047,7 @@ namespace TrackTap.Controllers
             try
             {
                 sub.ExamId = model.ExamId;
-                sub.Subject = new TrackTap.DataLibrary.Data.Subjects(model.SubjectId).SubjectName;
+                sub.Subject = new TrackTap.Data.Subjects(model.SubjectId).SubjectName;
                 sub.InternalMarks = model.Internal;
                 sub.ExternalMark = model.External;
                 //sub.Mark = model.Total;
@@ -5130,7 +5130,7 @@ namespace TrackTap.Controllers
             bool status = false;
             string msg = "Failed";
             var sub = _Entities.tb_ExamSubjects.Where(z => z.ExamId == model.ExamId && z.SubId == model.ExamSubjectId && z.IsActive).FirstOrDefault();
-            sub.Subject = new TrackTap.DataLibrary.Data.Subjects(model.SubjectId).SubjectName;
+            sub.Subject = new TrackTap.Data.Subjects(model.SubjectId).SubjectName;
             sub.InternalMarks = model.Internal;
             sub.ExternalMark = model.External;
             //sub.Mark = model.Total;
@@ -5148,13 +5148,13 @@ namespace TrackTap.Controllers
             model.StudentList = new List<StudentList>();
             model.SubjectId = Convert.ToInt64(id);
             model.SchoolId = _user.SchoolId;
-            var data = new TrackTap.DataLibrary.Data.Exams(model.SubjectId, model.SchoolId);
+            var data = new TrackTap.Data.Exams(model.SubjectId, model.SchoolId);
             model.DivisionId = data.DivisionId;
             model.ExamId = data.ExamId;
             model.ClassId = data.ClassId;
             var totalCount = _Entities.tb_Student.Where(x => x.SchoolId == _user.SchoolId && x.ClassId == model.ClassId && x.DivisionId == model.DivisionId && x.IsActive).ToList();// Total Students
             #region 
-            //model.TotalMark=new TrackTap.DataLibrary.Data
+            //model.TotalMark=new TrackTap.Data
             //var markListData = _Entities.tb_StudentMarks.Where(x => x.ExamId == model.ExamId && x.SubjectId == model.SubjectId && x.IsActive).ToList();
             //model.StudentList = new List<StudentList>();
             //if(markListData.Count>0)
@@ -5163,10 +5163,10 @@ namespace TrackTap.Controllers
             //    {
             //        StudentList one = new StudentList();
             //        one.StudentId = item.StudentId;
-            //        one.StudentName = new TrackTap.DataLibrary.Data.Student(item.StudentId).StundentName;
+            //        one.StudentName = new TrackTap.Data.Student(item.StudentId).StundentName;
             //        one.InternalMark = item.InternalMark??00;
             //        one.ExternalMark = item.ExternalMark ?? 00;
-            //        one.Total = new TrackTap.DataLibrary.Data.ExamSubjects(model.SubjectId).Mark;
+            //        one.Total = new TrackTap.Data.ExamSubjects(model.SubjectId).Mark;
             //    }
             //}
             //else
@@ -5555,7 +5555,7 @@ namespace TrackTap.Controllers
             {
                 model.SenderDetails.SenderData = "MYSCHO";
             }
-            var type = new TrackTap.DataLibrary.Data.School(_user.SchoolId).SalaryTypeStatus();
+            var type = new TrackTap.Data.School(_user.SchoolId).SalaryTypeStatus();
             if (type == 0)
                 model.SalaryType = SalaryType.Basic;
             else
@@ -5685,7 +5685,7 @@ namespace TrackTap.Controllers
             string msg = "Failed";
             bool status = false;
             long head = Convert.ToInt64(id);
-            var data = new TrackTap.DataLibrary.Data.SmsHead(head).StaffSMSHistory;
+            var data = new TrackTap.Data.SmsHead(head).StaffSMSHistory;
             if (data != null)
             {
                 foreach (var item in data)
@@ -5723,7 +5723,7 @@ namespace TrackTap.Controllers
             string msg = "Failed";
             bool status = false;
             long head = Convert.ToInt64(id);
-            var data = new TrackTap.DataLibrary.Data.SmsHead(head).SmsHistory;
+            var data = new TrackTap.Data.SmsHead(head).SmsHistory;
             if (data != null)
             {
                 foreach (var item in data)
@@ -6059,7 +6059,7 @@ namespace TrackTap.Controllers
                                         SendFeeAlertSMS(Amount, student, InsertHead);
                                         #endregion
 
-                                        var studentData = new TrackTap.DataLibrary.Data.Student(student.StudentId);
+                                        var studentData = new TrackTap.Data.Student(student.StudentId);
                                         #region Push
                                         if (studentData.ParentId != null)
                                         {
@@ -6100,7 +6100,7 @@ namespace TrackTap.Controllers
         private void SendFeeAlertSMS(decimal? Amount, sp_FeeAlertDetails_Result student, long InsertHead)
         {
             var dueAmount = Math.Round((double)Amount, 2);
-            var school = new TrackTap.DataLibrary.Data.School(student.SchoolId);
+            var school = new TrackTap.Data.School(student.SchoolId);
             var phone = student.ContactNumber.ToString();
             var senderName = "MYSCHO";
             //if (student.SchoolId == 10116)
@@ -6143,7 +6143,7 @@ namespace TrackTap.Controllers
             _Entities.tb_SmsHistory.Add(sms);
             _Entities.SaveChanges();
         }
-        private void SendFeeAlertPush(decimal? Amount, TrackTap.DataLibrary.Data.Student student)
+        private void SendFeeAlertPush(decimal? Amount, TrackTap.Data.Student student)
         {
             try
             {
@@ -6585,7 +6585,7 @@ namespace TrackTap.Controllers
         public IActionResult DOCertificate(string id)
         {
             long studentId = Convert.ToInt64(id);
-            var student = new TrackTap.DataLibrary.Data.Student(studentId);
+            var student = new TrackTap.Data.Student(studentId);
             StudentModel model = new StudentModel();
             model.studentName = student.StundentName;
             model.studentId = student.StudentId;
@@ -6616,7 +6616,7 @@ namespace TrackTap.Controllers
         public IActionResult AadharCardForm(string id)
         {
             long studentId = Convert.ToInt64(id);
-            var student = new TrackTap.DataLibrary.Data.Student(studentId);
+            var student = new TrackTap.Data.Student(studentId);
             StudentModel model = new StudentModel();
             model.studentName = student.StundentName;
             model.studentId = student.StudentId;
@@ -6647,7 +6647,7 @@ namespace TrackTap.Controllers
         public IActionResult FeeRemittance(string id)
         {
             long studentId = Convert.ToInt64(id);
-            var student = new TrackTap.DataLibrary.Data.Student(studentId);
+            var student = new TrackTap.Data.Student(studentId);
             StudentModel model = new StudentModel();
             model.studentName = student.StundentName;
             model.studentId = student.StudentId;
@@ -7939,7 +7939,7 @@ namespace TrackTap.Controllers
                 data.AfterDiscountAmt = Convert.ToDecimal(one[4]);
                 if (data.AfterDiscountAmt == 0)
                     data.AfterDiscountAmt = data.ActualAmt;
-                var x = new TrackTap.DataLibrary.Data.Fee(Convert.ToInt64(one[1]));
+                var x = new TrackTap.Data.Fee(Convert.ToInt64(one[1]));
                 data.FeeName = x.FeeName;
                 data.DueDate = x.DueDate ?? CurrentTime;
                 data.SlNo = count;

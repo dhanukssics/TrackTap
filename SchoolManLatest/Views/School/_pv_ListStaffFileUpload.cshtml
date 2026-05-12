@@ -2,7 +2,7 @@
 
 @model TrackTap.Models.StaffFileUploadModel
 @{
-    var Files = new TrackTap.DataLibrary.Data.Staff(Model.StaffId).StaffFiles();
+    var Files = new TrackTap.Data.Staff(Model.StaffId).StaffFiles();
 }
 <thead>
     <tr>

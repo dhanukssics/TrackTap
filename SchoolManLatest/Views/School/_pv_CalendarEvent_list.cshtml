@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.CalendarEventModels
 @{
-    var calender = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetCalendarEventByDate(Model.startDate, Model.endDate);
+    var calender = new TrackTap.Data.School(Model.schoolId).GetCalendarEventByDate(Model.startDate, Model.endDate);
 }
 
 

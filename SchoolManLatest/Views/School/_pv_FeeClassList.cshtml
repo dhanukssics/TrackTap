@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.FeeclassList
 @{
-    var data = new TrackTap.DataLibrary.Data.WebsiteService().getAllFeeClassByFeeId(Model.schoolId, Model.feeId);
+    var data = new TrackTap.Data.WebsiteService().getAllFeeClassByFeeId(Model.schoolId, Model.feeId);
 }
 
 <thead>

@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.StudentModel
 @{
-    var student = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetStudentForParent(Model.admissionNo).FirstOrDefault();
+    var student = new TrackTap.Data.School(Model.schoolId).GetStudentForParent(Model.admissionNo).FirstOrDefault();
 }
 <style>
     .login-without .login-form p span {

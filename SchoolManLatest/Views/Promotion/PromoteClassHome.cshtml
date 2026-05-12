@@ -10,7 +10,7 @@
         <div class="row">
             <div class="form-group col-sm-6">
                 <label>Class : </label>
-                @Html.DropDownListFor(m => m.className, TrackTap.DataLibrary.Data.DropdownData.GetUnPublishedClasses(Model.schoolId), "All", new { @class = "form-control slct-class-dropdwn", @data_live_search = "true", @style = "display:inline-block; width:auto;min-width:180px;" })
+                @Html.DropDownListFor(m => m.className, TrackTap.Data.DropdownData.GetUnPublishedClasses(Model.schoolId), "All", new { @class = "form-control slct-class-dropdwn", @data_live_search = "true", @style = "display:inline-block; width:auto;min-width:180px;" })
             </div>
             <div class="col-sm-6">
                 <div class="form-group text-right">

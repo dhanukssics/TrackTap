@@ -1,9 +1,9 @@
 ﻿
 @model TrackTap.Models.ReceiptPaymentModel
 @{
-    var receiptPayment = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetReceiptPaymentBankData();
-    var openingBankBalance = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetReceiptPaymentBankDataByDate(Model.StartDate);
-    var cashInHand = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCashBookStatus(Model.StartDate, Model.EndDate);
+    var receiptPayment = new TrackTap.Data.School(Model.SchoolId).GetReceiptPaymentBankData();
+    var openingBankBalance = new TrackTap.Data.School(Model.SchoolId).GetReceiptPaymentBankDataByDate(Model.StartDate);
+    var cashInHand = new TrackTap.Data.School(Model.SchoolId).GetCashBookStatus(Model.StartDate, Model.EndDate);
 
 }
 <div class="row">

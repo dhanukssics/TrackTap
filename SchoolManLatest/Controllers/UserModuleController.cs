@@ -76,7 +76,7 @@ namespace TrackTap.Controllers
                 {
                     foreach (var item in model.subListOnly)
                     {
-                        var mainDetails = new TrackTap.DataLibrary.Data.SchoolSubModule(item.Id);
+                        var mainDetails = new TrackTap.Data.SchoolSubModule(item.Id);
                         var sub = _Entities.tb_UserModuleDetails.Create();
                         sub.UserModuleId = main.Id;
                         sub.MainId = mainDetails.MainId;
@@ -234,12 +234,12 @@ namespace TrackTap.Controllers
             long schoolId = Convert.ToInt64(splitData[1]);
             if (IsTeacher == 0)//Staff
             {
-                var result = TrackTap.DataLibrary.Data.DropdownData.GetAllStaffUserTypesData(schoolId);
+                var result = TrackTap.Data.DropdownData.GetAllStaffUserTypesData(schoolId);
                 return Json(new { status = result.Count > 0, list = result }, JsonRequestBehavior.AllowGet);
             }
             else // Teacher
             {
-                var result = TrackTap.DataLibrary.Data.DropdownData.GetAllTeacherUserTypeData(schoolId);
+                var result = TrackTap.Data.DropdownData.GetAllTeacherUserTypeData(schoolId);
                 return Json(new { status = result.Count > 0, list = result }, JsonRequestBehavior.AllowGet);
             }
         }
@@ -291,7 +291,7 @@ namespace TrackTap.Controllers
 
             foreach (var item in model.subListOnly)
             {
-                var mainDetails = new TrackTap.DataLibrary.Data.SchoolSubModule(item.Id);
+                var mainDetails = new TrackTap.Data.SchoolSubModule(item.Id);
                 var addData = _Entities.tb_UserModuleDetails.Create();
                 addData.UserModuleId = model.UserTypeId;
                 addData.MainId = mainDetails.MainId;

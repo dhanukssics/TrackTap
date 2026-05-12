@@ -1,8 +1,8 @@
 ﻿@model TrackTap.Models.AddDayBookModel
 @{
     DateTime date = Model.EntryDate;
-    var balanceHead = new TrackTap.DataLibrary.Data.School(Model.SchoolId).CurrentStatus();
-    var schoolDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId);
+    var balanceHead = new TrackTap.Data.School(Model.SchoolId).CurrentStatus();
+    var schoolDetails = new TrackTap.Data.School(Model.SchoolId);
     var filePath = "http://www.schoolman.in" + schoolDetails.FilePath;
 }
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

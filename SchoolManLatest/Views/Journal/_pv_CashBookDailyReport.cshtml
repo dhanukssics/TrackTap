@@ -5,7 +5,7 @@
     DateTime startDate = Model.startDate;
     DateTime endDate = Model.endDate;
     long schoolId = Model.SchoolId;
-    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var school = new TrackTap.Data.School(schoolId);
     var data = school.GetCashBookDailyReportDate(startDate, endDate).OrderBy(z=>z.EntryDate).ToList().GroupBy(z => z.EntryDate).ToList();
     var pre = school.GetCashBookStatus(startDate, endDate);
 }

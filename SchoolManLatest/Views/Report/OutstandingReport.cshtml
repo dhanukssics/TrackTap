@@ -14,7 +14,7 @@
                 <div class="form-group">
                     <label>Academic Year : </label>
                     <br />
-                    @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.DataLibrary.Data.DropdownData.GetOtherAcademicYear(), "All", new { @class = "form-control slct-academic-year-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                    @Html.DropDownListFor(m => m.AcademicYearId, TrackTap.Data.DropdownData.GetOtherAcademicYear(), "All", new { @class = "form-control slct-academic-year-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                     @Html.ValidationMessageFor(z => z.AcademicYearId)
                 </div>
             </div>
@@ -36,7 +36,7 @@
                 <div class="form-group">
                     <label>Fees : </label>
                     <br />
-                    @Html.DropDownListFor(m => m.FeeId, TrackTap.DataLibrary.Data.DropdownData.GetFeeses(Model.SchoolId), "All", new { @class = "form-control slct-fee-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                    @Html.DropDownListFor(m => m.FeeId, TrackTap.Data.DropdownData.GetFeeses(Model.SchoolId), "All", new { @class = "form-control slct-fee-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                     @Html.ValidationMessageFor(z => z.FeeId)
                 </div>
             </div>

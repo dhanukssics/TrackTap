@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TrackTap.ClassLibrary;
 
-namespace TrackTap.DataLibrary.Data
+namespace TrackTap.Data
 {
     public class DropdownData
     {

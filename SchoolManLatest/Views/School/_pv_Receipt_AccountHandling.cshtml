@@ -3,7 +3,7 @@
     DateTime startDate = Model.FromDate;
     DateTime endDate = Model.EndDate;
     long schoolId = Model.SchoolId;
-    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var school = new TrackTap.Data.School(schoolId);
     var list = school.DayBookReportDetailsCollectionReciept(startDate, endDate);
     string schoolName = school.SchoolName;
     string heading = "RECEIPT";

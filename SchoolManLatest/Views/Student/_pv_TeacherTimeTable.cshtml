@@ -3,8 +3,8 @@
 @model TrackTap.Models.SchoolModel
 @{
     var subject = "";
-    var timeTable = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetMyTimetable(Model.userId);
-    var subjects = new TrackTap.DataLibrary.Data.School(Model.schoolId).GetAllSubjects();
+    var timeTable = new TrackTap.Data.School(Model.schoolId).GetMyTimetable(Model.userId);
+    var subjects = new TrackTap.Data.School(Model.schoolId).GetAllSubjects();
 }
 
 

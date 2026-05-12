@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 
 
-namespace TrackTap.DataLibrary.Data
+namespace TrackTap.Data
 {
     public class PushService : BaseReference
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackTap.DataLibrary.Data
+namespace TrackTap.Data
 {
     public class Payment : BaseReference
     {

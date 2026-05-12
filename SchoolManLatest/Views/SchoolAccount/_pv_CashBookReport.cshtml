@@ -5,7 +5,7 @@
     DateTime startDate = Model.FromDate;
     DateTime endDate = Model.ToDate;
     long schoolId = Model.SchoolId;
-    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var school = new TrackTap.Data.School(schoolId);
     var data = school.GetCashBookReport(startDate, endDate, schoolId).ToList();
     string schoolName = Model.SchoolName;
     string heading = Model.Heading;

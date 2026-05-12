@@ -21,13 +21,13 @@
                     <div class="form-group">
                         <label style="color:black;">Teacher : </label>
                         <br />
-                        @Html.DropDownListFor(m => m.TeacherId, TrackTap.DataLibrary.Data.DropdownData.GetTeachers(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                        @Html.DropDownListFor(m => m.TeacherId, TrackTap.Data.DropdownData.GetTeachers(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                         @Html.ValidationMessageFor(z => z.TeacherId)
                     </div>
                     <div class="form-group">
                         <label style="color:black;">Subject : </label>
                         <br />
-                        @Html.DropDownListFor(m => m.SubjectId, TrackTap.DataLibrary.Data.DropdownData.GetSubjectss(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                        @Html.DropDownListFor(m => m.SubjectId, TrackTap.Data.DropdownData.GetSubjectss(Model.SchoolId), new { @class = "form-control", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                         @Html.ValidationMessageFor(z => z.SubjectId)
                     </div>
                     <div class="form-group">

@@ -42,7 +42,7 @@
                 <div class="row">
                     <div class="form-group col-sm-4 ">
                         <label>Class</label>
-                        @Html.DropDownListFor(m => m.classId, TrackTap.DataLibrary.Data.DropdownData.GetClasses(Model.schoolId), "--Choose--", new { @class = "form-control class-drop-down", @data_live_search = "true" })
+                        @Html.DropDownListFor(m => m.classId, TrackTap.Data.DropdownData.GetClasses(Model.schoolId), "--Choose--", new { @class = "form-control class-drop-down", @data_live_search = "true" })
                     </div>
                     <div class="form-group col-sm-4 ">
                         <label>Division</label>
@@ -87,7 +87,7 @@
                     <label>Class</label>
                     <br />
                     @*<input class="form-control" placeholder="Class" type="text" />*@
-                    @Html.DropDownListFor(m => m.className, TrackTap.DataLibrary.Data.DropdownData.GetUnPublishedClasses(Model.schoolId), "--Choose--",  new { @class = "form-control slct-class-dropdwn-2", @data_live_search = "true", @Value="0"})
+                    @Html.DropDownListFor(m => m.className, TrackTap.Data.DropdownData.GetUnPublishedClasses(Model.schoolId), "--Choose--",  new { @class = "form-control slct-class-dropdwn-2", @data_live_search = "true", @Value="0"})
 
 
                 </div>

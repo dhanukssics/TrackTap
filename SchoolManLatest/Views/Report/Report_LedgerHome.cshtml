@@ -23,7 +23,7 @@
     <div class="form-group col-sm-2">
         <label>Account Head</label>
         <div class="with-icon">
-            @*@Html.DropDownListFor(m => m.HeadId, TrackTap.DataLibrary.Data.DropdownData.GetAccountHeadsWithFeeHead(Model.SchoolId), "-- All --", new { @class = "form-control accHead-drop-down", @data_live_search = "true", name = "classDropdown", id = "day-book-head-id" })*@
+            @*@Html.DropDownListFor(m => m.HeadId, TrackTap.Data.DropdownData.GetAccountHeadsWithFeeHead(Model.SchoolId), "-- All --", new { @class = "form-control accHead-drop-down", @data_live_search = "true", name = "classDropdown", id = "day-book-head-id" })*@
             @Html.DropDownListFor(m => m.HeadId, (IEnumerable<SelectListItem>)ViewBag.store, "--Choose--", new { @class = "form-control accHead-drop-down",  name = "classDropdown", id = "day-book-head-id" })
          </div>
     </div>

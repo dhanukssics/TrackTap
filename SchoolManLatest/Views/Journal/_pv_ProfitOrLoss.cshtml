@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.AddDayBookModel
 @{
-    var amount = new TrackTap.DataLibrary.Data.School(Model.SchoolId).CurrentStatus();
+    var amount = new TrackTap.Data.School(Model.SchoolId).CurrentStatus();
 }
 
 <div class="form-group gap_bottom">

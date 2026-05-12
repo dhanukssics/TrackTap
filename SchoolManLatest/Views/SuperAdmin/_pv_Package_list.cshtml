@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.SmsPackageModels
 
 @{
-    var package = new TrackTap.DataLibrary.Data.Admin().GetSmsPackageBySchoolId(Model.SchoolId);
+    var package = new TrackTap.Data.Admin().GetSmsPackageBySchoolId(Model.SchoolId);
 }
 
 

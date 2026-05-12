@@ -23,7 +23,7 @@
         @{
             var index = 1;
         }
-        @foreach (var student in new TrackTap.DataLibrary.Data.School(Model.schoolId).GetPublishedClassStudentDetails().OrderBy(z => z.StundentName))
+        @foreach (var student in new TrackTap.Data.School(Model.schoolId).GetPublishedClassStudentDetails().OrderBy(z => z.StundentName))
         {
             <tr class="ng-click" data-id="@student.StudentId">
                 <td>

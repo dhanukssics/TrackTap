@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.LoginModel
 @{
-    var staffs = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetStaffDetails();
-    var staff1 = new TrackTap.DataLibrary.Data.School(Model.SchoolId);
+    var staffs = new TrackTap.Data.School(Model.SchoolId).GetStaffDetails();
+    var staff1 = new TrackTap.Data.School(Model.SchoolId);
     var WagesShowsSettings = staff1.GetCurrentStatusOfWagesEmployees();
 
 }
@@ -42,7 +42,7 @@
             int i = 1;
             foreach (var staff in staffs)
             {                
-                var staffMain = new TrackTap.DataLibrary.Data.School(Model.SchoolId).Staff(staff.UserId);
+                var staffMain = new TrackTap.Data.School(Model.SchoolId).Staff(staff.UserId);
 
                 if(staffMain.IsPermanent == true || staffMain.IsPermanent == null)
                 { 
@@ -96,7 +96,7 @@
             int i = 1;
             foreach (var staff in staffs)
             {
-                var staffMain = new TrackTap.DataLibrary.Data.School(Model.SchoolId).Staff(staff.UserId);
+                var staffMain = new TrackTap.Data.School(Model.SchoolId).Staff(staff.UserId);
                                 
                     <tr style="cursor: pointer !important;">
                         <td class="ng-StaffDetails-click" data-staffid="@staffMain.StaffId">

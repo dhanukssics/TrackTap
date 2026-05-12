@@ -1,11 +1,11 @@
 ﻿@model TrackTap.Models.OutstandingReportModel
 @using System.Threading.Tasks;
 @{
-    // var data = await Task.Run(() => TrackTap.DataLibrary.Data.School(Model.SchoolId).GetOutStandingData_new(Model.ClassId, Model.DivisionId, Model.FeeId, Model.FromDate, Model.ToDate).ToList());
+    // var data = await Task.Run(() => TrackTap.Data.School(Model.SchoolId).GetOutStandingData_new(Model.ClassId, Model.DivisionId, Model.FeeId, Model.FromDate, Model.ToDate).ToList());
 
-    // var data = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetOutStandingData(Model.ClassId, Model.DivisionId, Model.FeeId, Model.FromDate, Model.ToDate).ToList();
+    // var data = new TrackTap.Data.School(Model.SchoolId).GetOutStandingData(Model.ClassId, Model.DivisionId, Model.FeeId, Model.FromDate, Model.ToDate).ToList();
 
-    var data = (List<TrackTap.DataLibrary.Data.OutstandingReportMainModel>) Session["datalists"];
+    var data = (List<TrackTap.Data.OutstandingReportMainModel>) Session["datalists"];
 
 
 

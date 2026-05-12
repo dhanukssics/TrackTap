@@ -14,9 +14,9 @@
         <tbody>
             @{
 
-                List<TrackTap.DataLibrary.Data.StockSales> PurchaseDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
-                //  var PurchaseDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
-                //  var PurchaseDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
+                List<TrackTap.Data.StockSales> PurchaseDetails = new TrackTap.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
+                //  var PurchaseDetails = new TrackTap.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
+                //  var PurchaseDetails = new TrackTap.Data.School(Model.SchoolId).GetCollectionByDate(Model.StartDate, Model.EndDate);
                 var index = 1;
 
                 var total = PurchaseDetails.Sum(x => x.Price);

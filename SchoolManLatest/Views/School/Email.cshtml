@@ -2,11 +2,11 @@
 @{
     ViewBag.Title = "Email";
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
-    var classModel = new TrackTap.ClassLibrary.PostModel.SchoolClassListPostModel();
+    var classModel = new TrackTap.PostModel.SchoolClassListPostModel();
     classModel.schoolId = Convert.ToString(Model.SchoolId);
-    var DivModel = new TrackTap.ClassLibrary.PostModel.SchoolDivisionListPostModel();
+    var DivModel = new TrackTap.PostModel.SchoolDivisionListPostModel();
     DivModel.schoolId = Convert.ToString(Model.SchoolId);
-    var StudentModel = new TrackTap.ClassLibrary.PostModel.SchoolFullStudentListPostModel();
+    var StudentModel = new TrackTap.PostModel.SchoolFullStudentListPostModel();
     StudentModel.schoolId = Convert.ToString(Model.SchoolId);
     var ClassResult = new TrackTap.Repository.SchoolRepository().FullClassList(classModel);
     var ClassList = ClassResult.Item3;

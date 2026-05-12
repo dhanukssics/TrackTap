@@ -1,9 +1,9 @@
 ﻿
 @model TrackTap.Models.BankStatementModel
 @{
-    //decimal closing = new TrackTap.DataLibrary.Data.School(Model.SchoolId).CurrentBankBalance(Model.StartDate, Model.EndDate);
-    var bankStatement = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetBankStatementList(Model.StartDate, Model.EndDate, Model.BankId);
-    Tuple<decimal, int, int, decimal, decimal> statement = new TrackTap.DataLibrary.Data.School(Model.SchoolId).Statements(Model.StartDate, Model.EndDate, Model.BankId);
+    //decimal closing = new TrackTap.Data.School(Model.SchoolId).CurrentBankBalance(Model.StartDate, Model.EndDate);
+    var bankStatement = new TrackTap.Data.School(Model.SchoolId).GetBankStatementList(Model.StartDate, Model.EndDate, Model.BankId);
+    Tuple<decimal, int, int, decimal, decimal> statement = new TrackTap.Data.School(Model.SchoolId).Statements(Model.StartDate, Model.EndDate, Model.BankId);
     decimal open = statement.Item1;
     decimal currentOpen= statement.Item1;
 }

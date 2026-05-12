@@ -40,7 +40,7 @@
                         <div class="form-group">
                             <label>Category : </label>
                             <br />
-                            @Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetLabCategoriesAll(), "   All   ", new { @class = "form-control slct-lab-category-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
+                            @Html.DropDownListFor(m => m.CategoryId, TrackTap.Data.DropdownData.GetLabCategoriesAll(), "   All   ", new { @class = "form-control slct-lab-category-dropdwn1", @data_live_search = "true", @style = "display:inline-block; width:100%;min-width:180px;" })
                             @Html.ValidationMessageFor(z => z.CategoryId)
                         </div>
                     </div>

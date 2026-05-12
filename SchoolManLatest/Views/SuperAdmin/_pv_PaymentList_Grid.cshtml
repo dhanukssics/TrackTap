@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.SchoolModel
 @{ 
-    var paymentList = new TrackTap.DataLibrary.Data.Admin().GetPaymentList(Model.schoolId, Model.month, Model.year, Model.opr);
+    var paymentList = new TrackTap.Data.Admin().GetPaymentList(Model.schoolId, Model.month, Model.year, Model.opr);
 }
 
 <div class="table-responsive">

@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.StockUpdateModel
 @{
-    var stockList = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetCurrentPurchaseReport(Model.CategoryId);
+    var stockList = new TrackTap.Data.School(Model.SchoolId).GetCurrentPurchaseReport(Model.CategoryId);
 
     
 }

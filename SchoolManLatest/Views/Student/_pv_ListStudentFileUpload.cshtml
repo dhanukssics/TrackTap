@@ -1,7 +1,7 @@
 ﻿
 @model TrackTap.Models.StudentFileUploadModel
 @{
-    var Files = new TrackTap.DataLibrary.Data.Student(Model.StudentId).StudentFiles();
+    var Files = new TrackTap.Data.Student(Model.StudentId).StudentFiles();
 }
 <thead>
     <tr>

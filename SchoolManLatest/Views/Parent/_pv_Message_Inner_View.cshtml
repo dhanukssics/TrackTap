@@ -1,8 +1,8 @@
-﻿@model TrackTap.ClassLibrary.MapModel.ParentTeacherConversationMapModel
+﻿@model TrackTap.MapModel.ParentTeacherConversationMapModel
 
 @{
 
-    var messages = new TrackTap.DataLibrary.Data.Admin().ParentTeacherConversation(Model.StudentId, Model.start, Model.length);
+    var messages = new TrackTap.Data.Admin().ParentTeacherConversation(Model.StudentId, Model.start, Model.length);
     var c = Model.StudentId;
     var divIdDyn = "msgDiv-conver-"+ Model.length;
 }

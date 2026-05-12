@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.AttendanceModels
 @{
-    var studentList = new TrackTap.DataLibrary.Data.Teacher(Model.SchoolId).GetTeacherDetails(Model.SchoolId);
+    var studentList = new TrackTap.Data.Teacher(Model.SchoolId).GetTeacherDetails(Model.SchoolId);
     var studentCount = studentList.Count();
 }
 <style>

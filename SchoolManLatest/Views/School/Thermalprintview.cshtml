@@ -1,13 +1,13 @@
 ﻿@model TrackTap.Models.FeeModel
 @{
-    //var historyBills = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId).GetHistoryTableByDate(Model.TimeStamp);
-    var student = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId);
+    //var historyBills = new TrackTap.Data.Student(Model.SchoolModel.studentId).GetHistoryTableByDate(Model.TimeStamp);
+    var student = new TrackTap.Data.Student(Model.SchoolModel.studentId);
     var studentData = student.GetStudentData();
     //var historyBills = student.GetHistoryTableByBillNo(Model.BillNumber);
     var studentPaidFee = student.StudentPaidAmountByBillNo(Model.BillNumber);
     int s = Convert.ToInt32(Session["UserType"]);
     Session["studentid"] = student.StudentId;
-    List<TrackTap.DataLibrary.Data.Payment> paymentList = student.GetStudentPaidFeesByBillNo(Model.BillNumber);
+    List<TrackTap.Data.Payment> paymentList = student.GetStudentPaidFeesByBillNo(Model.BillNumber);
     var totalAmount = paymentList.Sum(z => z.Amount);
     DateTime paymentDate = paymentList[0].TimeStamp;
     int index = 1;

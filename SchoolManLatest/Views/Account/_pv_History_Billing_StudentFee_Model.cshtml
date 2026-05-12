@@ -1,6 +1,6 @@
 ﻿@{
-    //var historyDates = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId).GetHistoryGroupByStudentId().OrderBy(z => z.Date).ToList();
-    var historyBillNo = new TrackTap.DataLibrary.Data.Student(Model.SchoolModel.studentId).GetBillHistory().OrderBy(z => z.BillNo).ToList();
+    //var historyDates = new TrackTap.Data.Student(Model.SchoolModel.studentId).GetHistoryGroupByStudentId().OrderBy(z => z.Date).ToList();
+    var historyBillNo = new TrackTap.Data.Student(Model.SchoolModel.studentId).GetBillHistory().OrderBy(z => z.BillNo).ToList();
     int status = 0;
     if (historyBillNo.Count > 0)
     {

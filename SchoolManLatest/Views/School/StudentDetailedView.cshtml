@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "StudentDetailedView";
     Layout = "~/Views/Shared/_SchoolAdminLayout.cshtml";
-    var examDetails = new TrackTap.DataLibrary.Data.WebsiteService().GetFullMarkData(Model.classId, Model.divisionId).ToList();
+    var examDetails = new TrackTap.Data.WebsiteService().GetFullMarkData(Model.classId, Model.divisionId).ToList();
 }
 @Html.HiddenFor(m => m.studentId, new { id = "student_Id" })
 @{var dataa = "No Details";}
@@ -84,7 +84,7 @@
             <div class="term_all">
                 @foreach (var item in examDetails)
                 {
-                    var data = new TrackTap.DataLibrary.Data.WebsiteService().GetStudentMarks(item.ExamId, Model.studentId).ToList();
+                    var data = new TrackTap.Data.WebsiteService().GetStudentMarks(item.ExamId, Model.studentId).ToList();
                         <div class="term_single">
                             <div class="term_heading">
                                 <span>@item.ExamName</span>

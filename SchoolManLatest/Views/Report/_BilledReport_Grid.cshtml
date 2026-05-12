@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.FeeModel
 @{
-    var data = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetBilledData(Model.StartDate, Model.EndDate).ToList();
+    var data = new TrackTap.Data.School(Model.SchoolId).GetBilledData(Model.StartDate, Model.EndDate).ToList();
 
 }
 <style>

@@ -1,7 +1,7 @@
 ﻿@model TrackTap.Models.TeacherEditModel
 @{
-    var teacher = new TrackTap.DataLibrary.Data.Teacher(Model.teacherId);
-    var salary = new TrackTap.DataLibrary.Data.School(Model.schoolId).SalaryTypeStatus();
+    var teacher = new TrackTap.Data.Teacher(Model.teacherId);
+    var salary = new TrackTap.Data.School(Model.schoolId).SalaryTypeStatus();
     if (teacher != null)
     {
         if (teacher.TeacherClass.Count > 0)
@@ -107,7 +107,7 @@
                         <label>Class</label>
                         <select class="form-control slct-teacherclass-dropdwn textBoxShade">
                             <option value="0">--Choose--</option>
-                            @foreach (var item in new TrackTap.DataLibrary.Data.DropdownData().GetFreeTeacherClasses(Model.schoolId, Model.teacherId))
+                            @foreach (var item in new TrackTap.Data.DropdownData().GetFreeTeacherClasses(Model.schoolId, Model.teacherId))
                             {
                                 <option value="@item.Value" @(Model.classId == item.Value ? "selected" : "")>@item.Text</option>
                             }
@@ -117,7 +117,7 @@
                         <label>Division</label>
                         <select class="form-control slct-free-div-dropdown textBoxShade">
                             <option value="0">--Choose--</option>
-                            @foreach (var item in new TrackTap.DataLibrary.Data.DropdownData().GetFreeTeacherDivision(Model.classId, Model.teacherId))
+                            @foreach (var item in new TrackTap.Data.DropdownData().GetFreeTeacherDivision(Model.classId, Model.teacherId))
                             {
                                 <option value="@item.Value" @(Model.divisionId == item.Value ? "selected" : "")>@item.Text</option>
                             }
@@ -143,7 +143,7 @@
                 <div class="row col-lg-12">
                     <div class="form-group col-lg-6">
                         <label>User Type</label>
-                        @Html.DropDownListFor(m => m.UserTypeId, new TrackTap.DataLibrary.Data.DropdownData().GetAllTeacherUserTypeDataAdd(Model.schoolId), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
+                        @Html.DropDownListFor(m => m.UserTypeId, new TrackTap.Data.DropdownData().GetAllTeacherUserTypeDataAdd(Model.schoolId), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
                     </div>
                     <div class="form-group col-lg-6">
                         <label>DOJ</label>

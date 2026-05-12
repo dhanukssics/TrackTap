@@ -59,7 +59,7 @@
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label>Class</label>
-                            @Html.DropDownListFor(m => m.classId, new TrackTap.DataLibrary.Data.DropdownData().GetFreeClasses(Model.schoolId), "--Choose--", new { @class = "form-control slct-teacherclass-dropdwn textBoxShade", @data_live_search = "true" })
+                            @Html.DropDownListFor(m => m.classId, new TrackTap.Data.DropdownData().GetFreeClasses(Model.schoolId), "--Choose--", new { @class = "form-control slct-teacherclass-dropdwn textBoxShade", @data_live_search = "true" })
                         </div>
                     </div>
                     <div class="col-sm-3">
@@ -88,7 +88,7 @@
                 <div class="row col-lg-12">
                     <div class="form-group col-lg-6">
                         <label>User Type</label>
-                        @Html.DropDownListFor(m => m.UserTypeId, new TrackTap.DataLibrary.Data.DropdownData().GetAllTeacherUserTypeDataAdd(Model.schoolId), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
+                        @Html.DropDownListFor(m => m.UserTypeId, new TrackTap.Data.DropdownData().GetAllTeacherUserTypeDataAdd(Model.schoolId), "--Choose--", new { @class = "form-control", @data_live_search = "true" })
                     </div>
                     <div class="form-group col-lg-6">
                         <label>DOJ</label>

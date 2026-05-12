@@ -1,6 +1,6 @@
 ﻿@model TrackTap.Models.TimetableModel
 @{
-    var timeTable = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetTimetable(Model.ClassId, Model.DivisonId);
+    var timeTable = new TrackTap.Data.School(Model.SchoolId).GetTimetable(Model.ClassId, Model.DivisonId);
 }
 
 

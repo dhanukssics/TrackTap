@@ -119,7 +119,7 @@ namespace TrackTap.Controllers
             long divisionId = Convert.ToInt64(model.divisionId);
             int shiftStatus = model.shiftStatus;
             DateTime attendancedate = Convert.ToDateTime(model.attendanceDate);
-            var classDetails = new TrackTap.DataLibrary.Data.Division(divisionId);
+            var classDetails = new TrackTap.Data.Division(divisionId);
             try
             {
 
@@ -196,7 +196,7 @@ namespace TrackTap.Controllers
             //long divisionId = Convert.ToInt64(model.divisionId);
             int shiftStatus = model.shiftStatus;
             DateTime attendancedate = Convert.ToDateTime(model.attendanceDate);
-            //var classDetails = new TrackTap.DataLibrary.Data.Division(divisionId);
+            //var classDetails = new TrackTap.Data.Division(divisionId);
             try
             {
 
@@ -247,7 +247,7 @@ namespace TrackTap.Controllers
         {
             try
             {
-                var classDetails = new TrackTap.DataLibrary.Data.Division(divisionId);
+                var classDetails = new TrackTap.Data.Division(divisionId);
                 long headId = 0;
                 bool status = false;
                 string msg = "Failed";

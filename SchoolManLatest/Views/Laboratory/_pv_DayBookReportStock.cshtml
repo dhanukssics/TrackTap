@@ -4,12 +4,12 @@
     DateTime startDate = Model.FromDate;
     DateTime endDate = Model.ToDate;
     long schoolId = Model.SchoolId;
-    var school = new TrackTap.DataLibrary.Data.School(schoolId);
+    var school = new TrackTap.Data.School(schoolId);
     //  var list = school.GetDayBookReportStock(startDate, endDate, schoolId).ToList();
     string schoolName = Model.SchoolName;
     string heading = Model.Heading;
 
-    bool ishideaccount = new TrackTap.DataLibrary.Data.School(schoolId).GetAccountHide();
+    bool ishideaccount = new TrackTap.Data.School(schoolId).GetAccountHide();
     if (school != null)
     {
         // var list = school.DayBookReportDetailsCollectionAfterHide(startDate, endDate);

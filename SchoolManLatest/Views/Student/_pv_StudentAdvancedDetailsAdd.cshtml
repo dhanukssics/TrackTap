@@ -160,13 +160,13 @@
                 <label>Religion</label>
             </div>
             <div class="col-md-3">
-                @Html.DropDownListFor(m => m.ReligionId, TrackTap.DataLibrary.Data.DropdownData.GetAllReligions(), "--Choose--", new { @class = "form-control textboxStyle eumDropStyle" })
+                @Html.DropDownListFor(m => m.ReligionId, TrackTap.Data.DropdownData.GetAllReligions(), "--Choose--", new { @class = "form-control textboxStyle eumDropStyle" })
             </div>
             <div class="col-md-1">
                 <label>Category</label>
             </div>
             <div class="col-md-3">
-                @Html.DropDownListFor(m => m.CategoryId, TrackTap.DataLibrary.Data.DropdownData.GetAllCategories(), "--Choose--", new { @class = "form-control textboxStyle eumDropStyle" })
+                @Html.DropDownListFor(m => m.CategoryId, TrackTap.Data.DropdownData.GetAllCategories(), "--Choose--", new { @class = "form-control textboxStyle eumDropStyle" })
             </div>
             <div class="col-md-1">
                 <label>Caste</label>

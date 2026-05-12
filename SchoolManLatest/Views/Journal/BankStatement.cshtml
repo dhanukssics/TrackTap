@@ -30,7 +30,7 @@
         <div class="with-icon">
             @*<input type="text" class="form-control bank-statement-end-date date-bank-statement" data-date-end-date="0d" value="@Model.EndDate.ToString("dd-MM-yyyy")">
             <i class="fa fa-calendar"></i>*@
-            @Html.DropDownListFor(m => m.BankId, TrackTap.DataLibrary.Data.DropdownData.GetBankLists(Model.SchoolId), "All", new { @class = "form-control accHead-drop-down", id = "day-bank-Name-id" })
+            @Html.DropDownListFor(m => m.BankId, TrackTap.Data.DropdownData.GetBankLists(Model.SchoolId), "All", new { @class = "form-control accHead-drop-down", id = "day-bank-Name-id" })
         </div>
     </div>
     <div class="col-sm-2 col-md-2" style="margin-top: 26px;">

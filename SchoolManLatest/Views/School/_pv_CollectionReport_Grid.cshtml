@@ -12,7 +12,7 @@
     </thead>
     <tbody>
         @{
-            var billDetails = new TrackTap.DataLibrary.Data.School(Model.SchoolId).GetReportDailyByDate(Model.StartDate, Model.EndDate);
+            var billDetails = new TrackTap.Data.School(Model.SchoolId).GetReportDailyByDate(Model.StartDate, Model.EndDate);
             var index = 1;
             decimal totAmt = 0;
         }
