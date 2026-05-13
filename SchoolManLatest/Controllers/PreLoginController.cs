@@ -1,69 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Microsoft.AspNetCore.Mvc;
-using TrackTap.ClassLibrary;
-using TrackTap.DataLibrary;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using TrackTap.Models;
 using TrackTap.Repository;
 
 namespace TrackTap.Controllers
 {
     public class PreLoginController : Controller
     {
-        public DateTime CurrentTime = TimeZoneInfo.ConvertTimeFromUtc(System.DateTime.Now.ToUniversalTime(), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time"));
-        public tb_tracktapEntities _Entities = new tb_tracktapEntities();
-        public tb_Login _user = new tb_Login();
-        public tb_Parent _parentUser = new tb_Parent();
+        protected readonly SchoolDbContext _context;
 
-        public SchoolRepository _schoolRepository = new SchoolRepository();
-        public ParentRepository _parentRepository = new ParentRepository();
-        //public tb_School _schooluser;
-        //public tb_Parent _parentUer;
-        //protected override void OnActionExecuting(ActionExecutingContext filterContext)
-        //{
-        //    if (User != null && User.Identity.IsAuthenticated)
-        //    {
-        //        if (Session["School"] == null)
-        //        {
-        //            var userId = long.Parse(User.Identity.Name);
-        //            var user = _schoolRepository.getUserById(userId);
-        //            Session["School"] = user;
-        //        }
-        //        _schooluser = (TrackTap.DataLibrary.tb_School)Session["School"];
+        protected readonly SchoolRepository _schoolRepository;
 
-        //        filterContext.Result = new RedirectResult("/School/Home", true);
-        //        return;
-        //    }
-        //}
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        protected readonly ParentRepository _parentRepository;
+
+        public DateTime CurrentTime =>
+            TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById(
+                    "India Standard Time"));
+
+        public TbLogin _user = new TbLogin();
+
+        public TbParent _parentUser = new TbParent();
+
+        public PreLoginController(
+            SchoolDbContext context,
+            SchoolRepository schoolRepository,
+            ParentRepository parentRepository)
         {
-            if (User != null && User.Identity.IsAuthenticated)
+            _context = context;
+
+            _schoolRepository = schoolRepository;
+
+            _parentRepository = parentRepository;
+        }
+
+        public override void OnActionExecuting(
+            ActionExecutingContext context)
+        {
+            if (User.Identity != null &&
+                User.Identity.IsAuthenticated)
             {
-                if (Request.Cookies["UserType"] != null)
+                var userType =
+                    Request.Cookies["UserType"];
+
+                if (!string.IsNullOrEmpty(userType))
                 {
-                    long userType = Convert.ToInt16(Server.HtmlEncode(Request.Cookies["UserType"].Value));
+                    long parsedUserType =
+                        Convert.ToInt64(userType);
 
-                    //if (Session["User"] == null)
-                    //{
-                    //    var userId = long.Parse(User.Identity.Name);
-                    //    var user = _Entities.tb_Login.Where(x => x.UserId == userId).FirstOrDefault();
-                    //    Session["User"] = user;
-                    //}
-                    //_user = (TrackTap.DataLibrary.tb_Login)Session["User"];
+                    if (parsedUserType ==
+                        (int)UserRole.School)
+                    {
+                        context.Result =
+                            Redirect("/School/Home");
+                    }
+                    else if (parsedUserType ==
+                        (int)UserRole.Staff)
+                    {
+                        context.Result =
+                            Redirect("/School/Home");
+                    }
+                    else if (parsedUserType ==
+                        (int)UserRole.Teacher)
+                    {
+                        context.Result =
+                            Redirect("/School/Home");
+                    }
+                    else if (parsedUserType ==
+                        (int)UserRole.Parent)
+                    {
+                        context.Result =
+                            Redirect("/Parent/Home");
+                    }
 
-                    if (userType == (int)UserRole.School)
-                        filterContext.Result = new RedirectResult("/School/Home");
-                    else if (userType == (int)UserRole.Staff)
-                        filterContext.Result = new RedirectResult("/School/Home");
-                    else if (userType == (int)UserRole.Teacher)
-                        filterContext.Result = new RedirectResult("/School/Home");
-                    else if (userType == (int)UserRole.Parent)
-                        filterContext.Result = new RedirectResult("/Parent/Home");
                     return;
                 }
             }
+
+            base.OnActionExecuting(context);
         }
     }
 }
-

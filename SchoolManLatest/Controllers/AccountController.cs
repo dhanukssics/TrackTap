@@ -1,29 +1,26 @@
-﻿using CCA.Util;
+﻿using Azure.Core;
+using CCA.Util;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+
 using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
+
 using System.Net;
 using System.Net.Mail;
 using System.Security.Claims;
-using System.Web;
-using System.Web.Routing;
-using System.Web.Script.Serialization;
-using System.Web.Security;
+using System.Text.Json;
+
 using System.Xml.Linq;
 using TrackTap.ClassLibrary;
-using TrackTap.PostModel;
 using TrackTap.ClassLibrary.Utility;
-using TrackTap.DataLibrary;
 using TrackTap.Data;
 using TrackTap.Helper;
 using TrackTap.Models;
-using TrackTap.Models;
+
+using TrackTap.PostModel;
+using TrackTap.Repository;
 
 
 //using CCA.Util;
@@ -37,12 +34,14 @@ namespace TrackTap.Controllers
         // GET: /Account/
         public DateTime currentTime = DateTime.UtcNow;
         private readonly SchoolDbContext _Entities;
+        private readonly SchoolRepository _schoolRepository;
         private readonly IWebHostEnvironment _environment;
 
-        public AccountController(SchoolDbContext Entities, IWebHostEnvironment environment)
+        public AccountController(SchoolDbContext Entities, IWebHostEnvironment environment, SchoolRepository schoolRepository)
         {
             _Entities = Entities;
             _environment = environment;
+            _schoolRepository = schoolRepository;
         }
         public IActionResult LoginPage()
         {
@@ -650,30 +649,42 @@ namespace TrackTap.Controllers
                 Message = message
             });
         }
-        private async Task SendMailAsync(string subject,string body,string toEmail)
+        private async Task<bool> SendMailAsync(string subject,string body,string toEmail)
         {
-            using var message = new MailMessage();
+            try
+            {
+                using var message = new MailMessage();
 
-            message.Subject = subject;
-            message.Body = body;
-            message.IsBodyHtml = true;
+                message.Subject = subject;
 
-            message.To.Add(toEmail);
+                message.Body = body;
 
-            message.From = new MailAddress(
-                "info.schoolman@gmail.com");
+                message.IsBodyHtml = true;
 
-            using var smtp = new SmtpClient(
-                "smtp.gmail.com",
-                587);
+                message.To.Add(toEmail);
 
-            smtp.Credentials = new NetworkCredential(
-                "info.schoolman@gmail.com",
-                "password");
+                message.From = new MailAddress(
+                    "info@gmail.com");
 
-            smtp.EnableSsl = true;
+                using var smtp = new SmtpClient(
+                    "smtp.gmail.com",
+                    587);
 
-            await smtp.SendMailAsync(message);
+                smtp.Credentials =
+                    new NetworkCredential(
+                        "info@gmail.com",
+                        "password");
+
+                smtp.EnableSsl = true;
+
+                await smtp.SendMailAsync(message);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         public IActionResult SearchAdmission(string id)
         {
@@ -785,597 +796,1017 @@ namespace TrackTap.Controllers
         }
 
 
-        [HttpPost]
-        public object StudentMainBillPay(FeeModel model)
-        {
-            decimal sumAmt = 0;
-            bool status = false;
-            string message = "Failed";
-            List<string> feeDetails = model.FeeDetails.Split(',').ToList();
-            long SchoolId = model.SchoolId;
-            long ClassId = model.ClassId;
-            long StudentId = model.StudentId;
-            DateTime BillDate = CurrentTime;
-            decimal TotalAmountPaid = 0;
-            if (model.PaidAmount != 0)
-            {
-                TotalAmountPaid = Convert.ToDecimal(model.PaidAmount);
+   
+    [HttpPost]
+    public async Task<IActionResult> StudentMainBillPay(FeeModel model)
+    {
+        decimal sumAmt = 0;
 
-            }
-            Guid PaymentGuid = Guid.NewGuid(); // To find same bill elements
-            long BillNo = 1;
-            var payment = new tb_Payment();
-            var billNo = _Entities.tb_PaymentBillNo.Where(z => z.SchoolId == SchoolId).FirstOrDefault();
-            if (billNo != null)
+        bool status = false;
+
+        string message = "Failed";
+
+        List<string> feeDetails = model.FeeDetails.Split(',').ToList();
+
+        long SchoolId = model.SchoolId;
+
+        long ClassId = model.ClassId;
+
+        long StudentId = model.StudentId;
+
+        DateTime BillDate = DateTime.UtcNow;
+
+        decimal TotalAmountPaid = 0;
+
+        if (model.PaidAmount != 0)
+        {
+            TotalAmountPaid = Convert.ToDecimal(model.PaidAmount);
+        }
+
+        Guid PaymentGuid = Guid.NewGuid();
+
+        long BillNo = 1;
+
+        var billNo = await _Entities.TbPaymentBillNos
+            .FirstOrDefaultAsync(z => z.SchoolId == SchoolId);
+
+        if (billNo != null)
+        {
+            BillNo = billNo.BillNo + 1;
+        }
+        else
+        {
+            var slNoTable = new TbPaymentBillNo
             {
-                BillNo = billNo.BillNo + 1;
+                SchoolId = SchoolId,
+                BillNo = 1
+            };
+
+            await _Entities.TbPaymentBillNos.AddAsync(slNoTable);
+
+            status = await _Entities.SaveChangesAsync() > 0;
+        }
+
+        foreach (var fee in feeDetails)
+        {
+            string[] splitData = fee.Split('^');
+
+            decimal paymentAmount =
+                Convert.ToDecimal(splitData[0]);
+
+            long feeId =
+                Convert.ToInt64(splitData[1]);
+
+            var payment = new TbPayment();
+
+            payment.FeeId = feeId;
+
+            payment.FeeGuid = new Guid(splitData[2]);
+
+            decimal maxAmount =
+                Convert.ToDecimal(splitData[3]);
+
+            decimal discount =
+                Convert.ToDecimal(splitData[4]);
+
+            payment.MaxAmount = maxAmount;
+
+            payment.Discount = discount;
+
+            int isAmountEdit =
+                Convert.ToInt32(splitData[5]);
+
+            if (isAmountEdit != 0)
+            {
+                var paymentList =
+                    new TrackTap.Data.Student(StudentId)
+                    .GetStudentPaymentFees()
+                    .OrderBy(z => z.DueDate)
+                    .ToList();
+
+                var dueFee = paymentList
+                    .FirstOrDefault(z =>
+                        z.FeeGuid == payment.FeeGuid);
+
+                if (dueFee != null)
+                {
+                    if (dueFee.Amount != paymentAmount)
+                    {
+                        var due = new TbFeeDue();
+
+                        due.FeeId = payment.FeeId;
+
+                        decimal amtAfterDiscount =
+                            maxAmount - discount;
+
+                        due.Amount =
+                            amtAfterDiscount - paymentAmount;
+
+                        due.FeeDuesGuid = Guid.NewGuid();
+
+                        due.StudentId = StudentId;
+
+                        due.IsActive = true;
+
+                        due.DueDate = dueFee.DueDate;
+
+                        due.TimeStamp = BillDate;
+
+                        await _Entities.TbFeeDues
+                            .AddAsync(due);
+                    }
+                }
+            }
+
+            payment.Amount = paymentAmount;
+
+            sumAmt += payment.Amount;
+
+            payment.BillNo = BillNo;
+
+            payment.IsPaid = false;
+
+            payment.PaymentType = 2;
+
+            payment.PaymentGuid = PaymentGuid;
+
+            payment.StudentId = StudentId;
+
+            payment.ClassId = ClassId;
+
+            payment.SchoolId = SchoolId;
+
+            payment.TimeStamp = BillDate;
+
+            payment.IsActive = true;
+
+            if (_user.UserId != 0)
+            {
+                payment.IssuedPerson = _user.UserId;
+            }
+
+            await _Entities.TbPayments.AddAsync(payment);
+
+            status = await _Entities.SaveChangesAsync() > 0;
+        }
+
+        var billNo1 = await _Entities.TbPaymentBillNos
+            .FirstOrDefaultAsync(z =>
+                z.SchoolId == SchoolId);
+
+        if (billNo1 != null)
+        {
+            billNo1.BillNo = BillNo;
+
+            status = await _Entities.SaveChangesAsync() > 0;
+        }
+
+        bool ispayable = false;
+
+        decimal payableAmount = 0;
+
+        decimal prevBal = 0;
+
+        try
+        {
+            decimal bal = 0;
+
+            decimal tempSumTotal = sumAmt;
+
+            var balance = await _Entities.TbStudentBalances
+                .FirstOrDefaultAsync(z =>
+                    z.StudentId == StudentId &&
+                    z.IsActive);
+
+            if (balance != null)
+            {
+                prevBal = balance.Amount;
+
+                bal = balance.Amount;
+
+                if ((prevBal < tempSumTotal)
+                    && (prevBal != 0))
+                {
+                    ispayable = true;
+
+                    payableAmount =
+                        tempSumTotal - prevBal;
+                }
+
+                if (TotalAmountPaid != 0)
+                {
+                    var tempBal =
+                        TotalAmountPaid - sumAmt;
+
+                    bal = tempBal + prevBal;
+                }
+                else
+                {
+                    if (ispayable)
+                    {
+                        bal = 0;
+                    }
+                    else
+                    {
+                        bal = balance.Amount - sumAmt;
+                    }
+                }
+
+                if (bal < 0)
+                {
+                    bal = 0;
+                }
             }
             else
             {
-                var slNoTable = new tb_PaymentBillNo();
-                slNoTable.SchoolId = SchoolId;
-                slNoTable.BillNo = 1;
-                _Entities.tb_PaymentBillNo.Add(slNoTable);
-                status = _Entities.SaveChanges() > 0 ? true : false;
+                if (TotalAmountPaid != 0)
+                {
+                    bal = TotalAmountPaid - sumAmt;
+                }
 
+                if (bal < 0)
+                {
+                    bal = 0;
+                }
             }
-            foreach (var fee in feeDetails)
+
+            if (balance != null)
             {
-                //payment = new tb_Payment();
-                string[] splitData = fee.Split('^');
-                decimal paymentAmount = Convert.ToDecimal(splitData[0]);
-                long feeId = Convert.ToInt32(splitData[1]);
-                payment.FeeId = feeId;
-                payment.FeeGuid = new Guid(splitData[2]);
-                decimal maxAmount = Convert.ToDecimal(splitData[3]);
-                decimal discount = Convert.ToDecimal(splitData[4]);
-                payment.MaxAmount = maxAmount;
-                payment.Discount = discount;
-                int isAmountEdit = Convert.ToInt16(splitData[5]);
-                if (isAmountEdit != 0)
-                {
-                    var paymentList = new TrackTap.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
-                    var dueFee = paymentList.Where(z => z.FeeGuid == payment.FeeGuid).FirstOrDefault();
-                    if (dueFee != null)
-                    {
-                        if (dueFee.Amount != paymentAmount)
-                        {
-                            var due = new tb_FeeDues();
-                            due.FeeId = payment.FeeId;
-                            decimal amtAfterDiscount = maxAmount - discount;
-                            due.Amount = amtAfterDiscount - paymentAmount;
-                            due.FeeDuesGuid = Guid.NewGuid();
-                            due.StudentId = StudentId;
-                            due.IsActive = true;
-                            due.DueDate = dueFee.DueDate;
-                            due.TimeStamp = BillDate;
-                            _Entities.tb_FeeDues.Add(due);
-                            // status = _Entities.SaveChanges() > 0 ? true : false;
-                        }
-                    }
-                }
+                balance.Amount = bal;
 
-                payment.Amount = paymentAmount;
-                sumAmt = sumAmt + payment.Amount;
-
-                payment.BillNo = BillNo;
-                payment.IsPaid = false;
-                payment.PaymentType = 2;
-                payment.PaymentGuid = PaymentGuid;
-                payment.StudentId = StudentId;
-                payment.ClassId = ClassId;
-                payment.SchoolId = SchoolId;
-                payment.TimeStamp = BillDate;
-                payment.IsActive = true;
-                if (_user.UserId != 0)
-                {
-                    payment.IssuedPerson = _user.UserId;
-                }
-                
-                _Entities.tb_Payment.Add(payment);
-                status = _Entities.SaveChanges() > 0 ? true : false;
-
+                await _Entities.SaveChangesAsync();
             }
-            var billNo1 = _Entities.tb_PaymentBillNo.Where(z => z.SchoolId == SchoolId).FirstOrDefault();
-            if (billNo1 != null)
+            else
             {
-                billNo.BillNo = BillNo;
-                status = _Entities.SaveChanges() > 0 ? true : false;
+                if (bal != 0)
+                {
+                    var studentBalance =
+                        new TbStudentBalance();
 
+                    studentBalance.StudentId =
+                        StudentId;
+
+                    studentBalance.Amount = bal;
+
+                    studentBalance.IsActive = true;
+
+                    await _Entities.TbStudentBalances
+                        .AddAsync(studentBalance);
+
+                    status =
+                        await _Entities
+                            .SaveChangesAsync() > 0;
+                }
             }
-            bool ispayable = false;
-            decimal payableAmount = 0;
-            decimal prevBal = 0;
-            try
+
+            if ((TotalAmountPaid != 0) || (bal != 0))
             {
-                decimal bal = 0;
+                var studentPaidsAmount =
+                    new TbStudentPaidAmount();
 
-                decimal tempSumTotal = 0;
-                tempSumTotal = sumAmt;
-                if (sumAmt == 0)
-                {
-                    sumAmt = payment.Amount;
-                }
-                var balance = _Entities.tb_StudentBalance.Where(z => z.StudentId == StudentId && z.IsActive).FirstOrDefault();
-                if (balance != null)
-                {
-                    prevBal = balance.Amount;
-                    bal = balance.Amount;
-                    
-                    if ((prevBal < tempSumTotal) && (prevBal != 0))
-                    {
-                        ispayable = true;
-                        payableAmount = tempSumTotal - prevBal;
+                studentPaidsAmount.StudentId =
+                    StudentId;
 
-                    }
-                   
-                    if (TotalAmountPaid != 0)
-                    {
-                        var tempBal = TotalAmountPaid - sumAmt;
-                        bal = tempBal + prevBal;
-                    }
-                    else
-                    {
-                        if (ispayable)
-                        {
-                            bal = 0;
-                        }
-                        else
-                        {
-                            bal = balance.Amount - sumAmt;
-                        }
-                    }
-                    if (bal < 0) //if no balance available (balance.Amount - sumAmt) gets -ve
-                    {
-                        bal = 0;
-                    }
-                }
-                else
-                {
-                    if (TotalAmountPaid != 0)
-                    {
-                        bal = TotalAmountPaid - sumAmt;
-                    }
-                    else
-                    {
+                studentPaidsAmount.PaidAmount =
+                    TotalAmountPaid;
 
-                        bal = bal - sumAmt;
+                studentPaidsAmount.PreviousBalance =
+                    prevBal;
 
-                    }
-                    if (bal < 0)
-                    {
-                        bal = 0;
-                    }
-                }
-                if (balance != null)
-                {
-                    try
-                    {
-                        balance.Amount = bal;
-                        _Entities.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        var messageex = ex.Message;
+                studentPaidsAmount.BalanceAmount =
+                    bal;
 
-                    }
-                }
-                else
-                {
-                    if (bal != 0)
-                    {
-                        var studentBalance = new tb_StudentBalance();
-                        studentBalance.StudentId = StudentId;
-                        studentBalance.Amount = bal;
-                        studentBalance.IsActive = true;
-                        _Entities.tb_StudentBalance.Add(studentBalance);
-                        status = _Entities.SaveChanges() > 0 ? true : false;
-                    }
-                }
-                if ((TotalAmountPaid != 0) || (bal != 0))
-                {
+                studentPaidsAmount.BillNo = BillNo;
 
+                studentPaidsAmount.IsActive = true;
 
+                await _Entities.TbStudentPaidAmounts
+                    .AddAsync(studentPaidsAmount);
 
-                    var studentPaidsAmount = new tb_StudentPaidAmount();
-                    studentPaidsAmount.StudentId = StudentId;
-                    studentPaidsAmount.PaidAmount = TotalAmountPaid;
-                    studentPaidsAmount.PreviousBalance = prevBal;
-                    studentPaidsAmount.BalanceAmount = bal;
-                    studentPaidsAmount.BillNo = BillNo;
-                    studentPaidsAmount.IsActive = true;
-                    _Entities.tb_StudentPaidAmount.Add(studentPaidsAmount);
-                    status = _Entities.SaveChanges() > 0 ? true : false;
-
-
-
-                }
-                
-                if (ispayable)
-                {
-                    var studentPaidsAmount = new tb_StudentPaidAmount();
-                    studentPaidsAmount.StudentId = StudentId;
-                    studentPaidsAmount.PaidAmount = payableAmount;
-                    studentPaidsAmount.PreviousBalance = prevBal;
-                    studentPaidsAmount.BalanceAmount = bal;
-                    studentPaidsAmount.BillNo = BillNo;
-                    studentPaidsAmount.IsActive = true;
-                    studentPaidsAmount.AddAccountStatus = false;
-                    _Entities.tb_StudentPaidAmount.Add(studentPaidsAmount);
-                    status = _Entities.SaveChanges() > 0 ? true : false;
-                }
-
+                status =
+                    await _Entities
+                        .SaveChangesAsync() > 0;
             }
-            catch (Exception ex)
+
+            if (ispayable)
             {
+                var studentPaidsAmount =
+                    new TbStudentPaidAmount();
 
+                studentPaidsAmount.StudentId =
+                    StudentId;
 
+                studentPaidsAmount.PaidAmount =
+                    payableAmount;
+
+                studentPaidsAmount.PreviousBalance =
+                    prevBal;
+
+                studentPaidsAmount.BalanceAmount =
+                    bal;
+
+                studentPaidsAmount.BillNo = BillNo;
+
+                studentPaidsAmount.IsActive = true;
+
+                studentPaidsAmount.AddAccountStatus =
+                    false;
+
+                await _Entities.TbStudentPaidAmounts
+                    .AddAsync(studentPaidsAmount);
+
+                status =
+                    await _Entities
+                        .SaveChangesAsync() > 0;
             }
-
-            var studDetails = _Entities.tb_Student.Where(z => z.StudentId == StudentId && z.IsActive == true).FirstOrDefault();
-            var dateTime = BillDate.ToString("dd-MMM-yyyy");
-
-            var description = "failed";
-            bool isGateway = false;
-            if (ispayable || (prevBal == 0))
-            {
-                var amountTopay = payableAmount == 0 ? sumAmt : payableAmount;
-                isGateway = true;
-                Guid guid = Guid.NewGuid();
-                string reference = guid.ToString().Replace("-", string.Empty).Substring(0, 10).ToUpper();
-                Session["REFERENCE"] = reference;
-                PaymentModels pay = new PaymentModels();
-                pay.ReferenceNo = Session["REFERENCE"].ToString();
-                var student = studDetails;
-                pay.Description = "Payment";
-                string baseUrl = Request.Url.GetLeftPart(UriPartial.Authority);
-                pay.ReturnUrl = baseUrl + "/Account/ccavResponseHandler";
-                
-                pay.Name = student.ParentName;
-                pay.Address = student.Address;
-                pay.City = student.City;
-                pay.State = student.State;
-                pay.PostalCode = student.PostalCode;
-                pay.PhoneNo = student.ContactNumber;
-                pay.Email = student.ParentEmail;
-
-                //.........This is to Editing.. Field  21..07..2020....
-
-                var bankFees = _Entities.tb_BankPercentage.Where(x => x.SchoolId == SchoolId && x.IsActive == true).FirstOrDefault();
-                if (bankFees != null)
-                {
-                    var varbankfee = (amountTopay * bankFees.Amount) / 100;
-                    amountTopay = amountTopay + varbankfee;
-                }
-                
-
-                pay.Amount = Convert.ToDouble(amountTopay);
-
-                //........End Field...
-
-                pay.CourseName = "Bill";
-                pay.BillNo = BillNo;
-                pay.SchoolId = SchoolId;
-                pay.StudentId = StudentId;
-                Session["PaymentPostData"] = pay;
-            }
-
-           
-            return Json(new { status = status, serialNo = BillNo, payment = isGateway, msg = status ? "Bill Paid Sucessfully" : "Failed To Pay Bill" }, JsonRequestBehavior.AllowGet);
         }
-        public PartialViewResult PrintAccountBillData(string id)
+        catch
         {
+        }
+
+        var studDetails = await _Entities.TbStudents
+            .FirstOrDefaultAsync(z =>
+                z.StudentId == StudentId &&
+                z.IsActive);
+
+        bool isGateway = false;
+
+        if (ispayable || (prevBal == 0))
+        {
+            var amountTopay =
+                payableAmount == 0
+                ? sumAmt
+                : payableAmount;
+
+            isGateway = true;
+
+            Guid guid = Guid.NewGuid();
+
+            string reference = guid.ToString()
+                .Replace("-", string.Empty)
+                .Substring(0, 10)
+                .ToUpper();
+
+            HttpContext.Session.SetString(
+                "REFERENCE",
+                reference);
+
+            PaymentModels pay = new PaymentModels();
+
+            pay.ReferenceNo =
+                HttpContext.Session.GetString(
+                    "REFERENCE");
+
+            pay.Description = "Payment";
+
+            string baseUrl =
+                $"{Request.Scheme}://{Request.Host}";
+
+            pay.ReturnUrl =
+                baseUrl + "/Account/ccavResponseHandler";
+
+            pay.Name = studDetails.ParentName;
+
+            pay.Address = studDetails.Address;
+
+            pay.City = studDetails.City;
+
+            pay.State = studDetails.State;
+
+            pay.PostalCode = studDetails.PostalCode;
+
+            pay.PhoneNo = studDetails.ContactNumber;
+
+            pay.Email = studDetails.ParentEmail;
+
+            var bankFees =
+                await _Entities.TbBankPercentages
+                .FirstOrDefaultAsync(x =>
+                    x.SchoolId == SchoolId &&
+                    x.IsActive);
+
+            if (bankFees != null)
+            {
+                var varbankfee =
+                    (amountTopay * bankFees.Amount) / 100;
+
+                amountTopay += varbankfee;
+            }
+
+            pay.Amount = Convert.ToDouble(amountTopay);
+
+            pay.CourseName = "Bill";
+
+            pay.BillNo = BillNo;
+
+            pay.SchoolId = SchoolId;
+
+            pay.StudentId = StudentId;
+
+            HttpContext.Session.SetString(
+                "PaymentPostData",
+                JsonSerializer.Serialize(pay));
+        }
+
+        return Json(new
+        {
+            status = status,
+            serialNo = BillNo,
+            payment = isGateway,
+            msg = status
+                ? "Bill Paid Successfully"
+                : "Failed To Pay Bill"
+        });
+    }
+        public IActionResult PrintAccountBillData(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest();
+            }
+
             string[] splitData = id.Split('~');
-            var model = new PrintBill();
-            model.studentId = Convert.ToInt64(splitData[0]);
-            model.billNumber = Convert.ToInt64(splitData[1]);
-            return PartialView("~/Views/Account/_pv_PrintAccountBillData.cshtml", model);
+
+            if (splitData.Length < 2)
+            {
+                return BadRequest();
+            }
+
+            if (!long.TryParse(splitData[0], out long studentId))
+            {
+                return BadRequest();
+            }
+
+            if (!long.TryParse(splitData[1], out long billNumber))
+            {
+                return BadRequest();
+            }
+
+            var model = new PrintBill
+            {
+                studentId = studentId,
+                billNumber = billNumber
+            };
+
+            return PartialView(
+                "_pv_PrintAccountBillData",
+                model);
         }
         #region PaymentGateway
-        public IActionResult CoursePayment(string id)
+      
+
+    public async Task<IActionResult> CoursePayment(string id)
+    {
+        bool status = true;
+
+        int caseSwitch = Convert.ToInt32(id);
+
+        float amount = 1;
+
+        string course = "";
+
+        switch (caseSwitch)
         {
+            case 1:
+                amount = 24000;
+                course = "Core Php with responsive web";
+                break;
 
-            bool status = true;
-            int caseSwitch = Convert.ToInt16(id);
+            case 2:
+                amount = 22000;
+                course = "Dotnet";
+                break;
 
-            float amount = 1;
-            string course = "";
-            switch (caseSwitch)
-            {
-                case 1:
-                    amount = 24000;
-                    course = "Core Php with responsive web";
-                    break;
-                case 2:
-                    amount = 22000;
-                    course = "Dotnet";
-                    break;
-                case 3:
-                    amount = 10000;
-                    course = "Java";
-                    break;
-                case 4:
-                    amount = 24000;
-                    course = "Android";
-                    break;
-                case 5:
-                    amount = 23000;
-                    course = "Ios";
-                    break;
-                case 6:
-                    amount = 230;
-                    course = "ionic";
-                    break;
-                default:
-                    status = false;
-                    break;
-            }
-            Guid guid = Guid.NewGuid();
-            string reference = guid.ToString().Replace("-", string.Empty).Substring(0, 10).ToUpper();
-            Session["REFERENCE"] = reference;
-            //var payment = Entities.tb_Payment.Where(x => x.UserId == _user.UserId && x.PaymentType == 1).FirstOrDefault();
-            PaymentModels pay = new PaymentModels();
-            pay.ReferenceNo = Session["REFERENCE"].ToString();
-            var student = _Entities.tb_Parent.Where(z => z.ParentId == _parentUser.ParentId).FirstOrDefault();
-            pay.Description = "Payment";
-            string baseUrl = Request.Url.GetLeftPart(UriPartial.Authority);
-            pay.ReturnUrl = baseUrl + "/Account/ccavResponseHandler";
-            //pay.ReturnUrl = "http://localhost:16138/Parent/ccavResponseHandler";
-            pay.Name = student.ParentName;
-            pay.Address = student.Address;
-            pay.City = student.City;
-            pay.State = student.State;
-            pay.PostalCode = student.PostalCode;
-            pay.PhoneNo = student.ContactNumber;
-            pay.Email = student.Email;
-            pay.Amount = amount;
-            pay.CourseName = course;
-            pay.BillNo = 11;
-            pay.SchoolId = 1;
-            pay.StudentId = 1;
-            Session["PaymentPostData"] = pay;
-            //return View("CCAVRequestHandler",pay);
-            return Json(new { status = status }, JsonRequestBehavior.AllowGet);
-        }
-        public IActionResult PaymentPost()
-        {
-            PaymentModels model = new PaymentModels();
-            PaymentModels pay = new PaymentModels();
-            if (Session["REFERENCE"] != null)
-            {
-                model.ReferenceNo = Session["REFERENCE"].ToString();
-            }
-            model.Amount = pay.Amount;
-            model.Description = "Payment";
-            string baseUrl = Request.Url.GetLeftPart(UriPartial.Authority);
-            //model.ReturnUrl = "http://localhost:16138/Student/PaymentResponse";
-            pay = (PaymentModels)Session["PaymentPostData"];
-            model.ReturnUrl = pay.ReturnUrl; //http://localhost:16138/Parent/PaymentResponse";//"http://localhost:16138/Parent/ccavResponseHandler";
-            model.Name = pay.Name;
-            model.Address = pay.Address;
-            model.City = pay.City;
-            model.State = pay.State;
-            model.PostalCode = pay.PostalCode;
-            model.PhoneNo = pay.PhoneNo;
-            model.Email = pay.Email;
-            model.Amount = pay.Amount;
-            return View(model);
-        }
-        public IActionResult CCAVRequestHandler()
-        {
+            case 3:
+                amount = 10000;
+                course = "Java";
+                break;
 
-            PaymentModels pay = new PaymentModels();
-            CCACrypto ccaCrypto = new CCACrypto();
-            string workingKey = "3891AA5249F6E3DBA928422EB4BA18DD";//put in the 32bit alpha numeric key in the quotes provided here 	
-            string ccaRequest = "";
-            string strEncRequest = "";
-            string iframeSrc = "";
-            string strAccessCode = "AVTM75FA75BW58MTWB";// put the access key in the quotes provided here.
+            case 4:
+                amount = 24000;
+                course = "Android";
+                break;
 
+            case 5:
+                amount = 23000;
+                course = "Ios";
+                break;
 
-            NameValueCollection nameValue = (Request.Form.Count > 0) ? Request.Form : Request.QueryString;
-            SortedDictionary<string, string> sortedDict = NameValueCreator.SortNameValueCollection(nameValue);
+            case 6:
+                amount = 230;
+                course = "Ionic";
+                break;
 
-            foreach (KeyValuePair<string, string> p in sortedDict)
-            {
-                if (p.Key != null)
-                {
-                    if (!p.Key.StartsWith("_"))
-                    {
-                        ccaRequest = ccaRequest + p.Key + "=" + p.Value + "&";
-                        /* Response.Write(name + "=" + Request.Form[name]);
-                          Response.Write("</br>");*/
-                    }
-                }
-            }
-            strEncRequest = ccaCrypto.Encrypt(ccaRequest, workingKey);
-            iframeSrc = "https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction&encRequest=" + strEncRequest + "&access_code=" + strAccessCode;
-            pay.iframeSrc = iframeSrc;
-            //pay.strEncRequest = strEncRequest;
-            //pay.strAccessCode = strAccessCode;
-            return View(pay);
-        }
-        public IActionResult ccavResponseHandler()
-        {
-            bool status = false;
-            PaymentModels model = new PaymentModels();
-            PaymentModels pay = new PaymentModels();
-            pay = (PaymentModels)Session["PaymentPostData"];
-
-            string workingKey = "3891AA5249F6E3DBA928422EB4BA18DD";//put in the 32bit alpha numeric key in the quotes provided here
-            CCACrypto ccaCrypto = new CCACrypto();
-            string encResponse = ccaCrypto.Decrypt(Request.Form["encResp"], workingKey);
-            NameValueCollection Params = new NameValueCollection();
-            string[] segments = encResponse.Split('&');
-            foreach (string seg in segments)
-            {
-                string[] parts = seg.Split('=');
-                if (parts.Length > 0)
-                {
-                    string Key = parts[0].Trim();
-                    string Value = parts[1].Trim();
-                    Params.Add(Key, Value);
-                }
-            }
-            var ccavenueTable = new tb_CcavenueCourseResponse();
-            var amt = "";
-            bool isSuccess = false;
-            for (int i = 0; i < Params.Count; i++)
-            {
-                if (Params.Keys[i] == "order_id")
-                {
-                    ccavenueTable.OrderId = Params[i];
-                }
-                else if (Params.Keys[i] == "order_status")
-                {
-                    ccavenueTable.OrderStatus = Params[i] == "Failure" ? false : true;
-                    model.PaymentStatus = Params[i];
-                    isSuccess = Params[i] == "Failure" ? false : true;
-                }
-                else if (Params.Keys[i] == "payment_mode")
-                {
-                    ccavenueTable.PaymentMode = Params[i];
-                }
-                else if (Params.Keys[i] == "tracking_id ")
-                {
-                    ccavenueTable.TrackingId = Params[i];
-                }
-                else if (Params.Keys[i] == "amount")
-                {
-                    ccavenueTable.Amount = Convert.ToDecimal(Params[i]);
-                    amt = Params[i];
-                }
-                // Response.Write(Params.Keys[i] + " = " + Params[i] + "<br>");
-            }
-            ccavenueTable.ParentId = 1;
-            ccavenueTable.Course = pay.CourseName;
-            ccavenueTable.BillNo = pay.BillNo;
-            ccavenueTable.SchoolId = pay.SchoolId;
-
-            // ccavenueTable.Amount = Convert.ToDecimal(pay.Amount);
-            _Entities.tb_CcavenueCourseResponse.Add(ccavenueTable);
-            _Entities.SaveChanges();
-            if (isSuccess)
-            {
-                //var studDetails = _Entities.tb_Student.Where(z => z.StudentId == pay.StudentId).FirstOrDefault();
-                var paymentList = _Entities.tb_Payment.Where(z => z.StudentId == pay.StudentId && z.BillNo == pay.BillNo).ToList();
-                foreach (var item in paymentList)
-                {
-                    item.IsPaid = true;
-                    _Entities.SaveChanges();
-                }
-                try
-                {
-                    var history = new tb_SmsHistory();
-                    var numbers = new List<string>();
-                    var MsgId = new List<string>();
-
-                    var numb = "";
-                    string messagepre = "";
-
-
-                    var senderName = "MYSCHO";
-
-                    var senderData = _Entities.tb_SchoolSenderId.Where(x => x.SchoolId == pay.SchoolId && x.IsActive == true).FirstOrDefault();
-                    if (senderData != null)
-                        senderName = senderData.SenderId;
-                    status = true;
-
-                    var smsHead = new tb_SmsHead();
-                    smsHead.Head = "BillDate Payment " + paymentList.FirstOrDefault().tb_Student.StundentName;
-                    smsHead.SchoolId = _user.SchoolId;
-                    smsHead.TimeStamp = CurrentTime;
-                    smsHead.IsActive = true;
-                    smsHead.SenderType = (int)SMSSendType.Student;
-                    _Entities.tb_SmsHead.Add(smsHead);
-                    status = _Entities.SaveChanges() > 0;
-
-
-                    messagepre = "Dear Parent of " + paymentList.FirstOrDefault().tb_Student.StundentName + ", you have paid Rs." + string.Format("{0:0.00}", amt) + " on " + CurrentTime;
-
-                    var phone = paymentList.FirstOrDefault().tb_Student.ContactNumber.ToString();
-                    int length = messagepre.Length;
-                    int que = length / 160;
-                    int rem = length % 160;
-                    if (rem > 0)
-                        que++;
-                    int smsCount = que;
-                    var url = "http://alvosms.in/api/v1/send?token=ivku4o2r6gjdq98bm3aesl50pyz7h1&numbers=" + phone + "&route=2&message=" + messagepre + "&sender=" + senderName;
-                    //  var url = "http://bhashsms.com//api/sendmsg.php?user=srishtitrans&pass=123456&sender=MCHILD&phone=" + phone + "&text=" + item.Description + "&priority=ndnd&stype=normal";
-
-                    ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
-                    HttpWebRequest request = this.GetRequest(url);
-                    WebResponse webResponse = request.GetResponse();
-                    var responseText = new StreamReader(webResponse.GetResponseStream()).ReadToEnd();
-                    var newresponse = responseText.Remove(responseText.Length - 2).TrimEnd();
-                    alvosmsResp respList = new JavaScriptSerializer().Deserialize<alvosmsResp>(responseText);
-                    if (status)
-                    {
-                        tb_SmsHistory sms = new tb_SmsHistory();
-                        sms.IsActive = true;
-                        sms.MessageContent = messagepre;
-                        sms.MessageDate = CurrentTime;
-                        sms.ScholId = _user.SchoolId;
-                        sms.StuentId = pay.StudentId;
-                        sms.MobileNumber = phone;
-                        sms.HeadId = smsHead.HeadId;
-                        sms.SendStatus = Convert.ToString(respList.success);
-                        if (respList.data != null)
-                        {
-                            sms.MessageReturnId = respList.data[0].messageId;
-                            sms.DelivaryStatus = "Pending";
-                        }
-                        sms.SmsSentPerStudent = smsCount;
-                        _Entities.tb_SmsHistory.Add(sms);
-                        _Entities.SaveChanges();
-                    }
-
-
-                }
-                catch (Exception ex)
-                {
-                    var x = ex.InnerException;
-                }
-            }
-            else
-            {
-                var studentPaidAmount = _Entities.tb_StudentPaidAmount.Where(z => z.StudentId == pay.StudentId && z.BillNo == pay.BillNo).FirstOrDefault();
-                if (studentPaidAmount != null)
-                {
-                    studentPaidAmount.IsActive = false;
-                    studentPaidAmount.AddAccountStatus = false;
-                    var studentBalance = _Entities.tb_StudentBalance.Where(z => z.StudentId == pay.StudentId).FirstOrDefault();
-                    if (studentBalance != null)
-                    {
-                        studentBalance.Amount = studentPaidAmount.PreviousBalance ?? 0;
-                    }
-                    status = _Entities.SaveChanges() > 0 ? true : false;
-
-                }
-
-            }
-            double amnt = Convert.ToDouble(amt);
-            if (amnt != pay.Amount)
-            {
-                model.PaymentStatus = "Fraud";
-            }
-
-            model.Amount = Convert.ToDouble(amt);
-            model.CourseName = pay.CourseName;
-            model.StudentId = pay.StudentId;
-            model.BillNo = pay.BillNo;
-            return View(model);
+            default:
+                status = false;
+                break;
         }
 
-        private HttpWebRequest GetRequest(string url, string httpMethod = "GET", bool allowAutoRedirect = true)
+        if (!status)
         {
-            Uri uri = new Uri(url);
-            HttpWebRequest request = HttpWebRequest.Create(url) as HttpWebRequest;
-            request.UserAgent = @"Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
+            return Json(new
+            {
+                status = false,
+                msg = "Invalid Course"
+            });
+        }
 
-            request.Timeout = Convert.ToInt32(new TimeSpan(0, 5, 0).TotalMilliseconds);
-            request.Method = httpMethod;
-            return request;
+        Guid guid = Guid.NewGuid();
+
+        string reference = guid.ToString()
+            .Replace("-", string.Empty)
+            .Substring(0, 10)
+            .ToUpper();
+
+        HttpContext.Session.SetString(
+            "REFERENCE",
+            reference);
+
+        PaymentModels pay = new PaymentModels();
+
+        pay.ReferenceNo =
+            HttpContext.Session.GetString(
+                "REFERENCE");
+
+        var student = await _Entities.TbParents
+            .FirstOrDefaultAsync(z =>
+                z.ParentId == _parentUser.ParentId);
+
+        if (student == null)
+        {
+            return Json(new
+            {
+                status = false,
+                msg = "Parent not found"
+            });
+        }
+
+        pay.Description = "Payment";
+
+        string baseUrl =
+            $"{Request.Scheme}://{Request.Host}";
+
+        pay.ReturnUrl =
+            baseUrl + "/Account/ccavResponseHandler";
+
+        pay.Name = student.ParentName;
+
+        pay.Address = student.Address;
+
+        pay.City = student.City;
+
+        pay.State = student.State;
+
+        pay.PostalCode = student.PostalCode;
+
+        pay.PhoneNo = student.ContactNumber;
+
+        pay.Email = student.Email;
+
+        pay.Amount = amount;
+
+        pay.CourseName = course;
+
+        pay.BillNo = 11;
+
+        pay.SchoolId = 1;
+
+        pay.StudentId = 1;
+
+        HttpContext.Session.SetString(
+            "PaymentPostData",
+            JsonSerializer.Serialize(pay));
+
+        return Json(new
+        {
+            status = true
+        });
+    }
+   
+
+    public IActionResult PaymentPost()
+    {
+        PaymentModels model = new PaymentModels();
+
+        string reference =
+            HttpContext.Session.GetString("REFERENCE");
+
+        if (!string.IsNullOrEmpty(reference))
+        {
+            model.ReferenceNo = reference;
+        }
+
+        string paymentData =
+            HttpContext.Session.GetString(
+                "PaymentPostData");
+
+        if (string.IsNullOrEmpty(paymentData))
+        {
+            return RedirectToAction("LoginPage");
+        }
+
+        PaymentModels pay =
+            JsonSerializer.Deserialize<PaymentModels>(
+                paymentData);
+
+        if (pay == null)
+        {
+            return RedirectToAction("LoginPage");
+        }
+
+        model.Description = "Payment";
+
+        string baseUrl =
+            $"{Request.Scheme}://{Request.Host}";
+
+        model.ReturnUrl = pay.ReturnUrl;
+
+        model.Name = pay.Name;
+
+        model.Address = pay.Address;
+
+        model.City = pay.City;
+
+        model.State = pay.State;
+
+        model.PostalCode = pay.PostalCode;
+
+        model.PhoneNo = pay.PhoneNo;
+
+        model.Email = pay.Email;
+
+        model.Amount = pay.Amount;
+
+        return View(model);
+    }
+  
+
+    public IActionResult CCAVRequestHandler()
+    {
+        PaymentModels pay = new PaymentModels();
+
+        CCACrypto ccaCrypto = new CCACrypto();
+
+        string workingKey =
+            "3891AA5249F6E3DBA928422EB4BA18DD";
+
+        string ccaRequest = "";
+
+        string strEncRequest = "";
+
+        string iframeSrc = "";
+
+        string strAccessCode =
+            "AVTM75FA75BW58MTWB";
+
+        NameValueCollection nameValue =
+            new NameValueCollection();
+
+        foreach (var item in Request.Form)
+        {
+            nameValue.Add(item.Key, item.Value);
+        }
+
+        if (Request.Query.Count > 0)
+        {
+            foreach (var item in Request.Query)
+            {
+                nameValue.Add(item.Key, item.Value);
+            }
+        }
+
+        SortedDictionary<string, string> sortedDict =
+            NameValueCreator
+                .SortNameValueCollection(nameValue);
+
+        foreach (KeyValuePair<string, string> p
+            in sortedDict)
+        {
+            if (p.Key != null)
+            {
+                if (!p.Key.StartsWith("_"))
+                {
+                    ccaRequest +=
+                        p.Key + "=" + p.Value + "&";
+                }
+            }
+        }
+
+        strEncRequest =
+            ccaCrypto.Encrypt(
+                ccaRequest,
+                workingKey);
+
+        iframeSrc =
+            "https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction&encRequest="
+            + strEncRequest
+            + "&access_code="
+            + strAccessCode;
+
+        pay.iframeSrc = iframeSrc;
+
+        return View(pay);
+    }
+
+    public async Task<IActionResult> ccavResponseHandler()
+    {
+        bool status = false;
+
+        PaymentModels model = new PaymentModels();
+
+        string paymentData =
+            HttpContext.Session.GetString(
+                "PaymentPostData");
+
+        if (string.IsNullOrEmpty(paymentData))
+        {
+            return RedirectToAction("LoginPage");
+        }
+
+        PaymentModels pay =
+            JsonSerializer.Deserialize<PaymentModels>(
+                paymentData);
+
+        if (pay == null)
+        {
+            return RedirectToAction("LoginPage");
+        }
+
+        string workingKey =
+            "3891AA5249F6E3DBA928422EB4BA18DD";
+
+        CCACrypto ccaCrypto = new CCACrypto();
+
+        string encResp = Request.Form["encResp"];
+
+        string encResponse =
+            ccaCrypto.Decrypt(
+                encResp,
+                workingKey);
+
+        NameValueCollection Params =
+            new NameValueCollection();
+
+        string[] segments =
+            encResponse.Split('&');
+
+        foreach (string seg in segments)
+        {
+            string[] parts = seg.Split('=');
+
+            if (parts.Length > 1)
+            {
+                string Key = parts[0].Trim();
+
+                string Value = parts[1].Trim();
+
+                Params.Add(Key, Value);
+            }
+        }
+
+        var ccavenueTable =
+            new TbCcavenueCourseResponse();
+
+        string amt = "";
+
+        bool isSuccess = false;
+
+        for (int i = 0; i < Params.Count; i++)
+        {
+            if (Params.Keys[i] == "order_id")
+            {
+                ccavenueTable.OrderId = Params[i];
+            }
+            else if (Params.Keys[i] == "order_status")
+            {
+                ccavenueTable.OrderStatus =
+                    Params[i] != "Failure";
+
+                model.PaymentStatus =
+                    Params[i];
+
+                isSuccess =
+                    Params[i] != "Failure";
+            }
+            else if (Params.Keys[i] == "payment_mode")
+            {
+                ccavenueTable.PaymentMode =
+                    Params[i];
+            }
+            else if (Params.Keys[i] == "tracking_id")
+            {
+                ccavenueTable.TrackingId =
+                    Params[i];
+            }
+            else if (Params.Keys[i] == "amount")
+            {
+                ccavenueTable.Amount =
+                    Convert.ToDecimal(Params[i]);
+
+                amt = Params[i];
+            }
+        }
+
+        ccavenueTable.ParentId = 1;
+
+        ccavenueTable.Course =
+            pay.CourseName;
+
+        ccavenueTable.BillNo =
+            pay.BillNo;
+
+        ccavenueTable.SchoolId =
+            pay.SchoolId;
+
+        await _Entities.TbCcavenueCourseResponses
+            .AddAsync(ccavenueTable);
+
+        await _Entities.SaveChangesAsync();
+
+        if (isSuccess)
+        {
+            var paymentList =
+                await _Entities.TbPayments
+                .Where(z =>
+                    z.StudentId == pay.StudentId &&
+                    z.BillNo == pay.BillNo)
+                .ToListAsync();
+
+            foreach (var item in paymentList)
+            {
+                item.IsPaid = true;
+            }
+
+            await _Entities.SaveChangesAsync();
+
+            try
+            {
+                var senderName = "MYSCHO";
+
+                var senderData =
+                    await _Entities.TbSchoolSenderIds
+                    .FirstOrDefaultAsync(x =>
+                        x.SchoolId == pay.SchoolId &&
+                        x.IsActive==true);
+
+                if (senderData != null)
+                {
+                    senderName = senderData.SenderId;
+                }
+
+                var smsHead = new TbSmsHead();
+
+                smsHead.Head =
+                    "BillDate Payment "
+                    + paymentList.FirstOrDefault()
+                    ?.Student?.StundentName;
+
+                smsHead.SchoolId =
+                    _user.SchoolId;
+
+                smsHead.TimeStamp =
+                    DateTime.UtcNow;
+
+                smsHead.IsActive = true;
+
+                smsHead.SenderType =
+                    (int)SMSSendType.Student;
+
+                await _Entities.TbSmsHeads
+                    .AddAsync(smsHead);
+
+                status =
+                    await _Entities
+                        .SaveChangesAsync() > 0;
+
+                string messagepre =
+                    "Dear Parent of "
+                    + paymentList.FirstOrDefault()
+                    ?.Student?.StundentName
+                    + ", you have paid Rs."
+                    + string.Format("{0:0.00}", amt)
+                    + " on "
+                    + DateTime.UtcNow;
+
+                var phone =
+                    paymentList.FirstOrDefault()
+                    ?.Student?.ContactNumber;
+
+                using HttpClient client =
+                    new HttpClient();
+
+                var url =
+                    "http://alvosms.in/api/v1/send?token=ivku4o2r6gjdq98bm3aesl50pyz7h1&numbers="
+                    + phone
+                    + "&route=2&message="
+                    + Uri.EscapeDataString(messagepre)
+                    + "&sender="
+                    + senderName;
+
+                var responseText =
+                    await client.GetStringAsync(url);
+
+                if (status)
+                {
+                    var sms =
+                        new TbSmsHistory();
+
+                    sms.IsActive = true;
+
+                    sms.MessageContent =
+                        messagepre;
+
+                    sms.MessageDate =
+                        DateTime.UtcNow;
+
+                    sms.ScholId =
+                        _user.SchoolId;
+
+                    sms.StuentId =
+                        pay.StudentId;
+
+                    sms.MobileNumber =
+                        phone;
+
+                    sms.HeadId =
+                        smsHead.HeadId;
+
+                    sms.SendStatus = "Success";
+
+                    await _Entities.TbSmsHistories
+                        .AddAsync(sms);
+
+                    await _Entities.SaveChangesAsync();
+                }
+            }
+            catch
+            {
+            }
+        }
+        else
+        {
+            var studentPaidAmount =
+                await _Entities.TbStudentPaidAmounts
+                .FirstOrDefaultAsync(z =>
+                    z.StudentId == pay.StudentId &&
+                    z.BillNo == pay.BillNo);
+
+            if (studentPaidAmount != null)
+            {
+                studentPaidAmount.IsActive =
+                    false;
+
+                studentPaidAmount.AddAccountStatus =
+                    false;
+
+                var studentBalance =
+                    await _Entities.TbStudentBalances
+                    .FirstOrDefaultAsync(z =>
+                        z.StudentId == pay.StudentId);
+
+                if (studentBalance != null)
+                {
+                    studentBalance.Amount =
+                        studentPaidAmount.PreviousBalance ?? 0;
+                }
+
+                status =
+                    await _Entities
+                        .SaveChangesAsync() > 0;
+            }
+        }
+
+        double amnt = Convert.ToDouble(amt);
+
+        if (amnt != pay.Amount)
+        {
+            model.PaymentStatus = "Fraud";
+        }
+
+        model.Amount = amnt;
+
+        model.CourseName =
+            pay.CourseName;
+
+        model.StudentId =
+            pay.StudentId;
+
+        model.BillNo =
+            pay.BillNo;
+
+        return View(model);
+    }
+
+        private HttpClient GetClient()
+        {
+            var client = new HttpClient();
+
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko");
+
+            client.Timeout = TimeSpan.FromMinutes(5);
+
+            return client;
         }
         #endregion
 
@@ -1405,35 +1836,71 @@ namespace TrackTap.Controllers
         //        return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
         //    }
         //}
-        private object UpdateSession(long schoolId)
+       
+
+    private bool UpdateSession(long schoolId)
+    {
+        var user = _schoolRepository.GetUserByIdAsync(schoolId);
+
+        if (user != null)
         {
-            var user = _schoolRepository.getUserById(schoolId);
-            if (user != null)
-            {
-                Session["School"] = user;
-            }
+            HttpContext.Session.SetString(
+                "School",
+                JsonSerializer.Serialize(user));
+
             return true;
         }
 
-        public IActionResult DummyHome()
+        return false;
+    }
+
+    public IActionResult DummyHome()
         {
             return View();
         }
-        public object IsEmailExist(string Email)
+        public async Task<IActionResult> IsEmailExist(string email)
         {
-            bool status = _Entities.tb_Login.Any(z => z.Username.ToUpper() == Email.ToUpper() && z.IsActive == true);
-            return Json(new { status = status }, JsonRequestBehavior.AllowGet);
-        }
-        public object CheckEmail(string text)
-        {
-            bool Status = false;
-            string Message = "Failed";
-            if (_Entities.tb_Login.Any(x => x.Username.ToLower() == text.ToLower() && x.IsActive))
+            if (string.IsNullOrWhiteSpace(email))
             {
-                Status = true;
-                Message = "Username already in use";
+                return Json(new
+                {
+                    status = false
+                });
             }
-            return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
+
+            bool status = await _Entities.TbLogins
+                .AnyAsync(z =>
+                    z.Username.ToLower() == email.ToLower()
+                    && z.IsActive);
+
+            return Json(new
+            {
+                status = status
+            });
+        }
+        public async Task<IActionResult> CheckEmail(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return Json(new
+                {
+                    Status = false,
+                    Message = "Invalid Email"
+                });
+            }
+
+            bool exists = await _Entities.TbLogins
+                .AnyAsync(x =>
+                    x.Username.ToLower() == text.ToLower()
+                    && x.IsActive);
+
+            return Json(new
+            {
+                Status = exists,
+                Message = exists
+                    ? "Username already in use"
+                    : "Available"
+            });
         }
         public IActionResult ForgotPassword()
         {
@@ -1443,162 +1910,383 @@ namespace TrackTap.Controllers
         {
             return View();
         }
-        public object CheckExistEmail(string text)
+        public async Task<IActionResult> CheckExistEmail(string text)
         {
-            bool Status = false;
-            string Message = "Failed";
-            if (_Entities.tb_Login.Any(x => x.Username.ToLower().Trim() == text.ToLower().Trim() && x.RoleId == 1 && x.IsActive))
+            if (string.IsNullOrWhiteSpace(text))
             {
+                return Json(new
+                {
+                    Status = false,
+                    Message = "Invalid Email"
+                });
+            }
 
-            }
-            else
+            bool exists = await _Entities.TbLogins
+                .AnyAsync(x =>
+                    x.Username.ToLower().Trim() ==
+                    text.ToLower().Trim()
+                    && x.RoleId == 1
+                    && x.IsActive);
+
+            return Json(new
             {
-                Status = true;
-                Message = "Email not exists";
-            }
-            return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
+                Status = !exists,
+                Message = !exists
+                    ? "Email not exists"
+                    : "Email exists"
+            });
         }
-        public object CheckParentExistEmail(string text)
+        public async Task<IActionResult> CheckParentExistEmail(string text)
         {
-            bool Status = false;
-            string Message = "Failed";
-            if (_Entities.tb_Parent.Any(x => x.Email.ToLower().Trim() == text.ToLower().Trim() && x.IsActive))
+            if (string.IsNullOrWhiteSpace(text))
             {
+                return Json(new
+                {
+                    Status = false,
+                    Message = "Invalid Email"
+                });
+            }
 
-            }
-            else
+            bool exists = await _Entities.TbParents
+                .AnyAsync(x =>
+                    x.Email.ToLower().Trim() ==
+                    text.ToLower().Trim()
+                    && x.IsActive);
+
+            return Json(new
             {
-                Status = true;
-                Message = "Email not exists";
-            }
-            return Json(new { Status = Status, Message = Message }, JsonRequestBehavior.AllowGet);
+                Status = !exists,
+                Message = !exists
+                    ? "Email not exists"
+                    : "Email exists"
+            });
         }
-        public object SendMailForPasswordParent(ForgotPasswordModel model)
+        public async Task<IActionResult> SendMailForPasswordParent(ForgotPasswordModel model)
         {
             bool sendData = false;
+
             bool status = false;
-            string Message = "Failed";
+
+            string message = "Failed";
+
             try
             {
-                var parent = _Entities.tb_Parent.Where(x => x.Email.Trim().ToLower() == model.email.Trim().ToLower() && x.IsActive).FirstOrDefault();
+                var parent = await _Entities.TbParents
+                    .FirstOrDefaultAsync(x =>
+                        x.Email.Trim().ToLower() ==
+                        model.email.Trim().ToLower()
+                        && x.IsActive);
+
                 if (parent != null)
                 {
-                    var resetPasswordData = _Entities.tb_ResetPassword.Create();
-                    resetPasswordData.LinkExpireStatus = true;
-                    resetPasswordData.UserId = parent.ParentId;
-                    resetPasswordData.UserGuid = parent.ParentGuid;
-                    resetPasswordData.IsActive = true;
-                    resetPasswordData.TimeStamp = CurrentTime;
-                    _Entities.tb_ResetPassword.Add(resetPasswordData);
-                    status = _Entities.SaveChanges() > 0;
-                    Message = "Success ,Please Check Your Email";
-                    sendData = SendMailDataParent(parent.Email, parent.ParentGuid);
+                    var resetPasswordData =
+                        new TbResetPassword
+                        {
+                            LinkExpireStatus = true,
+
+                            UserId = parent.ParentId,
+
+                            UserGuid = parent.ParentGuid,
+
+                            IsActive = true,
+
+                            TimeStamp = DateTime.UtcNow
+                        };
+
+                    await _Entities.TbResetPasswords
+                        .AddAsync(resetPasswordData);
+
+                    status =
+                        await _Entities
+                            .SaveChangesAsync() > 0;
+
+                    if (status)
+                    {
+                        message =
+                            "Success, Please Check Your Email";
+
+                        sendData =await SendMailDataParentAsync(
+                                parent.Email,
+                                parent.ParentGuid);
+                    }
+                }
+                else
+                {
+                    message = "Email not found";
                 }
             }
             catch (Exception ex)
             {
+                status = false;
 
+                message = ex.Message;
             }
-            return Json(new { Status = status, Message = Message }, JsonRequestBehavior.AllowGet);
+
+            return Json(new
+            {
+                Status = status,
+                Message = message
+            });
         }
-        public object SendMailForPassword(ForgotPasswordModel model)
+        public async Task<IActionResult> SendMailForPassword(ForgotPasswordModel model)
         {
             bool sendData = false;
+
             bool status = false;
-            string Message = "Failed";
+
+            string message = "Failed";
+
             try
             {
-                var schoolPassword = _Entities.tb_Login.Where(x => x.Username.Trim().ToLower() == model.email.Trim().ToLower() && x.IsActive).FirstOrDefault();
+                var schoolPassword =
+                    await _Entities.TbLogins
+                    .FirstOrDefaultAsync(x =>
+                        x.Username.Trim().ToLower() ==
+                        model.email.Trim().ToLower()
+                        && x.IsActive);
+
                 if (schoolPassword != null)
                 {
-                    var resetPasswordData = _Entities.tb_ResetPassword.Create();
-                    resetPasswordData.LinkExpireStatus = true;
-                    resetPasswordData.UserId = schoolPassword.SchoolId;
-                    resetPasswordData.UserGuid = schoolPassword.LoginGuid;
-                    resetPasswordData.IsActive = true;
-                    resetPasswordData.TimeStamp = CurrentTime;
-                    _Entities.tb_ResetPassword.Add(resetPasswordData);
-                    status = _Entities.SaveChanges() > 0;
-                    Message = "Success ,Please Check Your Email";
-                    sendData = SendMailData(schoolPassword.Username, schoolPassword.LoginGuid);
+                    var resetPasswordData =
+                        new TbResetPassword
+                        {
+                            LinkExpireStatus = true,
+
+                            UserId =
+                                schoolPassword.SchoolId,
+
+                            UserGuid =
+                                schoolPassword.LoginGuid,
+
+                            IsActive = true,
+
+                            TimeStamp = DateTime.UtcNow
+                        };
+
+                    await _Entities.TbResetPasswords
+                        .AddAsync(resetPasswordData);
+
+                    status =
+                        await _Entities
+                            .SaveChangesAsync() > 0;
+
+                    if (status)
+                    {
+                        message =
+                            "Success, Please Check Your Email";
+
+                        sendData =
+                            await SendMailDataAsync(
+                                schoolPassword.Username,
+                                schoolPassword.LoginGuid);
+                    }
+                }
+                else
+                {
+                    message = "Email not found";
                 }
             }
             catch (Exception ex)
             {
+                status = false;
 
+                message = ex.Message;
             }
-            return Json(new { Status = status, Message = Message }, JsonRequestBehavior.AllowGet);
-        }
-        private bool SendMailData(string email, Guid loginGuid)
-        {
-            string sendGuid = Convert.ToString(loginGuid);
-            var filePath = System.Web.Hosting.HostingEnvironment.MapPath(@"~/Content/template/WebResetPassword.html");
-            var emailTemplate = System.IO.File.ReadAllText(filePath);
-            var url = System.Web.HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + @"/Account/CheckResetSchoolPassword/" + sendGuid;
-            var mBody = emailTemplate.Replace("{{resetLink}}", url);
-            bool sendMail = Send("Reset Password", mBody, email);
-            return sendMail;
-        }
-        private bool SendMailDataParent(string email, Guid loginGuid)
-        {
-            string sendGuid = Convert.ToString(loginGuid);
-            var filePath = System.Web.Hosting.HostingEnvironment.MapPath(@"~/Content/template/WebResetPassword.html");
-            var emailTemplate = System.IO.File.ReadAllText(filePath);
-            var url = System.Web.HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Authority) + @"/Account/CheckResetParentPassword/" + sendGuid;
-            var mBody = emailTemplate.Replace("{{resetLink}}", url);
-            bool sendMail = Send("Reset Password", mBody, email);
-            return sendMail;
-        }
-        private bool Send(string subject, string mailbody, string email)
-        {
-            MailMessage msg = new MailMessage();
-            SmtpClient client = new System.Net.Mail.SmtpClient();
-            msg.Subject = subject;
-            msg.Body = mailbody;
-            msg.From = new MailAddress("info.schoolman@gmail.com");
-            msg.To.Add(new MailAddress(email));
-            msg.Bcc.Add(new MailAddress("archanakv.srishti@gmail.com"));
-            msg.IsBodyHtml = true;
-            client.Host = "k2smtp.gmail.com";
-            System.Net.NetworkCredential basicauthenticationinfo = new System.Net.NetworkCredential("info.schoolman@gmail.com", "Info@123");
-            client.Port = int.Parse("587");//25//465
-            client.EnableSsl = true;
-            client.UseDefaultCredentials = false;
-            client.Credentials = basicauthenticationinfo;
-            client.DeliveryMethod = SmtpDeliveryMethod.Network;
-            System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate (object s,
-                    System.Security.Cryptography.X509Certificates.X509Certificate certificate,
-                    System.Security.Cryptography.X509Certificates.X509Chain chain,
-                    System.Net.Security.SslPolicyErrors sslPolicyErrors)
+
+            return Json(new
             {
-                return true;
-            };
+                Status = status,
+                Message = message
+            });
+        }
+        private async Task<bool> SendMailDataAsync(string email,Guid loginGuid)
+        {
             try
             {
-                client.Send(msg);
+                string sendGuid =
+                    loginGuid.ToString();
+
+                var filePath = Path.Combine(
+                    _environment.WebRootPath,
+                    "Content",
+                    "template",
+                    "WebResetPassword.html");
+
+                var emailTemplate =
+                    await System.IO.File
+                        .ReadAllTextAsync(filePath);
+
+                string baseUrl =
+                    $"{Request.Scheme}://{Request.Host}";
+
+                var url =
+                    $"{baseUrl}/Account/CheckResetSchoolPassword/{sendGuid}";
+
+                var mBody = emailTemplate
+                    .Replace("{{resetLink}}", url);
+
+                bool sendMail =
+                    await SendMailAsync(
+                        "Reset Password",
+                        mBody,
+                        email);
+
+                return sendMail;
             }
-            catch (Exception ex)
+            catch
             {
+                return false;
             }
-            return true;
         }
-        public object CheckResetSchoolPassword(string id)//Check the link is expired
+        private async Task<bool> SendMailDataParentAsync(string email,Guid loginGuid)
         {
-            var userGuid = new Guid(id);
-            var resetPasswordData = _Entities.tb_ResetPassword.Where(x => x.UserGuid == userGuid && x.LinkExpireStatus == true && x.IsActive).FirstOrDefault();
-            if (resetPasswordData != null)
-                return RedirectToAction("ResetSchoolPassword", new { id = id });//Can change password
-            else
-                return RedirectToAction("ExpiredResetPassword");// expired link 
+            string sendGuid =
+                loginGuid.ToString();
+
+            var filePath = Path.Combine(
+                _environment.WebRootPath,
+                "Content",
+                "template",
+                "WebResetPassword.html");
+
+            var emailTemplate =
+                await System.IO.File
+                    .ReadAllTextAsync(filePath);
+
+            string baseUrl =
+                $"{Request.Scheme}://{Request.Host}";
+
+            var url =
+                $"{baseUrl}/Account/CheckResetParentPassword/{sendGuid}";
+
+            var mBody = emailTemplate
+                .Replace("{{resetLink}}", url);
+
+            bool sendMail =
+                await SendMailAsync(
+                    "Reset Password",
+                    mBody,
+                    email);
+
+            return sendMail;
         }
-        public object CheckResetParentPassword(string id)//Check the link is expired
+        private async Task<bool> SendAsync(string subject,string mailbody,string email)
         {
-            var userGuid = new Guid(id);
-            var resetPasswordData = _Entities.tb_ResetPassword.Where(x => x.UserGuid == userGuid && x.LinkExpireStatus == true && x.IsActive).FirstOrDefault();
+            try
+            {
+                using var msg = new MailMessage();
+
+                msg.Subject = subject;
+
+                msg.Body = mailbody;
+
+                msg.From = new MailAddress(
+                    "info.schoolman@gmail.com");
+
+                msg.To.Add(
+                    new MailAddress(email));
+
+                msg.Bcc.Add(
+                    new MailAddress(
+                        "archanakv.srishti@gmail.com"));
+
+                msg.IsBodyHtml = true;
+
+                using var client =
+                    new SmtpClient(
+                        "k2smtp.gmail.com",
+                        587);
+
+                client.EnableSsl = true;
+
+                client.UseDefaultCredentials = false;
+
+                client.Credentials =
+                    new NetworkCredential(
+                        "info.schoolman@gmail.com",
+                        "Info@123");
+
+                client.DeliveryMethod =
+                    SmtpDeliveryMethod.Network;
+
+                await client.SendMailAsync(msg);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public async Task<IActionResult> CheckResetSchoolPassword(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return RedirectToAction(
+                    "ExpiredResetPassword");
+            }
+
+            Guid userGuid;
+
+            bool isValidGuid =
+                Guid.TryParse(id, out userGuid);
+
+            if (!isValidGuid)
+            {
+                return RedirectToAction(
+                    "ExpiredResetPassword");
+            }
+
+            var resetPasswordData =
+                await _Entities.TbResetPasswords
+                .FirstOrDefaultAsync(x =>
+                    x.UserGuid == userGuid
+                    && x.LinkExpireStatus
+                    && x.IsActive);
+
             if (resetPasswordData != null)
-                return RedirectToAction("ResetParentPassword", new { id = id });//Can change password
-            else
-                return RedirectToAction("ExpiredResetPassword");// expired link 
+            {
+                return RedirectToAction(
+                    "ResetSchoolPassword",
+                    new { id = id });
+            }
+
+            return RedirectToAction(
+                "ExpiredResetPassword");
+        }
+        public async Task<IActionResult> CheckResetParentPassword(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return RedirectToAction(
+                    "ExpiredResetPassword");
+            }
+
+            bool isValidGuid =
+                Guid.TryParse(id, out Guid userGuid);
+
+            if (!isValidGuid)
+            {
+                return RedirectToAction(
+                    "ExpiredResetPassword");
+            }
+
+            var resetPasswordData =
+                await _Entities.TbResetPasswords
+                .FirstOrDefaultAsync(x =>
+                    x.UserGuid == userGuid
+                    && x.LinkExpireStatus
+                    && x.IsActive);
+
+            if (resetPasswordData != null)
+            {
+                return RedirectToAction(
+                    "ResetParentPassword",
+                    new { id = id });
+            }
+
+            return RedirectToAction(
+                "ExpiredResetPassword");
         }
         public IActionResult ResetSchoolPassword(string id)
         {
@@ -1618,63 +2306,123 @@ namespace TrackTap.Controllers
         {
             return View();
         }
-        public object ChangePasswordWithNew(ChangePasswordModel model)
+        public async Task<IActionResult> ChangePasswordWithNew(ChangePasswordModel model)
         {
             bool status = false;
-            string message = "failed";
+
+            string message = "Failed";
+
             try
             {
-                var schoolData = _Entities.tb_Login.Where(x => x.LoginGuid == model.LoginGuid && x.IsActive).FirstOrDefault();
+                var schoolData =
+                    await _Entities.TbLogins
+                    .FirstOrDefaultAsync(x =>
+                        x.LoginGuid == model.LoginGuid
+                        && x.IsActive);
+
                 if (schoolData != null)
                 {
-                    var resetData = _Entities.tb_ResetPassword.Where(x => x.UserGuid == model.LoginGuid && x.IsActive).FirstOrDefault();
+                    var resetData =
+                        await _Entities.TbResetPasswords
+                        .FirstOrDefaultAsync(x =>
+                            x.UserGuid == model.LoginGuid
+                            && x.IsActive);
+
                     if (resetData != null)
                     {
                         resetData.LinkExpireStatus = false;
+
                         resetData.IsActive = false;
-                        _Entities.SaveChanges();
                     }
-                    schoolData.Password = model.password;
-                    status = _Entities.SaveChanges() > 0;
+
+                    schoolData.Password =
+                        model.password;
+
+                    status =
+                        await _Entities
+                            .SaveChangesAsync() > 0;
+
+                    if (status)
                     {
-                        status = true;
                         message = "Success";
                     }
+                }
+                else
+                {
+                    message = "User not found";
                 }
             }
             catch (Exception ex)
             {
+                status = false;
+
+                message = ex.Message;
             }
-            return Json(new { Status = status, Message = message }, JsonRequestBehavior.AllowGet);
+
+            return Json(new
+            {
+                Status = status,
+                Message = message
+            });
         }
-        public object ChangePasswordWithNewParent(ChangePasswordModel model)
+        public async Task<IActionResult> ChangePasswordWithNewParent(ChangePasswordModel model)
         {
             bool status = false;
-            string message = "failed";
+
+            string message = "Failed";
+
             try
             {
-                var schoolData = _Entities.tb_Parent.Where(x => x.ParentGuid == model.LoginGuid && x.IsActive).FirstOrDefault();
-                if (schoolData != null)
+                var parentData =
+                    await _Entities.TbParents
+                    .FirstOrDefaultAsync(x =>
+                        x.ParentGuid == model.LoginGuid
+                        && x.IsActive);
+
+                if (parentData != null)
                 {
-                    var resetData = _Entities.tb_ResetPassword.Where(x => x.UserGuid == model.LoginGuid && x.IsActive).FirstOrDefault();
+                    var resetData =
+                        await _Entities.TbResetPasswords
+                        .FirstOrDefaultAsync(x =>
+                            x.UserGuid == model.LoginGuid
+                            && x.IsActive);
+
                     if (resetData != null)
                     {
                         resetData.LinkExpireStatus = false;
+
                         resetData.IsActive = false;
-                        _Entities.SaveChanges();
                     }
-                    schoolData.Password = model.password;
-                    status = _Entities.SaveChanges() > 0;
+
+                    parentData.Password =
+                        model.password;
+
+                    status =
+                        await _Entities
+                            .SaveChangesAsync() > 0;
+
+                    if (status)
                     {
-                        status = true;
                         message = "Success";
                     }
+                }
+                else
+                {
+                    message = "Parent not found";
                 }
             }
             catch (Exception ex)
             {
+                status = false;
+
+                message = ex.Message;
             }
-            return Json(new { Status = status, Message = message }, JsonRequestBehavior.AllowGet);
+
+            return Json(new
+            {
+                Status = status,
+                Message = message
+            });
         }
         public IActionResult Features()
         {

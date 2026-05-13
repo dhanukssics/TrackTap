@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Objects;
@@ -11,10 +12,11 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Xml.Linq;
 using TrackTap.ClassLibrary;
-using TrackTap.MapModel;
-using TrackTap.PostModel;
 using TrackTap.ClassLibrary.Utility;
 using TrackTap.Data;
+using TrackTap.MapModel;
+using TrackTap.Models;
+using TrackTap.PostModel;
 using TrackTap.Service.Helper;
 
 namespace TrackTap.Repository
@@ -24,8 +26,11 @@ namespace TrackTap.Repository
         Random rnd = new Random();
 
 
-        public tb_tracktapEntities _Entity = new tb_tracktapEntities();
-
+        private readonly SchoolDbContext _Entity;
+        public SchoolRepository(SchoolDbContext Entity)
+        {
+            _Entity = Entity;
+        }
 
         public DateTime currentTime = DateTime.UtcNow;
 
@@ -822,10 +827,12 @@ namespace TrackTap.Repository
                 return new Tuple<bool, string, List<Division>>(status, msg, null);
             }
         }
-        
-        public object getUserById(long schoolId)
+
+        public async Task<TbSchool?> GetUserByIdAsync(long schoolId)
         {
-            return _Entity.tb_School.Where(z => z.SchoolId == schoolId).FirstOrDefault();
+            return await _Entity.TbSchools
+                .FirstOrDefaultAsync(z =>
+                    z.SchoolId == schoolId);
         }
 
         public Tuple<bool, string, Trip> TravelHistory(SchoolTravelHistoryPostModel model)

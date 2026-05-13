@@ -1,41 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Microsoft.AspNetCore.Mvc;
-using TrackTap.ClassLibrary;
-using TrackTap.DataLibrary;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using TrackTap.Models;
 using TrackTap.Repository;
 
 namespace TrackTap.Controllers
 {
     public class AdminBaseController : Controller
     {
-        public SchoolRepository _schoolRepository = new SchoolRepository();
-        public ParentRepository _parentRepository = new ParentRepository();
-        public TeacherRepository _teacherRepository = new TeacherRepository();
-        public DateTime CurrentTime = TimeZoneInfo.ConvertTimeFromUtc(System.DateTime.Now.ToUniversalTime(), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time"));
-        public tb_tracktapEntities _Entities = new tb_tracktapEntities();
-        public tb_School _schoolUser;
-        public tb_Parent _parentUser;
-        public tb_Login _user;
+        protected readonly SchoolDbContext _context;
 
-        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        protected readonly SchoolRepository _schoolRepository;
+
+        protected readonly ParentRepository _parentRepository;
+
+        protected readonly TeacherRepository _teacherRepository;
+
+        public DateTime CurrentTime =>
+            TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById(
+                    "India Standard Time"));
+
+        public TbSchool _schoolUser =
+            new TbSchool();
+
+        public TbParent _parentUser =
+            new TbParent();
+
+        public TbLogin _user =
+            new TbLogin();
+
+        public AdminBaseController(
+            SchoolDbContext context,
+            SchoolRepository schoolRepository,
+            ParentRepository parentRepository,
+            TeacherRepository teacherRepository)
         {
-            if (User != null && User.Identity.IsAuthenticated)
-            {
+            _context = context;
 
-                var routeValues = HttpContext.Request.RequestContext.RouteData.Values;
+            _schoolRepository =
+                schoolRepository;
 
-            }
+            _parentRepository =
+                parentRepository;
 
-            else
-            {
-                filterContext.Result = new RedirectResult("/Account/Home");
-                return;
-            }
+            _teacherRepository =
+                teacherRepository;
         }
 
-    }
+        public override void OnActionExecuting(
+            ActionExecutingContext context)
+        {
+            if (User.Identity != null &&
+                User.Identity.IsAuthenticated)
+            {
+                var routeValues =
+                    RouteData.Values;
+            }
+            else
+            {
+                context.Result =
+                    Redirect("/Account/Home");
 
+                return;
+            }
+
+            base.OnActionExecuting(context);
+        }
+    }
 }
