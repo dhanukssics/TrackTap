@@ -7,7 +7,7 @@ namespace TrackTap.Controllers
 {
     public class AdminBaseController : Controller
     {
-        protected readonly SchoolDbContext _context;
+        protected readonly SchoolDbContext _Entities;
 
         protected readonly SchoolRepository _schoolRepository;
 
@@ -31,12 +31,12 @@ namespace TrackTap.Controllers
             new TbLogin();
 
         public AdminBaseController(
-            SchoolDbContext context,
+            SchoolDbContext Entities,
             SchoolRepository schoolRepository,
             ParentRepository parentRepository,
             TeacherRepository teacherRepository)
         {
-            _context = context;
+            _Entities = Entities;
 
             _schoolRepository =
                 schoolRepository;
@@ -49,7 +49,7 @@ namespace TrackTap.Controllers
         }
 
         public override void OnActionExecuting(
-            ActionExecutingContext context)
+            ActionExecutingContext Entities)
         {
             if (User.Identity != null &&
                 User.Identity.IsAuthenticated)
@@ -59,13 +59,13 @@ namespace TrackTap.Controllers
             }
             else
             {
-                context.Result =
+                Entities.Result =
                     Redirect("/Account/Home");
 
                 return;
             }
 
-            base.OnActionExecuting(context);
+            base.OnActionExecuting(Entities);
         }
     }
 }

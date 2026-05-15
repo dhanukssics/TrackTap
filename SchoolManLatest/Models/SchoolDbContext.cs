@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+using TrackTap.Models.ViewModels;
 
 namespace TrackTap.Models;
 
@@ -266,7 +267,9 @@ public partial class SchoolDbContext : DbContext
     public virtual DbSet<TbVoucherNumber> TbVoucherNumbers { get; set; }
 
     public virtual DbSet<TbWagesShowsSetting> TbWagesShowsSettings { get; set; }
-
+    public DbSet<UnassignedDivisionResult>UnassignedDivisionResults{ get; set; }
+    public DbSet<UnassignedTeacherResult> UnassignedTeacherResults { get; set; }
+    public DbSet<LedgerFilterResult> LedgerFilterResults { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=50.63.166.171;Database=DB_SchoolMan_2025;User Id=sa;Password=WKO#$@@12345JK;TrustServerCertificate=True;");
@@ -2478,8 +2481,9 @@ public partial class SchoolDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__tb_WagesS__Schoo__4F9CCB9E");
         });
-
-        OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<UnassignedDivisionResult>().HasNoKey();
+        modelBuilder.Entity<UnassignedTeacherResult>().HasNoKey();
+        modelBuilder.Entity<LedgerFilterResult>().HasNoKey();
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

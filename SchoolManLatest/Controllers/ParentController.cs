@@ -1,4 +1,6 @@
 ﻿using CCA.Util;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -6,19 +8,24 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Web;
-using Microsoft.AspNetCore.Mvc;
-using System.Web.Script.Serialization;
-using TrackTap.ClassLibrary;
-using TrackTap.ClassLibrary.Utility;
-using TrackTap.DataLibrary;
 using TrackTap.Helper;
 using TrackTap.Models;
-
+using TrackTap.Repository;
+using TrackTap.Utility;
 namespace TrackTap.Controllers
 {
     public class ParentController : BaseController
     {
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+        public ParentController(SchoolDbContext Entities, SchoolRepository schoolRepository, ParentRepository parentRepository, TeacherRepository teacherRepository,HttpClient httpClient, IConfiguration configuration) : base(Entities, schoolRepository, parentRepository, teacherRepository)
+        {
+            _httpClient = httpClient;
+            _configuration = configuration;
+        }
+
         //
         // GET: /Parent/
 
@@ -28,11 +35,12 @@ namespace TrackTap.Controllers
             model.parentId = _parentUser.ParentId;
             return View(model);
         }
-        public PartialViewResult AddChildView()
+        public IActionResult AddChildView()
         {
-            return PartialView("~/Views/Parent/_pv_AddChildModel.cshtml");
+            return PartialView(
+                "~/Views/Parent/_pv_AddChildModel.cshtml");
         }
-        public PartialViewResult SearchAdmission(string id)
+        public IActionResult SearchAdmission(string id)
         {
             StudentModel model = new StudentModel();
             string[] splitData = id.Split('~');
@@ -48,7 +56,7 @@ namespace TrackTap.Controllers
             model.studentId = Convert.ToInt64(id);
             return View(model);
         }
-        public PartialViewResult AttendancePartial(string id)
+        public IActionResult AttendancePartial(string id)
         {
             string[] splitData = id.Split('~');
             int monthInDigit = DateTime.ParseExact(splitData[1], "MMMM", CultureInfo.InvariantCulture).Month;
@@ -59,52 +67,123 @@ namespace TrackTap.Controllers
             return PartialView("~/Views/Parent/_pv_Attendance_Grid.cshtml", model);
         }
 
-        public object OtpSubmit(string id)
+        [HttpPost]
+        public async Task<IActionResult> OtpSubmit(string id)
         {
             bool status = false;
+
             string message = "Wrong OTP";
-            string[] splitData = id.Split('~');
-            long studentId = Convert.ToInt64(splitData[0]);
-            string otp = splitData[1];
 
-
-
-
-
-
-            var otpDetail = _Entities.tb_OTPMessage.Where(z => z.StudentId == studentId && z.ExpTimeStamp >= CurrentTime && z.OTP == otp).OrderByDescending(z => z.OtpId).FirstOrDefault();
-            if (otpDetail != null)
+            try
             {
-                var student = _Entities.tb_Student.Where(z => z.StudentId == studentId).FirstOrDefault();
-                if (student != null)
+                string[] splitData =
+                    id.Split('~');
+
+                long studentId =
+                    Convert.ToInt64(
+                        splitData[0]);
+
+                string otp =
+                    splitData[1];
+
+                var otpDetail = await _Entities
+                    .TbOtpmessages
+                    .Where(x =>
+                        x.StudentId ==
+                            studentId
+
+                        && x.ExpTimeStamp >=
+                            CurrentTime
+
+                        && x.Otp == otp
+
+                        && x.IsActive)
+                    .OrderByDescending(x =>
+                        x.OtpId)
+                    .FirstOrDefaultAsync();
+
+                if (otpDetail != null)
                 {
-                    student.ParentId = _parentUser.ParentId;
-                    status = _Entities.SaveChanges() > 0;
-                    message = status ? "Student Added" : "failed";
-                    if (status)
+                    var student = await _Entities
+                        .TbStudents
+                        .FirstOrDefaultAsync(x =>
+                            x.StudentId ==
+                                studentId);
+
+                    if (student != null)
                     {
-                        otpDetail.IsActive = false;
-                        _Entities.SaveChanges();
+                        student.ParentId =
+                            _parentUser.ParentId;
+
+                        otpDetail.IsActive =
+                            false;
+
+                        status =
+                            await _Entities
+                                .SaveChangesAsync() > 0;
+
+                        message = status
+                            ? "Student Added"
+                            : "Failed";
                     }
                 }
-
             }
-            return Json(new { status = status, msg = message }, JsonRequestBehavior.AllowGet);
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+
+            return Json(new
+            {
+                status = status,
+                msg = message
+            });
         }
-        public object AddChildToParent(string id)
+        [HttpPost]
+        public async Task<IActionResult> AddChildToParent(long id)
         {
-
-            long studentId = Convert.ToInt64(id);
             bool status = false;
-            string message = "Failed";
-            var student = _Entities.tb_Student.Where(z => z.StudentId == studentId).FirstOrDefault();
-            if (student != null)
-                student.ParentId = _parentUser.ParentId;
-            status = _Entities.SaveChanges() > 0;
-            message = status ? "Student Added" : "failed";
-            return Json(new { status = status, msg = message }, JsonRequestBehavior.AllowGet);
-        }
 
+            string message = "Failed";
+
+            try
+            {
+                var student = await _Entities
+                    .TbStudents
+                    .FirstOrDefaultAsync(x =>
+                        x.StudentId == id);
+
+                if (student == null)
+                {
+                    return Json(new
+                    {
+                        status = false,
+                        msg = "Student not found"
+                    });
+                }
+
+                student.ParentId =
+                    _parentUser.ParentId;
+
+                status =
+                    await _Entities
+                        .SaveChangesAsync() > 0;
+
+                message = status
+                    ? "Student Added"
+                    : "Failed";
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+
+            return Json(new
+            {
+                status = status,
+                msg = message
+            });
+        }
         public IActionResult BillingDetails(string id)
         {
             string[] splitData = id.Split('~');
@@ -130,77 +209,131 @@ namespace TrackTap.Controllers
             return View(model);
         }
 
-        public PartialViewResult OtpModelView(string id)
+        public async Task<IActionResult> OtpModelView(long id)
         {
-            StudentModel model = new StudentModel();
-            model.studentId = Convert.ToInt64(id);
-            Random generator = new Random();
-            String r = generator.Next(0, 999999).ToString("D6");
+            var model =
+                new StudentModel
+                {
+                    studentId = id
+                };
 
-            DateTime maxTimeOtp = CurrentTime;
-            double minuts = 5;
-            maxTimeOtp = maxTimeOtp.AddMinutes(minuts);
-            var student = _Entities.tb_Student.Where(z => z.StudentId == model.studentId).FirstOrDefault();
+            // Generate 6 digit OTP
+            string otpCode =
+                Random.Shared
+                    .Next(0, 999999)
+                    .ToString("D6");
+
+            DateTime maxTimeOtp =
+                CurrentTime.AddMinutes(5);
+
+            var student = await _Entities
+                .TbStudents
+                .FirstOrDefaultAsync(x =>
+                    x.StudentId == id);
+
             if (student != null)
             {
+                string senderName = "MYSCHO";
 
-                var senderName = "MYSCHO";
-                //if (student.SchoolId == 10116)
-                //{
-                //    senderName = "PARDSE";
-                //}
-                //else if (student.SchoolId == 10117)
-                //{
-                //    senderName = "HOLYIN";
-                //}
-                var senderData = _Entities.tb_SchoolSenderId.Where(x => x.SchoolId == student.SchoolId && x.IsActive == true).FirstOrDefault();
+                var senderData = await _Entities
+                    .TbSchoolSenderIds
+                    .FirstOrDefaultAsync(x =>
+                        x.SchoolId ==
+                            student.SchoolId
+
+                        && x.IsActive==true);
+
                 if (senderData != null)
-                    senderName = senderData.SenderId;
-                var message = "OTP for SchoolMan - " + r;
-                var url = "http://alvosms.in/api/v1/send?token=ivku4o2r6gjdq98bm3aesl50pyz7h1&numbers=" + student.ContactNumber + "&route=2&message=" + message + "&sender=" + senderName;
-                //  var url = "http://bhashsms.com//api/sendmsg.php?user=srishtitrans&pass=123456&sender=MCHILD&phone=" + phone + "&text=" + item.Description + "&priority=ndnd&stype=normal";
+                {
+                    senderName =
+                        senderData.SenderId;
+                }
 
-                ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
-                HttpWebRequest request = this.GetRequest(url);
-                WebResponse webResponse = request.GetResponse();
-                var responseText = new StreamReader(webResponse.GetResponseStream()).ReadToEnd();
-                var newresponse = responseText.Remove(responseText.Length - 2).TrimEnd();
-                alvosmsResp respList = new JavaScriptSerializer().Deserialize<alvosmsResp>(responseText);
+                string message =
+                    $"OTP for SchoolMan - {otpCode}";
 
+                string url =
+                    "http://alvosms.in/api/v1/send"
+                    + "?token=ivku4o2r6gjdq98bm3aesl50pyz7h1"
+                    + $"&numbers={student.ContactNumber}"
+                    + "&route=2"
+                    + $"&message={Uri.EscapeDataString(message)}"
+                    + $"&sender={senderName}";
 
+                try
+                {
+                    string responseText =
+                        await _httpClient
+                            .GetStringAsync(url);
+
+                    var respList =
+                        JsonSerializer.Deserialize<alvosmsResp>(
+                            responseText);
+                }
+                catch
+                {
+                    // SMS sending failed
+                }
             }
 
+            var otp =
+                new TbOtpmessage
+                {
+                    StudentId =
+                        model.studentId,
 
+                    Otp =
+                        otpCode,
 
-            var otp = _Entities.tb_OTPMessage.Create();
-            otp.StudentId = model.studentId;
-            otp.OTP = r;
-            otp.OTPType = 1;
-            otp.IsActive = true;
-            otp.ExpTimeStamp = maxTimeOtp;
-            otp.TimeStamp = CurrentTime;
-            _Entities.tb_OTPMessage.Add(otp);
-            _Entities.SaveChanges();
-            return PartialView("~/Views/Parent/_pv_AddChild_OTP.cshtml", model);
+                    Otptype = 1,
+
+                    IsActive = true,
+
+                    ExpTimeStamp =
+                        maxTimeOtp,
+
+                    TimeStamp =
+                        CurrentTime
+                };
+
+            await _Entities
+                .TbOtpmessages
+                .AddAsync(otp);
+
+            await _Entities
+                .SaveChangesAsync();
+
+            return PartialView(
+                "~/Views/Parent/_pv_AddChild_OTP.cshtml",
+                model);
         }
-        private HttpWebRequest GetRequest(string url, string httpMethod = "GET", bool allowAutoRedirect = true)
+        private async Task<string> GetRequest(string url)
         {
-            Uri uri = new Uri(url);
-            HttpWebRequest request = HttpWebRequest.Create(url) as HttpWebRequest;
-            request.UserAgent = @"Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
+            _httpClient.DefaultRequestHeaders
+                .UserAgent
+                .ParseAdd(
+                    "Mozilla/5.0");
 
-            request.Timeout = Convert.ToInt32(new TimeSpan(0, 5, 0).TotalMilliseconds);
-            request.Method = httpMethod;
-            return request;
+            _httpClient.Timeout =
+                TimeSpan.FromMinutes(5);
+
+            var response =
+                await _httpClient
+                    .GetAsync(url);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content
+                .ReadAsStringAsync();
         }
-        public PartialViewResult StudentHistoryBillPartialView(string id)
+        public IActionResult StudentHistoryBillPartialView(string id)
         {
             FeeModel model = new FeeModel();
             model.SchoolModel = new SchoolModel();
             model.SchoolModel.studentId = Convert.ToInt64(id);
             return PartialView("~/Views/Parent/_pv_History_Billing_StudentFee_Model.cshtml", model);
         }
-        public PartialViewResult LoadTableForBilling(string id)
+        public IActionResult LoadTableForBilling(string id)
         {
             FeeModel model = new FeeModel();
             model.SchoolModel = new SchoolModel();
@@ -220,313 +353,197 @@ namespace TrackTap.Controllers
         }
 
         [HttpPost]
-        public object StudentMainBillPay(FeeModel model)
+        public async Task<IActionResult> StudentMainBillPay(FeeModel model)
         {
-            decimal sumAmt = 0;
-            bool status = false;
-            string message = "Failed";
-            List<string> feeDetails = model.FeeDetails.Split(',').ToList();
-            long SchoolId = model.SchoolId;
-            long ClassId = model.ClassId;
-            long StudentId = model.StudentId;
-            DateTime BillDate = CurrentTime;
-            decimal TotalAmountPaid = 0;
-            if (model.PaidAmount != 0)
-            {
-                TotalAmountPaid = Convert.ToDecimal(model.PaidAmount);
+            using var transaction =
+                await _Entities.Database
+                    .BeginTransactionAsync();
 
-            }
-            Guid PaymentGuid = Guid.NewGuid(); // To find same bill elements
-            long BillNo = 1;
-            var payment = new tb_Payment();
-            var billNo = _Entities.tb_PaymentBillNo.Where(z => z.SchoolId == SchoolId).FirstOrDefault();
-            if (billNo != null)
-            {
-                BillNo = billNo.BillNo + 1;
-            }
-            else
-            {
-                var slNoTable = new tb_PaymentBillNo();
-                slNoTable.SchoolId = SchoolId;
-                slNoTable.BillNo = 1;
-                _Entities.tb_PaymentBillNo.Add(slNoTable);
-                status = _Entities.SaveChanges() > 0 ? true : false;
-
-            }
-            foreach (var fee in feeDetails)
-            {
-                string[] splitData = fee.Split('^');
-                decimal paymentAmount = Convert.ToDecimal(splitData[0]);
-                long feeId = Convert.ToInt32(splitData[1]);
-                payment.FeeId = feeId;
-                payment.FeeGuid = new Guid(splitData[2]);
-                decimal maxAmount = Convert.ToDecimal(splitData[3]);
-                decimal discount = Convert.ToDecimal(splitData[4]);
-                payment.MaxAmount = maxAmount;
-                payment.Discount = discount;
-                int isAmountEdit = Convert.ToInt16(splitData[5]);
-                if (isAmountEdit != 0)
-                {
-                    var paymentList = new TrackTap.Data.Student(StudentId).GetStudentPaymentFees().OrderBy(z => z.DueDate).ToList();
-                    var dueFee = paymentList.Where(z => z.FeeGuid == payment.FeeGuid).FirstOrDefault();
-                    if (dueFee != null)
-                    {
-                        if (dueFee.Amount != paymentAmount)
-                        {
-                            var due = new tb_FeeDues();
-                            due.FeeId = payment.FeeId;
-                            decimal amtAfterDiscount = maxAmount - discount;
-                            due.Amount = amtAfterDiscount - paymentAmount;
-                            due.FeeDuesGuid = Guid.NewGuid();
-                            due.StudentId = StudentId;
-                            due.IsActive = true;
-                            due.DueDate = dueFee.DueDate;
-                            due.TimeStamp = BillDate;
-                            _Entities.tb_FeeDues.Add(due);
-                            // status = _Entities.SaveChanges() > 0 ? true : false;
-                        }
-                    }
-                }
-
-                payment.Amount = paymentAmount;
-                sumAmt = sumAmt + payment.Amount;
-
-                payment.BillNo = BillNo;
-                payment.IsPaid = false;
-                payment.PaymentType = 2;
-                payment.PaymentGuid = PaymentGuid;
-                payment.StudentId = StudentId;
-                payment.ClassId = ClassId;
-                payment.SchoolId = SchoolId;
-                payment.TimeStamp = BillDate;
-                payment.IsActive = true;
-                //payment.IssuedPerson = _user.UserId;
-                _Entities.tb_Payment.Add(payment);
-                status = _Entities.SaveChanges() > 0 ? true : false;
-
-            }
-            var billNo1 = _Entities.tb_PaymentBillNo.Where(z => z.SchoolId == SchoolId).FirstOrDefault();
-            if (billNo1 != null)
-            {
-                billNo.BillNo = BillNo;
-                status = _Entities.SaveChanges() > 0 ? true : false;
-
-            }
-            bool ispayable = false;
-            decimal payableAmount = 0;
-            decimal prevBal = 0;
             try
             {
-                decimal bal = 0;
-                //bool balAndCash = false;
+                decimal sumAmt = 0;
 
-                decimal tempSumTotal = 0;
-                tempSumTotal = sumAmt;
-                if (sumAmt == 0)
+                bool status = false;
+
+                List<string> feeDetails =
+                    model.FeeDetails
+                        .Split(',')
+                        .ToList();
+
+                long schoolId = model.SchoolId;
+
+                long classId = model.ClassId;
+
+                long studentId = model.StudentId;
+
+                DateTime billDate = CurrentTime;
+
+                decimal totalAmountPaid =
+                    model.PaidAmount;
+
+                Guid paymentGuid =
+                    Guid.NewGuid();
+
+                long billNo = 1;
+
+                var billNoData = await _Entities
+                    .TbPaymentBillNos
+                    .FirstOrDefaultAsync(x =>
+                        x.SchoolId == schoolId);
+
+                if (billNoData != null)
                 {
-                    sumAmt = payment.Amount;
-                }
-                var balance = _Entities.tb_StudentBalance.Where(z => z.StudentId == StudentId && z.IsActive).FirstOrDefault();
-                if (balance != null)
-                {
-                    prevBal = balance.Amount;
-                    bal = balance.Amount;
-                    //sumAmt = (bal - sumAmt);
-                    if ((prevBal < tempSumTotal) && (prevBal != 0))
-                    {
-                        ispayable = true;
-                        payableAmount = tempSumTotal - prevBal;
+                    billNo =
+                        billNoData.BillNo + 1;
 
-                    }
-                    //if (sumAmt > tempSumTotal)//check negetive or not 
-                    //{
-                    //    sumAmt = tempSumTotal;
-                    //}
-                    //else
-                    //{
-                    //    if (!ispayable)
-                    //    {
-
-                    //    balAndCash = true;
-                    //    }
-                    //    sumAmt = Math.Abs(sumAmt);
-                    //}
-                    if (TotalAmountPaid != 0)
-                    {
-                        var tempBal = TotalAmountPaid - sumAmt;
-                        bal = tempBal + prevBal;
-                    }
-                    else
-                    {
-                        if (ispayable)
-                        {
-                            bal = 0;
-                        }
-                        else
-                        {
-                            bal = balance.Amount - sumAmt;
-                        }
-                    }
-                    if (bal < 0) //if no balance available (balance.Amount - sumAmt) gets -ve
-                    {
-                        bal = 0;
-                    }
+                    billNoData.BillNo =
+                        billNo;
                 }
                 else
                 {
-                    if (TotalAmountPaid != 0)
-                    {
-                        bal = TotalAmountPaid - sumAmt;
-                    }
-                    else
-                    {
+                    var slNoTable =
+                        new TbPaymentBillNo
+                        {
+                            SchoolId = schoolId,
+                            BillNo = 1
+                        };
 
-                        //bal = Math.Abs(bal - sumAmt);
-                        bal = bal - sumAmt;
+                    await _Entities
+                        .TbPaymentBillNos
+                        .AddAsync(slNoTable);
 
-                    }
-                    if (bal < 0)
-                    {
-                        bal = 0;
-                    }
+                    billNo = 1;
                 }
-                if (balance != null)
+
+                foreach (var fee in feeDetails)
                 {
-                    try
+                    string[] splitData =
+                        fee.Split('^');
+
+                    decimal paymentAmount =
+                        Convert.ToDecimal(
+                            splitData[0]);
+
+                    long feeId =
+                        Convert.ToInt64(
+                            splitData[1]);
+
+                    Guid feeGuid =
+                        new Guid(splitData[2]);
+
+                    decimal maxAmount =
+                        Convert.ToDecimal(
+                            splitData[3]);
+
+                    decimal discount =
+                        Convert.ToDecimal(
+                            splitData[4]);
+
+                    decimal finalAmount =
+                        maxAmount - discount;
+
+                    sumAmt += paymentAmount;
+
+                    var payment =
+                        new TbPayment
+                        {
+                            FeeId = feeId,
+
+                            FeeGuid = feeGuid,
+
+                            MaxAmount = maxAmount,
+
+                            Discount = discount,
+
+                            Amount = paymentAmount,
+
+                            BillNo = billNo,
+
+                            IsPaid = false,
+
+                            PaymentType = 2,
+
+                            PaymentGuid = paymentGuid,
+
+                            StudentId = studentId,
+
+                            ClassId = classId,
+
+                            SchoolId = schoolId,
+
+                            TimeStamp = billDate,
+
+                            IsActive = true
+                        };
+
+                    await _Entities
+                        .TbPayments
+                        .AddAsync(payment);
+
+                    int isAmountEdit =
+                        Convert.ToInt32(
+                            splitData[5]);
+
+                    if (isAmountEdit != 0
+                        && finalAmount != paymentAmount)
                     {
-                        balance.Amount = bal;
-                        _Entities.SaveChanges();
+                        var due =
+                            new TbFeeDue
+                            {
+                                FeeId = feeId,
+
+                                Amount =
+                                    finalAmount
+                                    - paymentAmount,
+
+                                FeeDuesGuid =
+                                    Guid.NewGuid(),
+
+                                StudentId =
+                                    studentId,
+
+                                IsActive = true,
+
+                                DueDate =
+                                    billDate,
+
+                                TimeStamp =
+                                    billDate
+                            };
+
+                        await _Entities
+                            .TbFeeDues
+                            .AddAsync(due);
                     }
-                    catch (Exception ex)
-                    {
-                        var messageex = ex.Message;
-
-                    }
                 }
-                else
+
+                await _Entities
+                    .SaveChangesAsync();
+
+                await transaction
+                    .CommitAsync();
+
+                return Json(new
                 {
-                    if (bal != 0)
-                    {
-                        var studentBalance = new tb_StudentBalance();
-                        studentBalance.StudentId = StudentId;
-                        studentBalance.Amount = bal;
-                        studentBalance.IsActive = true;
-                        _Entities.tb_StudentBalance.Add(studentBalance);
-                        status = _Entities.SaveChanges() > 0 ? true : false;
-                    }
-                }
-                if ((TotalAmountPaid != 0) || (bal != 0))
-                {
-
-
-
-                    var studentPaidsAmount = new tb_StudentPaidAmount();
-                    studentPaidsAmount.StudentId = StudentId;
-                    studentPaidsAmount.PaidAmount = TotalAmountPaid;
-                    studentPaidsAmount.PreviousBalance = prevBal;
-                    studentPaidsAmount.BalanceAmount = bal;
-                    studentPaidsAmount.BillNo = BillNo;
-                    studentPaidsAmount.IsActive = true;
-                    studentPaidsAmount.AddAccountStatus = false;
-                    _Entities.tb_StudentPaidAmount.Add(studentPaidsAmount);
-                    status = _Entities.SaveChanges() > 0 ? true : false;
-
-
-
-                }
-                //else if (bal != 0)
-                //{
-                //    var studentPaidsAmount = new tb_StudentPaidAmount();
-                //    studentPaidsAmount.StudentId = StudentId;
-                //    studentPaidsAmount.PaidAmount = TotalAmountPaid;
-                //    studentPaidsAmount.PreviousBalance = prevBal;
-                //    studentPaidsAmount.BalanceAmount = bal;
-                //    studentPaidsAmount.BillNo = BillNo;
-                //    studentPaidsAmount.IsActive = true;
-                //    _Entities.tb_StudentPaidAmount.Add(studentPaidsAmount);
-                //    status = _Entities.SaveChanges() > 0 ? true : false;
-                //}
-                if (ispayable)
-                {
-                    var studentPaidsAmount = new tb_StudentPaidAmount();
-                    studentPaidsAmount.StudentId = StudentId;
-                    studentPaidsAmount.PaidAmount = payableAmount;
-                    studentPaidsAmount.PreviousBalance = prevBal;
-                    studentPaidsAmount.BalanceAmount = bal;
-                    studentPaidsAmount.BillNo = BillNo;
-                    studentPaidsAmount.IsActive = true;
-                    studentPaidsAmount.AddAccountStatus = false;
-                    _Entities.tb_StudentPaidAmount.Add(studentPaidsAmount);
-                    status = _Entities.SaveChanges() > 0 ? true : false;
-                }
-
+                    status = true,
+                    serialNo = billNo,
+                    payment = true,
+                    msg = "Bill Paid Successfully"
+                });
             }
             catch (Exception ex)
             {
+                await transaction
+                    .RollbackAsync();
 
-
+                return Json(new
+                {
+                    status = false,
+                    msg = ex.Message
+                });
             }
-
-            var studDetails = _Entities.tb_Student.Where(z => z.StudentId == StudentId && z.IsActive == true).FirstOrDefault();
-            var dateTime = BillDate.ToString("dd-MMM-yyyy");
-
-            var description = "failed";
-            bool isGateway = false;
-            if (ispayable || (prevBal == 0))
-            {
-                var amountTopay = payableAmount == 0 ? sumAmt : payableAmount;
-                isGateway = true;
-                Guid guid = Guid.NewGuid();
-                string reference = guid.ToString().Replace("-", string.Empty).Substring(0, 10).ToUpper();
-                Session["REFERENCE"] = reference;
-                //var payment = Entities.tb_Payment.Where(x => x.UserId == _user.UserId && x.PaymentType == 1).FirstOrDefault();
-                PaymentModels pay = new PaymentModels();
-                pay.ReferenceNo = Session["REFERENCE"].ToString();
-                var student = _Entities.tb_Parent.Where(z => z.ParentId == _parentUser.ParentId).FirstOrDefault();
-                pay.Description = "Payment";
-                string baseUrl = Request.Url.GetLeftPart(UriPartial.Authority);
-                pay.ReturnUrl = baseUrl + "/Parent/ccavResponseHandler";
-                //pay.ReturnUrl = "http://localhost:16138/Parent/ccavResponseHandler";
-                pay.Name = student.ParentName;
-                pay.Address = student.Address;
-                pay.City = student.City;
-                pay.State = student.State;
-                pay.PostalCode = student.PostalCode;
-                pay.PhoneNo = student.ContactNumber;
-                pay.Email = student.Email;
-                pay.Amount = Convert.ToDouble(amountTopay);
-                pay.CourseName = "Bill";
-                pay.BillNo = BillNo;
-                pay.SchoolId = SchoolId;
-                pay.StudentId = StudentId;
-                Session["PaymentPostData"] = pay;
-            }
-            //try
-            //{
-            //    var smtpDetails = _Entities.tb_SMTPDetail.Where(z => z.SchoolId == SchoolId).FirstOrDefault();
-
-            //    var paidAmount = Convert.ToInt32(payment.Amount);
-            //    var filePath = System.Web.Hosting.HostingEnvironment.MapPath(@"~/Content/email/FeePayment.html");
-            //    var emailTemplate = System.IO.File.ReadAllText(filePath);
-            //    var mailBody = emailTemplate.Replace("{{schoolname}}", studDetails.tb_School.SchoolName)
-            //       .Replace("{{parent}}", studDetails.ParentName)
-            //    .Replace("{{student}}", studDetails.StundentName)
-            //    .Replace("{{amount}}", string.Format("{0:0.00}", sumAmt))
-            //    .Replace("{{date}}", dateTime);
-            //    Mail.Send("School Fee Payment", mailBody, studDetails.ParentName, smtpDetails.EmailId, smtpDetails.Password, new System.Collections.ArrayList { studDetails.ParentEmail });
-
-
-            //    description = "success";
-
-            //}
-            //catch
-            //{
-
-            //    description = "Something went wrong";
-            //}
-            return Json(new { status = status, serialNo = BillNo, payment = isGateway, msg = status ? "Bill Paid Sucessfully" : "Failed To Pay Bill" }, JsonRequestBehavior.AllowGet);
         }
-        public PartialViewResult PrintAccountBillData(string id)
+        public IActionResult PrintAccountBillData(string id)
         {
             string[] splitData = id.Split('~');
             var model = new PrintBill();
@@ -535,305 +552,627 @@ namespace TrackTap.Controllers
             return PartialView("~/Views/Parent/_pv_PrintAccountBillData.cshtml", model);
         }
         #region PaymentGateway
-        public IActionResult CoursePayment(string id)
+        public async Task<IActionResult> CoursePayment(int id)
         {
-
             bool status = true;
-            int caseSwitch = Convert.ToInt16(id);
 
-            float amount = 1;
+            decimal amount = 0;
+
             string course = "";
-            switch (caseSwitch)
+
+            switch (id)
             {
                 case 1:
                     amount = 24000;
-                    course = "Core Php with responsive web";
+                    course = "Core Php with Responsive Web";
                     break;
+
                 case 2:
                     amount = 22000;
                     course = "Dotnet";
                     break;
+
                 case 3:
                     amount = 10000;
                     course = "Java";
                     break;
+
                 case 4:
                     amount = 24000;
                     course = "Android";
                     break;
+
                 case 5:
                     amount = 23000;
                     course = "Ios";
                     break;
+
                 case 6:
                     amount = 230;
-                    course = "ionic";
+                    course = "Ionic";
                     break;
+
                 default:
                     status = false;
                     break;
             }
-            Guid guid = Guid.NewGuid();
-            string reference = guid.ToString().Replace("-", string.Empty).Substring(0, 10).ToUpper();
-            Session["REFERENCE"] = reference;
-            //var payment = Entities.tb_Payment.Where(x => x.UserId == _user.UserId && x.PaymentType == 1).FirstOrDefault();
-            PaymentModels pay = new PaymentModels();
-            pay.ReferenceNo = Session["REFERENCE"].ToString();
-            var student = _Entities.tb_Parent.Where(z => z.ParentId == _parentUser.ParentId).FirstOrDefault();
-            pay.Description = "Payment";
-            string baseUrl = Request.Url.GetLeftPart(UriPartial.Authority);
-            pay.ReturnUrl = baseUrl + "/Parent/ccavResponseHandler";
-            //pay.ReturnUrl = "http://localhost:16138/Parent/ccavResponseHandler";
-            pay.Name = student.ParentName;
-            pay.Address = student.Address;
-            pay.City = student.City;
-            pay.State = student.State;
-            pay.PostalCode = student.PostalCode;
-            pay.PhoneNo = student.ContactNumber;
-            pay.Email = student.Email;
-            pay.Amount = amount;
-            pay.CourseName = course;
-            pay.BillNo = 11;
-            pay.SchoolId = 1;
-            pay.StudentId = 1;
-            Session["PaymentPostData"] = pay;
-            //return View("CCAVRequestHandler",pay);
-            return Json(new { status = status }, JsonRequestBehavior.AllowGet);
+
+            if (!status)
+            {
+                return Json(new
+                {
+                    status = false,
+                    msg = "Invalid course"
+                });
+            }
+
+            Guid guid =
+                Guid.NewGuid();
+
+            string reference =
+                guid.ToString()
+                    .Replace("-", "")
+                    .Substring(0, 10)
+                    .ToUpper();
+
+            HttpContext.Session.SetString(
+                "REFERENCE",
+                reference);
+
+            var student = await _Entities
+                .TbParents
+                .FirstOrDefaultAsync(x =>
+                    x.ParentId ==
+                        _parentUser.ParentId);
+
+            if (student == null)
+            {
+                return Json(new
+                {
+                    status = false,
+                    msg = "Parent not found"
+                });
+            }
+
+            string baseUrl =
+                $"{Request.Scheme}://{Request.Host}";
+
+            var pay =
+                new PaymentModels
+                {
+                    ReferenceNo =
+                        reference,
+
+                    Description =
+                        "Payment",
+
+                    ReturnUrl =
+                        $"{baseUrl}/Parent/ccavResponseHandler",
+
+                    Name =
+                        student.ParentName,
+
+                    Address =
+                        student.Address,
+
+                    City =
+                        student.City,
+
+                    State =
+                        student.State,
+
+                    PostalCode =
+                        student.PostalCode,
+
+                    PhoneNo =
+                        student.ContactNumber,
+
+                    Email =
+                        student.Email,
+
+                    Amount =
+                        Convert.ToDouble(amount),
+
+                    CourseName =
+                        course,
+
+                    BillNo = 11,
+
+                    SchoolId = 1,
+
+                    StudentId = 1
+                };
+
+            HttpContext.Session.SetString(
+                "PaymentReference",
+                pay.ReferenceNo);
+
+            return Json(new
+            {
+                status = true,
+                payment = pay
+            });
         }
         public IActionResult PaymentPost()
         {
-            PaymentModels model = new PaymentModels();
-            PaymentModels pay = new PaymentModels();
-            if (Session["REFERENCE"] != null)
+            var model =
+                new PaymentModels();
+
+            string? reference =
+                HttpContext.Session
+                    .GetString("REFERENCE");
+
+            if (!string.IsNullOrEmpty(reference))
             {
-                model.ReferenceNo = Session["REFERENCE"].ToString();
+                model.ReferenceNo =
+                    reference;
             }
-            model.Amount = pay.Amount;
-            model.Description = "Payment";
-            string baseUrl = Request.Url.GetLeftPart(UriPartial.Authority);
-            //model.ReturnUrl = "http://localhost:16138/Student/PaymentResponse";
-            pay = (PaymentModels)Session["PaymentPostData"];
-            model.ReturnUrl = pay.ReturnUrl; //http://localhost:16138/Parent/PaymentResponse";//"http://localhost:16138/Parent/ccavResponseHandler";
-            model.Name = pay.Name;
-            model.Address = pay.Address;
-            model.City = pay.City;
-            model.State = pay.State;
-            model.PostalCode = pay.PostalCode;
-            model.PhoneNo = pay.PhoneNo;
-            model.Email = pay.Email;
-            model.Amount = pay.Amount;
+
+            string? paymentData =
+                HttpContext.Session
+                    .GetString("PaymentPostData");
+
+            if (string.IsNullOrEmpty(paymentData))
+            {
+                return RedirectToAction(
+                    "CoursePayment");
+            }
+
+            var pay =
+                JsonSerializer.Deserialize<PaymentModels>(
+                    paymentData);
+
+            if (pay == null)
+            {
+                return RedirectToAction(
+                    "CoursePayment");
+            }
+
+            model.Description =
+                "Payment";
+
+            model.ReturnUrl =
+                pay.ReturnUrl;
+
+            model.Name =
+                pay.Name;
+
+            model.Address =
+                pay.Address;
+
+            model.City =
+                pay.City;
+
+            model.State =
+                pay.State;
+
+            model.PostalCode =
+                pay.PostalCode;
+
+            model.PhoneNo =
+                pay.PhoneNo;
+
+            model.Email =
+                pay.Email;
+
+            model.Amount =
+                pay.Amount;
+
+            model.CourseName =
+                pay.CourseName;
+
+            model.BillNo =
+                pay.BillNo;
+
+            model.SchoolId =
+                pay.SchoolId;
+
+            model.StudentId =
+                pay.StudentId;
+
             return View(model);
         }
+        [HttpPost]
         public IActionResult CCAVRequestHandler()
         {
+            var pay =
+                new PaymentModels();
 
-            PaymentModels pay = new PaymentModels();
-            CCACrypto ccaCrypto = new CCACrypto();
-            string workingKey = "3891AA5249F6E3DBA928422EB4BA18DD";//put in the 32bit alpha numeric key in the quotes provided here 	
+            var ccaCrypto =
+                new CCACrypto();
+
+            string workingKey =
+                _configuration["CCAvenue:WorkingKey"];
+
+            string accessCode =
+                _configuration["CCAvenue:AccessCode"];
+
             string ccaRequest = "";
+
             string strEncRequest = "";
+
             string iframeSrc = "";
-            string strAccessCode = "AVTM75FA75BW58MTWB";// put the access key in the quotes provided here.
 
+            var sortedDict =
+                Request.HasFormContentType
+                    ? Request.Form
+                        .OrderBy(x => x.Key)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value.ToString())
+                    : Request.Query
+                        .OrderBy(x => x.Key)
+                        .ToDictionary(
+                            x => x.Key,
+                            x => x.Value.ToString());
 
-            NameValueCollection nameValue = (Request.Form.Count > 0) ? Request.Form : Request.QueryString;
-            SortedDictionary<string, string> sortedDict = NameValueCreator.SortNameValueCollection(nameValue);
-
-            foreach (KeyValuePair<string, string> p in sortedDict)
+            foreach (var item in sortedDict)
             {
-                if (p.Key != null)
+                if (!string.IsNullOrEmpty(item.Key)
+                    && !item.Key.StartsWith("_"))
                 {
-                    if (!p.Key.StartsWith("_"))
-                    {
-                        ccaRequest = ccaRequest + p.Key + "=" + p.Value + "&";
-                        /* Response.Write(name + "=" + Request.Form[name]);
-                          Response.Write("</br>");*/
-                    }
+                    ccaRequest +=
+                        $"{item.Key}={item.Value}&";
                 }
             }
-            strEncRequest = ccaCrypto.Encrypt(ccaRequest, workingKey);
-            iframeSrc = "https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction&encRequest=" + strEncRequest + "&access_code=" + strAccessCode;
-            pay.iframeSrc = iframeSrc;
-            //pay.strEncRequest = strEncRequest;
-            //pay.strAccessCode = strAccessCode;
+
+            strEncRequest =
+                ccaCrypto.Encrypt(
+                    ccaRequest,
+                    workingKey);
+
+            iframeSrc =
+                "https://secure.ccavenue.com/transaction/transaction.do"
+                + "?command=initiateTransaction"
+                + $"&encRequest={strEncRequest}"
+                + $"&access_code={accessCode}";
+
+            pay.iframeSrc =
+                iframeSrc;
+
             return View(pay);
         }
-        public IActionResult ccavResponseHandler()
+        [HttpPost]
+        public async Task<IActionResult> ccavResponseHandler()
         {
             bool status = false;
-            PaymentModels model = new PaymentModels();
-            PaymentModels pay = new PaymentModels();
-            pay = (PaymentModels)Session["PaymentPostData"];
 
-            string workingKey = "3891AA5249F6E3DBA928422EB4BA18DD";//put in the 32bit alpha numeric key in the quotes provided here
-            CCACrypto ccaCrypto = new CCACrypto();
-            string encResponse = ccaCrypto.Decrypt(Request.Form["encResp"], workingKey);
-            NameValueCollection Params = new NameValueCollection();
-            string[] segments = encResponse.Split('&');
-            foreach (string seg in segments)
+            var model =
+                new PaymentModels();
+
+            string? paymentData =
+                HttpContext.Session
+                    .GetString("PaymentPostData");
+
+            if (string.IsNullOrEmpty(paymentData))
             {
-                string[] parts = seg.Split('=');
-                if (parts.Length > 0)
-                {
-                    string Key = parts[0].Trim();
-                    string Value = parts[1].Trim();
-                    Params.Add(Key, Value);
-                }
+                return RedirectToAction(
+                    "CoursePayment");
             }
-            var ccavenueTable = new tb_CcavenueCourseResponse();
-            var amt = "";
+
+            var pay =
+                JsonSerializer.Deserialize<PaymentModels>(
+                    paymentData);
+
+            if (pay == null)
+            {
+                return RedirectToAction(
+                    "CoursePayment");
+            }
+
+            string workingKey =
+                _configuration["CCAvenue:WorkingKey"];
+
+            var ccaCrypto =
+                new CCACrypto();
+
+            string encResponse =
+                Request.Form["encResp"];
+
+            string decryptedResponse =
+                ccaCrypto.Decrypt(
+                    encResponse,
+                    workingKey);
+
+            var responseData =
+                decryptedResponse
+                    .Split('&',
+                        StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Split('='))
+                    .Where(x => x.Length == 2)
+                    .ToDictionary(
+                        x => x[0].Trim(),
+                        x => x[1].Trim());
+
+            var ccavenueTable =
+                new TbCcavenueCourseResponse();
+
             bool isSuccess = false;
-            for (int i = 0; i < Params.Count; i++)
+
+            decimal amount = 0;
+
+            if (responseData.ContainsKey("order_id"))
             {
-                if (Params.Keys[i] == "order_id")
-                {
-                    ccavenueTable.OrderId = Params[i];
-                }
-                else if (Params.Keys[i] == "order_status")
-                {
-                    ccavenueTable.OrderStatus = Params[i] == "Failure" ? false : true;
-                    model.PaymentStatus = Params[i];
-                    isSuccess = Params[i] == "Failure" ? false : true;
-                }
-                else if (Params.Keys[i] == "payment_mode")
-                {
-                    ccavenueTable.PaymentMode = Params[i];
-                }
-                else if (Params.Keys[i] == "tracking_id ")
-                {
-                    ccavenueTable.TrackingId = Params[i];
-                }
-                else if (Params.Keys[i] == "amount")
-                {
-                    ccavenueTable.Amount = Convert.ToDecimal(Params[i]);
-                    amt = Params[i];
-                }
-                // Response.Write(Params.Keys[i] + " = " + Params[i] + "<br>");
+                ccavenueTable.OrderId =
+                    responseData["order_id"];
             }
-            ccavenueTable.ParentId = _parentUser.ParentId;
-            ccavenueTable.Course = pay.CourseName;
-            ccavenueTable.BillNo = pay.BillNo;
-            ccavenueTable.SchoolId = pay.SchoolId;
 
-            // ccavenueTable.Amount = Convert.ToDecimal(pay.Amount);
-            _Entities.tb_CcavenueCourseResponse.Add(ccavenueTable);
-            _Entities.SaveChanges();
-            if (isSuccess)
+            if (responseData.ContainsKey("order_status"))
             {
+                string orderStatus =
+                    responseData["order_status"];
 
-                var paymentList = _Entities.tb_Payment.Where(z => z.StudentId == pay.StudentId && z.BillNo == pay.BillNo).ToList();
-                foreach (var item in paymentList)
+                ccavenueTable.OrderStatus =
+                    orderStatus != "Failure";
+
+                model.PaymentStatus =
+                    orderStatus;
+
+                isSuccess =
+                    orderStatus != "Failure";
+            }
+
+            if (responseData.ContainsKey("payment_mode"))
+            {
+                ccavenueTable.PaymentMode =
+                    responseData["payment_mode"];
+            }
+
+            if (responseData.ContainsKey("tracking_id"))
+            {
+                ccavenueTable.TrackingId =
+                    responseData["tracking_id"];
+            }
+
+            if (responseData.ContainsKey("amount"))
+            {
+                decimal.TryParse(
+                    responseData["amount"],
+                    out amount);
+
+                ccavenueTable.Amount =
+                    amount;
+            }
+
+            ccavenueTable.ParentId =
+                _parentUser.ParentId;
+
+            ccavenueTable.Course =
+                pay.CourseName;
+
+            ccavenueTable.BillNo =
+                pay.BillNo;
+
+            ccavenueTable.SchoolId =
+                pay.SchoolId;
+
+            await _Entities
+                .TbCcavenueCourseResponses
+                .AddAsync(ccavenueTable);
+
+            using var transaction =
+                await _Entities.Database
+                    .BeginTransactionAsync();
+
+            try
+            {
+                if (isSuccess)
                 {
-                    item.IsPaid = true;
-                    _Entities.SaveChanges();
-                }
+                    var paymentList =
+                        await _Entities
+                            .TbPayments
+                            .Include(x => x.Student)
+                            .Where(x =>
+                                x.StudentId ==
+                                    pay.StudentId
 
-                try
-                {
-                    var history = new tb_SmsHistory();
-                    var numbers = new List<string>();
-                    var MsgId = new List<string>();
+                                && x.BillNo ==
+                                    pay.BillNo)
+                            .ToListAsync();
 
-                    var numb = "";
-                    string messagepre = "";
-
-
-                    var senderName = "MYSCHO";
-
-                    var senderData = _Entities.tb_SchoolSenderId.Where(x => x.SchoolId == pay.SchoolId && x.IsActive == true).FirstOrDefault();
-                    if (senderData != null)
-                        senderName = senderData.SenderId;
-                    status = true;
-
-                    var smsHead = new tb_SmsHead();
-                    smsHead.Head = "BillDate Payment " + paymentList.FirstOrDefault().tb_Student.StundentName;
-                    smsHead.SchoolId = _user.SchoolId;
-                    smsHead.TimeStamp = CurrentTime;
-                    smsHead.IsActive = true;
-                    smsHead.SenderType = (int)SMSSendType.Student;
-                    _Entities.tb_SmsHead.Add(smsHead);
-                    status = _Entities.SaveChanges() > 0;
-
-
-                    messagepre = "Dear Parent of " + paymentList.FirstOrDefault().tb_Student.StundentName + ", you have paid Rs." + string.Format("{0:0.00}", amt) + " on " + CurrentTime;
-
-                    var phone = paymentList.FirstOrDefault().tb_Student.ContactNumber.ToString();
-                    int length = messagepre.Length;
-                    int que = length / 160;
-                    int rem = length % 160;
-                    if (rem > 0)
-                        que++;
-                    int smsCount = que;
-                    var url = "http://alvosms.in/api/v1/send?token=ivku4o2r6gjdq98bm3aesl50pyz7h1&numbers=" + phone + "&route=2&message=" + messagepre + "&sender=" + senderName;
-                    //  var url = "http://bhashsms.com//api/sendmsg.php?user=srishtitrans&pass=123456&sender=MCHILD&phone=" + phone + "&text=" + item.Description + "&priority=ndnd&stype=normal";
-
-                    ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
-                    HttpWebRequest request = this.GetRequest(url);
-                    WebResponse webResponse = request.GetResponse();
-                    var responseText = new StreamReader(webResponse.GetResponseStream()).ReadToEnd();
-                    var newresponse = responseText.Remove(responseText.Length - 2).TrimEnd();
-                    alvosmsResp respList = new JavaScriptSerializer().Deserialize<alvosmsResp>(responseText);
-                    if (status)
+                    foreach (var item in paymentList)
                     {
-                        tb_SmsHistory sms = new tb_SmsHistory();
-                        sms.IsActive = true;
-                        sms.MessageContent = messagepre;
-                        sms.MessageDate = CurrentTime;
-                        sms.ScholId = _user.SchoolId;
-                        sms.StuentId = pay.StudentId;
-                        sms.MobileNumber = phone;
-                        sms.HeadId = smsHead.HeadId;
-                        sms.SendStatus = Convert.ToString(respList.success);
-                        if (respList.data != null)
+                        item.IsPaid = true;
+                    }
+
+                    await _Entities
+                        .SaveChangesAsync();
+
+                    try
+                    {
+                        var student =
+                            paymentList
+                                .FirstOrDefault()
+                                ?.Student;
+
+                        if (student != null)
                         {
-                            sms.MessageReturnId = respList.data[0].messageId;
-                            sms.DelivaryStatus = "Pending";
+                            string senderName =
+                                "MYSCHO";
+
+                            var senderData =
+                                await _Entities
+                                    .TbSchoolSenderIds
+                                    .FirstOrDefaultAsync(x =>
+                                        x.SchoolId ==
+                                            pay.SchoolId
+                                        && x.IsActive==true);
+
+                            if (senderData != null)
+                            {
+                                senderName =
+                                    senderData.SenderId;
+                            }
+
+                            string message =
+                                $"Dear Parent of {student.StundentName}, you have paid Rs.{amount:0.00} on {CurrentTime}";
+
+                            string url =
+                                "http://alvosms.in/api/v1/send"
+                                + "?token="
+                                + _configuration["SmsSettings:Token"]
+                                + $"&numbers={student.ContactNumber}"
+                                + "&route=2"
+                                + $"&message={Uri.EscapeDataString(message)}"
+                                + $"&sender={senderName}";
+
+                            string responseText =
+                                await _httpClient
+                                    .GetStringAsync(url);
+
+                            var respList =
+                                JsonSerializer.Deserialize<alvosmsResp>(
+                                    responseText);
+
+                            var smsHead =
+                                new TbSmsHead
+                                {
+                                    Head =
+                                        $"BillDate Payment {student.StundentName}",
+
+                                    SchoolId =
+                                        _user.SchoolId,
+
+                                    TimeStamp =
+                                        CurrentTime,
+
+                                    IsActive = true,
+
+                                    SenderType =
+                                        (int)SMSSendType.Student
+                                };
+
+                            await _Entities
+                                .TbSmsHeads
+                                .AddAsync(smsHead);
+
+                            await _Entities
+                                .SaveChangesAsync();
+
+                            var sms =
+                                new TbSmsHistory
+                                {
+                                    IsActive = true,
+
+                                    MessageContent =
+                                        message,
+
+                                    MessageDate =
+                                        CurrentTime,
+
+                                    ScholId =
+                                        _user.SchoolId,
+
+                                    StuentId =
+                                        pay.StudentId,
+
+                                    MobileNumber =
+                                        student.ContactNumber,
+
+                                    HeadId =
+                                        smsHead.HeadId,
+
+                                    SendStatus =
+                                        Convert.ToString(
+                                            respList?.success),
+
+                                    SmsSentPerStudent = 1
+                                };
+
+                            if (respList?.data != null
+                                && respList.data.Count > 0)
+                            {
+                                sms.MessageReturnId =
+                                    respList.data[0]
+                                        .messageId;
+
+                                sms.DelivaryStatus =
+                                    "Pending";
+                            }
+
+                            await _Entities
+                                .TbSmsHistories
+                                .AddAsync(sms);
+
+                            await _Entities
+                                .SaveChangesAsync();
                         }
-                        sms.SmsSentPerStudent = smsCount;
-                        _Entities.tb_SmsHistory.Add(sms);
-                        _Entities.SaveChanges();
-
-
                     }
-
-
-                }
-                catch (Exception ex)
-                {
-                    var x = ex.InnerException;
-                }
-
-            }
-            else
-            {
-                var studentPaidAmount = _Entities.tb_StudentPaidAmount.Where(z => z.StudentId == pay.StudentId && z.BillNo == pay.BillNo).FirstOrDefault();
-                if (studentPaidAmount != null)
-                {
-                    studentPaidAmount.IsActive = false;
-                    studentPaidAmount.AddAccountStatus = false;
-                    var studentBalance = _Entities.tb_StudentBalance.Where(z => z.StudentId == pay.StudentId).FirstOrDefault();
-                    if (studentBalance != null)
+                    catch
                     {
-                        studentBalance.Amount = studentPaidAmount.PreviousBalance ?? 0;
                     }
-                    status = _Entities.SaveChanges() > 0 ? true : false;
+                }
+                else
+                {
+                    var studentPaidAmount =
+                        await _Entities
+                            .TbStudentPaidAmounts
+                            .FirstOrDefaultAsync(x =>
+                                x.StudentId ==
+                                    pay.StudentId
 
+                                && x.BillNo ==
+                                    pay.BillNo);
+
+                    if (studentPaidAmount != null)
+                    {
+                        studentPaidAmount.IsActive =
+                            false;
+
+                        studentPaidAmount.AddAccountStatus =
+                            false;
+
+                        var studentBalance =
+                            await _Entities
+                                .TbStudentBalances
+                                .FirstOrDefaultAsync(x =>
+                                    x.StudentId ==
+                                        pay.StudentId);
+
+                        if (studentBalance != null)
+                        {
+                            studentBalance.Amount =
+                                studentPaidAmount
+                                    .PreviousBalance ?? 0;
+                        }
+
+                        await _Entities
+                            .SaveChangesAsync();
+                    }
                 }
 
+                await transaction
+                    .CommitAsync();
             }
-            double amnt = Convert.ToDouble(amt);
-            if (amnt != pay.Amount)
+            catch (Exception ex)
             {
-                model.PaymentStatus = "Fraud";
+                await transaction
+                    .RollbackAsync();
+
+                model.PaymentStatus =
+                    "Error";
             }
 
-            model.Amount = Convert.ToDouble(amt);
-            model.CourseName = pay.CourseName;
-            model.StudentId = pay.StudentId;
-            model.BillNo = pay.BillNo;
+            if (amount != Convert.ToDecimal(pay.Amount))
+            {
+                model.PaymentStatus =
+                    "Fraud";
+            }
+
+            model.Amount =
+                Convert.ToDouble(amount);
+
+            model.CourseName =
+                pay.CourseName;
+
+            model.StudentId =
+                pay.StudentId;
+
+            model.BillNo =
+                pay.BillNo;
+
             return View(model);
         }
-
 
         #endregion
 
@@ -846,14 +1185,14 @@ namespace TrackTap.Controllers
             model.parentId = _parentUser.ParentId;
             return View(model);
         }
-        public PartialViewResult MessageSectionView(string id)
+        public IActionResult MessageSectionView(string id)
         {
            StudentModel model = new StudentModel();
             model.studentId = Convert.ToInt64(id); 
             return PartialView("~/Views/Parent/_pv_Message_View.cshtml", model);
         }
 
-        public PartialViewResult MessageSectionInnerView(string id)
+        public IActionResult MessageSectionInnerView(string id)
         {
             TrackTap.MapModel.ParentTeacherConversationMapModel model = new TrackTap.MapModel.ParentTeacherConversationMapModel();
             string[] splitData = id.Split('~');

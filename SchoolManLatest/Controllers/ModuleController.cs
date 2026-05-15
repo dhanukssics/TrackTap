@@ -1,14 +1,20 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Microsoft.AspNetCore.Mvc;
 using TrackTap.Models;
+using TrackTap.Repository;
 
 namespace TrackTap.Controllers
 {
     public class ModuleController : AdminBaseController
     {
+        public ModuleController(SchoolDbContext Entities, SchoolRepository schoolRepository, ParentRepository parentRepository, TeacherRepository teacherRepository) : base(Entities, schoolRepository, parentRepository, teacherRepository)
+        {
+        }
+
         // GET: Module
         public IActionResult Index()
         {
@@ -16,150 +22,401 @@ namespace TrackTap.Controllers
         }
 
         #region SuperAdmin school module
-        public IActionResult SchoolTypeDefineHome()
+        public async Task<IActionResult> SchoolTypeDefineHome()
         {
-            SchoolModuleModel model = new SchoolModuleModel();
-            //  model.SchoolId = _user.SchoolId;
-            model.mainList = new List<SchoolMainModuleList>();
-            var list = _Entities.tb_SchoolSubModule.Where(x => x.IsActive).ToList();
-            var mainList = list.Select(x => x.tb_SchoolModuleHome.MainModule).Distinct().ToList();
+            var model =
+                new SchoolModuleModel
+                {
+                    mainList =
+                        new List<SchoolMainModuleList>()
+                };
+
+            var list = await _Entities
+                .TbSchoolSubModules
+                .Include(x => x.Main)
+                .Where(x => x.IsActive)
+                .ToListAsync();
+
+            var mainList = list
+                .Select(x =>
+                    x.Main
+                        .MainModule)
+                .Distinct()
+                .ToList();
+
             foreach (var item in mainList)
             {
                 string subIdString = "";
-                string main = Convert.ToString(item);
-                var sub = list.Where(x => x.tb_SchoolModuleHome.MainModule == main).ToList();
-                SchoolMainModuleList one = new SchoolMainModuleList();
-                one.Id = sub.FirstOrDefault().Id;
-                one.ModuleName = main;
-                one.subList = new List<SchoolSubModuleList>();
+
+                string main =
+                    Convert.ToString(item);
+
+                var sub = list
+                    .Where(x =>
+                        x.Main
+                            .MainModule == main)
+                    .ToList();
+
+                var one =
+                    new SchoolMainModuleList
+                    {
+                        Id =
+                            sub.FirstOrDefault()?.Id ?? 0,
+
+                        ModuleName =
+                            main,
+
+                        subList =
+                            new List<SchoolSubModuleList>()
+                    };
+
                 foreach (var a in sub)
                 {
-                    SchoolSubModuleList b = new SchoolSubModuleList();
-                    b.MainId = one.Id;
-                    b.Id = a.Id;
-                    b.SubMosule = a.SchoolSubModule;
+                    var b =
+                        new SchoolSubModuleList
+                        {
+                            MainId =
+                                one.Id,
+
+                            Id =
+                                a.Id,
+
+                            SubMosule =
+                                a.SchoolSubModule
+                        };
+
                     one.subList.Add(b);
-                    if (subIdString == "")
-                        subIdString = a.Id.ToString();
+
+                    if (string.IsNullOrEmpty(
+                        subIdString))
+                    {
+                        subIdString =
+                            a.Id.ToString();
+                    }
                     else
-                        subIdString = subIdString + "," + a.Id.ToString();
+                    {
+                        subIdString =
+                            subIdString
+                            + ","
+                            + a.Id;
+                    }
                 }
-                one.subIdListString = subIdString;
+
+                one.subIdListString =
+                    subIdString;
+
                 model.mainList.Add(one);
             }
-            //model.IsAdmin = false;
+
             return View(model);
         }
 
         [HttpPost]
-        public object SubmitAddSchoolModule(SchoolModuleModel model)
+        public async Task<IActionResult> SubmitAddSchoolModule(SchoolModuleModel model)
         {
-            string msg = "Failed";
             bool status = false;
-            if (_Entities.tb_SchoolModuleMain.Any(x => x.SchoolName.ToUpper().Trim() == model.SchoolName.ToUpper().Trim() && x.SchoolId == model.SchoolId && x.IsActive))
+
+            string msg = "Failed";
+
+            try
             {
-                msg = "This School module already exists!";
-            }
-            else
-            {
-                var main = _Entities.tb_SchoolModuleMain.Create();
-                main.SchoolId = model.SchoolId;
-                main.SchoolName = model.SchoolName;
-                main.IsActive = true;
-                main.TimeStamp = CurrentTime;
-                _Entities.tb_SchoolModuleMain.Add(main);
-                status = _Entities.SaveChanges() > 0;
-                if (status)
+                bool exists = await _Entities
+                    .TbSchoolModuleMains
+                    .AnyAsync(x =>
+                        x.SchoolName
+                            .ToUpper()
+                            .Trim() ==
+                        model.SchoolName
+                            .ToUpper()
+                            .Trim()
+
+                        && x.SchoolId ==
+                            model.SchoolId
+
+                        && x.IsActive);
+
+                if (exists)
                 {
-                    foreach (var item in model.subListOnly)
+                    msg =
+                        "This School module already exists!";
+
+                    return Json(new
                     {
-                        var mainDetails = new TrackTap.Data.SchoolSubModule(item.Id);
-                        var sub = _Entities.tb_SchoolModuleDetails.Create();
-                        sub.SchoolModuleId = main.Id;
-                        sub.MainId = mainDetails.MainId;
-                        sub.SchoolSubModuleId = item.Id;
-                        sub.IsActive = true;
-                        sub.TimeStamp = CurrentTime;
-                        sub.SchoolId = model.SchoolId;
-                        _Entities.tb_SchoolModuleDetails.Add(sub);
-                        status = _Entities.SaveChanges() > 0;
-                    }
+                        status = false,
+                        msg = msg
+                    });
                 }
-                if(status)
-                {
-                    var school = _Entities.tb_School.Where(x => x.SchoolId == model.SchoolId).ToList();
-                    if (school != null)
+
+                using var transaction =
+                    await _Entities.Database
+                        .BeginTransactionAsync();
+
+                var main =
+                    new TbSchoolModuleMain
                     {
-                        foreach (var item in school)
-                        {                            
-                            item.SchoolType = main.Id;
-                            _Entities.SaveChanges();
+                        SchoolId =
+                            model.SchoolId,
+
+                        SchoolName =
+                            model.SchoolName,
+
+                        IsActive = true,
+
+                        TimeStamp =
+                            CurrentTime
+                    };
+
+                await _Entities
+                    .TbSchoolModuleMains
+                    .AddAsync(main);
+
+                await _Entities
+                    .SaveChangesAsync();
+
+                if (model.subListOnly != null
+                    && model.subListOnly.Any())
+                {
+                    foreach (var item
+                        in model.subListOnly)
+                    {
+                        var mainDetails =
+                            await _Entities
+                                .TbSchoolSubModules
+                                .FirstOrDefaultAsync(x =>
+                                    x.Id == item.Id);
+
+                        if (mainDetails == null)
+                        {
+                            continue;
                         }
+
+                        var sub =
+                            new TbSchoolModuleDetail
+                            {
+                                SchoolModuleId =
+                                    main.Id,
+
+                                MainId =
+                                    mainDetails.MainId,
+
+                                SchoolSubModuleId =
+                                    item.Id,
+
+                                SchoolId =
+                                    model.SchoolId,
+
+                                IsActive = true,
+
+                                TimeStamp =
+                                    CurrentTime
+                            };
+
+                        await _Entities
+                            .TbSchoolModuleDetails
+                            .AddAsync(sub);
                     }
 
+                    await _Entities
+                        .SaveChangesAsync();
                 }
-            }
-            if (status)
-                msg = "Successfull";
-            return Json(new { status = status, msg = msg }, JsonRequestBehavior.AllowGet);
-        }
 
-        public IActionResult SchoolModuleListView()
+                var schools = await _Entities
+                    .TbSchools
+                    .Where(x =>
+                        x.SchoolId ==
+                            model.SchoolId)
+                    .ToListAsync();
+
+                if (schools.Any())
+                {
+                    foreach (var item in schools)
+                    {
+                        item.SchoolType =
+                            main.Id;
+                    }
+
+                    await _Entities
+                        .SaveChangesAsync();
+                }
+
+                await transaction
+                    .CommitAsync();
+
+                status = true;
+
+                msg = "Successful";
+            }
+            catch (Exception ex)
+            {
+                msg = ex.Message;
+            }
+
+            return Json(new
+            {
+                status = status,
+                msg = msg
+            });
+        }
+        public async Task<IActionResult> SchoolModuleListView()
         {
             int count = 0;
-            SchoolListdata model = new SchoolListdata();
-            model.list = new List<ModelList>();
-            var data = _Entities.tb_SchoolModuleDetails.Where(x => x.IsActive).OrderBy(x => x.tb_SchoolSubModule.SchoolSubModule).OrderBy(x => x.tb_SchoolModuleHome.MainModule).OrderBy(x => x.tb_SchoolModuleMain.SchoolName).ToList();
+
+            var model =
+                new SchoolListdata
+                {
+                    list =
+                        new List<ModelList>()
+                };
+
+            var data = await _Entities
+                .TbSchoolModuleDetails
+                .Include(x => x.SchoolSubModule)
+                .Include(x => x.Main)
+                .Include(x => x.SchoolModule)
+                .Where(x => x.IsActive)
+                .OrderBy(x =>
+                    x.SchoolModule
+                        .SchoolName)
+                .ThenBy(x =>
+                    x.Main
+                        .MainModule)
+                .ThenBy(x =>
+                    x.SchoolSubModule
+                        .SchoolSubModule)
+                .ToListAsync();
+
             foreach (var item in data)
             {
-                count = count + 1;
-                ModelList one = new ModelList();
-                one.Id = item.tb_SchoolModuleMain.Id;
-                one.Schoolname = item.tb_SchoolModuleMain.SchoolName;
-                one.Main = item.tb_SchoolModuleHome.MainModule;
-                one.Sub = item.tb_SchoolSubModule.SchoolSubModule;
-                one.SlNo = count;
-                one.SubId = item.Id;
+                count++;
+
+                var one =
+                    new ModelList
+                    {
+                        Id =
+                            item.Main
+                                .Id,
+
+                        Schoolname =
+                            item.SchoolModule
+                                .SchoolName,
+
+                        Main =
+                            item.Main
+                                .MainModule,
+
+                        Sub =
+                            item.SchoolSubModule
+                                .SchoolSubModule,
+
+                        SlNo =
+                            count,
+
+                        SubId =
+                            item.Id
+                    };
+
                 model.list.Add(one);
             }
+
             return View(model);
         }
 
-        public object DeleteModule(string id)
+        [HttpPost]
+        public async Task<IActionResult> DeleteModule(
+    long id)
         {
             bool status = false;
+
             string msg = "Failed";
-            long Id = Convert.ToInt64(id);
-            var module = _Entities.tb_SchoolModuleDetails.Where(x => x.Id == Id).FirstOrDefault();
-            module.IsActive = false;
-            status = _Entities.SaveChanges() > 0;
-            if (status)
+
+            try
             {
-                //Also Remove from usermodule table also
-                var subusermodule = _Entities.tb_UserModuleDetails.Where(x => x.tb_UserModuleMain.SchoolId == module.SchoolId && x.SubModuleId == module.SchoolSubModuleId).FirstOrDefault();
-                subusermodule.IsActive = false;
-                status = _Entities.SaveChanges() > 0;
+                using var transaction =
+                    await _Entities.Database
+                        .BeginTransactionAsync();
 
-                //Remove end here
+                var module = await _Entities
+                    .TbSchoolModuleDetails
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == id);
 
-
-                var mainData = _Entities.tb_SchoolModuleDetails.Where(x => x.SchoolModuleId == module.SchoolModuleId && x.IsActive).FirstOrDefault();
-                if (mainData != null)
+                if (module == null)
                 {
+                    return Json(new
+                    {
+                        status = false,
+                        msg = "Module not found"
+                    });
+                }
 
-                }
-                else
+                module.IsActive = false;
+
+                await _Entities
+                    .SaveChangesAsync();
+
+                // Remove from user module table
+                var subUserModule = await _Entities
+                    .TbUserModuleDetails
+                    .Include(x => x.UserModule)
+                    .FirstOrDefaultAsync(x =>
+                        x.UserModule
+                            .SchoolId == module.SchoolId
+
+                        && x.SubModuleId ==
+                            module.SchoolSubModuleId);
+
+                if (subUserModule != null)
                 {
-                    var main = _Entities.tb_SchoolModuleMain.Where(x => x.Id == module.SchoolModuleId).FirstOrDefault();
-                    main.IsActive = false;
-                    _Entities.SaveChanges();
+                    subUserModule.IsActive = false;
+
+                    await _Entities
+                        .SaveChangesAsync();
                 }
+
+                // Check remaining active modules
+                var mainData = await _Entities
+                    .TbSchoolModuleDetails
+                    .FirstOrDefaultAsync(x =>
+                        x.SchoolModuleId ==
+                            module.SchoolModuleId
+
+                        && x.IsActive);
+
+                if (mainData == null)
+                {
+                    var main = await _Entities
+                        .TbSchoolModuleMains
+                        .FirstOrDefaultAsync(x =>
+                            x.Id ==
+                                module.SchoolModuleId);
+
+                    if (main != null)
+                    {
+                        main.IsActive = false;
+
+                        await _Entities
+                            .SaveChangesAsync();
+                    }
+                }
+
+                await transaction
+                    .CommitAsync();
+
+                status = true;
+
                 msg = "Successful";
             }
-            return Json(new { status = status, msg = msg }, JsonRequestBehavior.AllowGet);
+            catch (Exception ex)
+            {
+                msg = ex.Message;
+            }
 
+            return Json(new
+            {
+                status = status,
+                msg = msg
+            });
         }
-
         public IActionResult SchoolTypeDataEdit()
         {
             SchoolModuleModel model = new SchoolModuleModel();
@@ -168,97 +425,248 @@ namespace TrackTap.Controllers
             return View(model);
         }
 
-        public PartialViewResult EditListOfSchoolType(string id)
+        public async Task<IActionResult> EditListOfSchoolType(long id)
         {
-            var Schoolid = Convert.ToInt64(id);
+            long schoolId = id;
 
+            var userData = await _Entities
+                .TbSchoolModuleDetails
+                .Include(x => x.Main)
+                .Where(x =>
+                    x.SchoolId == schoolId)
+                .ToListAsync();
 
-            var userData = _Entities.tb_SchoolModuleDetails.Where(x => x.SchoolId == Schoolid).ToList();
+            var model =
+                new SchoolModuleModel
+                {
+                    SchoolId =
+                        schoolId,
 
-            SchoolModuleModel model = new SchoolModuleModel();
-            model.SchoolId = Schoolid;
-            model.mainList = new List<SchoolMainModuleList>();
-            var list = _Entities.tb_SchoolSubModule.Where(x => x.IsActive).ToList();
-            var mainList = list.Select(x => x.tb_SchoolModuleHome.MainModule).Distinct().ToList();
+                    mainList =
+                        new List<SchoolMainModuleList>()
+                };
+
+            var list = await _Entities
+                .TbSchoolSubModules
+                .Include(x => x.Main)
+                .Where(x => x.IsActive)
+                .ToListAsync();
+
+            var mainList = list
+                .Select(x =>
+                    x.Main
+                        .MainModule)
+                .Distinct()
+                .ToList();
+
             foreach (var item in mainList)
             {
                 string subIdString = "";
-                string main = Convert.ToString(item);
-                var sub = list.Where(x => x.tb_SchoolModuleHome.MainModule == main).ToList();
-                var userMainExists = userData.Where(x => x.tb_SchoolModuleHome.MainModule == main && x.IsActive).ToList();
-                SchoolMainModuleList one = new SchoolMainModuleList();
-                one.Id = sub.FirstOrDefault().Id;
-                one.ModuleName = main;
-                if (userMainExists.Count == sub.Count)
-                    one.IsExistsMain = true;
-                else
-                    one.IsExistsMain = false;
-                one.subList = new List<SchoolSubModuleList>();
+
+                string main =
+                    Convert.ToString(item);
+
+                var sub = list
+                    .Where(x =>
+                        x.Main
+                            .MainModule == main)
+                    .ToList();
+
+                var userMainExists = userData
+                    .Where(x =>
+                        x.Main
+                            .MainModule == main
+                        && x.IsActive)
+                    .ToList();
+
+                var one =
+                    new SchoolMainModuleList
+                    {
+                        Id =
+                            sub.FirstOrDefault()?.Id ?? 0,
+
+                        ModuleName =
+                            main,
+
+                        IsExistsMain =
+                            userMainExists.Count
+                            == sub.Count,
+
+                        subList =
+                            new List<SchoolSubModuleList>()
+                    };
+
                 foreach (var a in sub)
                 {
-                    SchoolSubModuleList b = new SchoolSubModuleList();
-                    b.MainId = one.Id;
-                    b.Id = a.Id;
-                    b.SubMosule = a.SchoolSubModule;
+                    var b =
+                        new SchoolSubModuleList
+                        {
+                            MainId =
+                                one.Id,
+
+                            Id =
+                                a.Id,
+
+                            SubMosule =
+                                a.SchoolSubModule
+                        };
+
+                    var userSubExists = userData
+                        .FirstOrDefault(x =>
+                            x.SchoolSubModuleId
+                                == a.Id
+                            && x.IsActive);
+
+                    b.IsExists =
+                        userSubExists != null;
+
                     one.subList.Add(b);
-                    if (subIdString == "")
-                        subIdString = a.Id.ToString();
+
+                    if (string.IsNullOrEmpty(
+                        subIdString))
+                    {
+                        subIdString =
+                            a.Id.ToString();
+                    }
                     else
-                        subIdString = subIdString + "," + a.Id.ToString();
-                    var userSubExists = userData.Where(x => x.SchoolSubModuleId == a.Id && x.IsActive).FirstOrDefault();
-                    if (userSubExists != null)
-                        b.IsExists = true;
-                    else
-                        b.IsExists = false;
+                    {
+                        subIdString =
+                            subIdString
+                            + ","
+                            + a.Id;
+                    }
                 }
-                one.subIdListString = subIdString;
+
+                one.subIdListString =
+                    subIdString;
+
                 model.mainList.Add(one);
             }
-            return PartialView("~/Views/Module/_pv_Edit_SchoolModule.cshtml", model);
-        }
 
+            return PartialView(
+                "~/Views/Module/_pv_Edit_SchoolModule.cshtml",
+                model);
+        }
         [HttpPost]
-        public object SubmitEditSchoolModule(SchoolModuleModel model) 
+        public async Task<IActionResult> SubmitEditSchoolModule(SchoolModuleModel model)
         {
-            string msg = "Failed";
             bool status = false;
-            var schoolmodulemain = _Entities.tb_SchoolModuleMain.Where(x => x.SchoolId == model.SchoolId).FirstOrDefault(); 
-            if (schoolmodulemain != null)
+
+            string msg = "Failed";
+
+            try
             {
-                var schoolsubmodule = _Entities.tb_SchoolModuleDetails.Where(x => x.SchoolModuleId == schoolmodulemain.Id).ToList();
-                if (schoolsubmodule != null)
+                using var transaction =
+                    await _Entities.Database
+                        .BeginTransactionAsync();
+
+                var schoolModuleMain =
+                    await _Entities
+                        .TbSchoolModuleMains
+                        .FirstOrDefaultAsync(x =>
+                            x.SchoolId ==
+                                model.SchoolId);
+
+                if (schoolModuleMain == null)
                 {
-                    foreach (var item in schoolsubmodule)
+                    return Json(new
                     {
-                        //Remove old data from submodules
-                        item.IsActive = false;
-                        _Entities.SaveChanges();
-                    }
+                        status = false,
+                        msg = "School module not found"
+                    });
                 }
-              
-                    foreach (var item in model.subListOnly)
+
+                var schoolSubModules =
+                    await _Entities
+                        .TbSchoolModuleDetails
+                        .Where(x =>
+                            x.SchoolModuleId ==
+                                schoolModuleMain.Id)
+                        .ToListAsync();
+
+                // Remove old modules
+                if (schoolSubModules.Any())
+                {
+                    foreach (var item
+                        in schoolSubModules)
                     {
-                        var mainDetails = new TrackTap.Data.SchoolSubModule(item.Id);
-                        var sub = _Entities.tb_SchoolModuleDetails.Create();
-                        sub.SchoolModuleId = schoolmodulemain.Id;
-                        sub.MainId = mainDetails.MainId;
-                        sub.SchoolSubModuleId = item.Id;
-                        sub.IsActive = true;
-                        sub.TimeStamp = CurrentTime;
-                        sub.SchoolId = model.SchoolId;
-                        _Entities.tb_SchoolModuleDetails.Add(sub);
-                        status = _Entities.SaveChanges() > 0;
+                        item.IsActive = false;
                     }
-                
+
+                    await _Entities
+                        .SaveChangesAsync();
+                }
+
+                // Add new modules
+                if (model.subListOnly != null
+                    && model.subListOnly.Any())
+                {
+                    foreach (var item
+                        in model.subListOnly)
+                    {
+                        var mainDetails =
+                            await _Entities
+                                .TbSchoolSubModules
+                                .FirstOrDefaultAsync(x =>
+                                    x.Id == item.Id);
+
+                        if (mainDetails == null)
+                        {
+                            continue;
+                        }
+
+                        var sub =
+                            new TbSchoolModuleDetail
+                            {
+                                SchoolModuleId =
+                                    schoolModuleMain.Id,
+
+                                MainId =
+                                    mainDetails.MainId,
+
+                                SchoolSubModuleId =
+                                    item.Id,
+
+                                SchoolId =
+                                    model.SchoolId,
+
+                                IsActive = true,
+
+                                TimeStamp =
+                                    CurrentTime
+                            };
+
+                        await _Entities
+                            .TbSchoolModuleDetails
+                            .AddAsync(sub);
+                    }
+
+                    status =
+                        await _Entities
+                            .SaveChangesAsync() > 0;
+                }
+
+                await transaction
+                    .CommitAsync();
+
+                if (status)
+                {
+                    msg = "Successful";
+                }
+            }
+            catch (Exception ex)
+            {
+                msg = ex.Message;
             }
 
-            if (status)
-                msg = "Successfull";
-            return Json(new { status = status, msg = msg }, JsonRequestBehavior.AllowGet);
+            return Json(new
+            {
+                status = status,
+                msg = msg
+            });
         }
-
         #endregion
 
-      
+
     }
 }

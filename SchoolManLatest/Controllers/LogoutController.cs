@@ -1,49 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using System.Web.Security;
 
 namespace TrackTap.Controllers
 {
     public class LogoutController : Controller
     {
-        //
-        // GET: /Logout/
+        public async Task<IActionResult> SchoolLogout()
+        {
+            HttpContext.Session.Clear();
 
+            await HttpContext
+                .SignOutAsync();
 
-        public IActionResult SchoolLogout()
-        {
-            Session.Clear();
-            Session.RemoveAll();
-            Session.Abandon();
-            FormsAuthentication.SignOut();
-            return RedirectToAction("../Account/SchoolLogin");
+            return RedirectToAction(
+                "SchoolLogin",
+                "Account");
         }
-        public IActionResult ParentLogout()
+
+        public async Task<IActionResult> ParentLogout()
         {
-            Session.Clear();
-            Session.RemoveAll();
-            Session.Abandon();
-            FormsAuthentication.SignOut();
-            return RedirectToAction("../Account/ParentLogin");
+            HttpContext.Session.Clear();
+
+            await HttpContext
+                .SignOutAsync();
+
+            return RedirectToAction(
+                "ParentLogin",
+                "Account");
         }
-        public IActionResult StaffLogout()
+
+        public async Task<IActionResult> StaffLogout()
         {
-            Session.Clear();
-            Session.RemoveAll();
-            Session.Abandon();
-            FormsAuthentication.SignOut();
-            return RedirectToAction("../Account/StaffLogin");
+            HttpContext.Session.Clear();
+
+            await HttpContext
+                .SignOutAsync();
+
+            return RedirectToAction(
+                "StaffLogin",
+                "Account");
         }
-        public IActionResult AdminLogout()
+
+        public async Task<IActionResult> AdminLogout()
         {
-            Session.Clear();
-            Session.RemoveAll();
-            Session.Abandon();
-            FormsAuthentication.SignOut();
-            return RedirectToAction("../Account/SuperAdminLogin");
+            HttpContext.Session.Clear();
+
+            await HttpContext
+                .SignOutAsync();
+
+            return RedirectToAction(
+                "SuperAdminLogin",
+                "Account");
         }
     }
 }

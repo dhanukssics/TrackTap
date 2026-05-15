@@ -1,14 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TrackTap.Data;
 
 namespace TrackTap.Controllers
 {
     public class DataController : Controller
     {
-        public IActionResult LoadDivision(long id)
+        private readonly DropdownData _dropdownData;
+        public DataController(DropdownData dropdownData)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetDivision(id);
+            _dropdownData = dropdownData;
+        }
+        public async Task<IActionResult> LoadDivision(long id)
+        {
+            var result =await _dropdownData
+                    .GetDivisionAsync(id);
 
             return Json(new
             {
@@ -17,11 +22,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadFreeDivision(long id)
+        public async Task<IActionResult> LoadFreeDivision(long id)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetDivision(id);
+            var result =await _dropdownData.GetDivisionAsync(id);
 
             return Json(new
             {
@@ -30,13 +33,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadFreeSchoolDivision(
-            long id,
-            long schoolid)
+        public async Task<IActionResult> LoadFreeSchoolDivision(long id,long schoolid)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetFreeSchoolDivision(
+            var result =await _dropdownData.GetFreeSchoolDivisionAsync(
                         id,
                         schoolid);
 
@@ -47,13 +46,11 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadTeacherDivision(
+        public async Task<IActionResult> LoadTeacherDivision(
             long id,
             long userid)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetTeacherDivision(
+            var result = await _dropdownData.GetTeacherDivisionAsync(
                         id,
                         userid);
 
@@ -64,14 +61,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadExams(
-            long classId,
-            long divisionid,
-            long schoolId)
+        public async Task<IActionResult> LoadExams(long classId,long divisionid,long schoolId)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetAllExams(
+            var result = await _dropdownData.GetAllExamsAsync(
                         classId,
                         divisionid,
                         schoolId);
@@ -83,11 +75,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadSubjects(long examId)
+        public async Task<IActionResult> LoadSubjects(long examId)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetAllSubjects(examId);
+            var result = await _dropdownData.GetAllSubjectsAsync(examId);
 
             return Json(new
             {
@@ -96,13 +86,11 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadAllSchoolDivision(
+        public async Task<IActionResult> LoadAllSchoolDivision(
             long id,
             long schoolid)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetAllSchoolDivision(
+            var result = await _dropdownData.GetAllSchoolDivisionAsync(
                         id,
                         schoolid);
 
@@ -113,11 +101,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadSubLedgerList(long id)
+        public async Task<IActionResult> LoadSubLedgerList(long id)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetSubLedgerList(id);
+            var result = await _dropdownData.GetSubLedgerListAsync(id);
 
             return Json(new
             {
@@ -126,8 +112,7 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadClassesByAcademicYear(
-            string id)
+        public async Task<IActionResult> LoadClassesByAcademicYear(string id)
         {
             string[] splitData =
                 id.Split('~');
@@ -138,9 +123,7 @@ namespace TrackTap.Controllers
             long acYearId =
                 Convert.ToInt64(splitData[1]);
 
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetAllClasses(
+            var result = await _dropdownData.GetAllClassesAsync(
                         schoolId,
                         acYearId);
 
@@ -151,13 +134,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult LoadAllSchoolClassWithAcademicYear(
-            long academicYear,
-            long schoolid)
+        public async Task<IActionResult> LoadAllSchoolClassWithAcademicYear(long academicYear,long schoolid)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetAllSchoolClassesWithAcademicYear(
+            var result = await _dropdownData.GetAllSchoolClassesWithAcademicYearAsync(
                         academicYear,
                         schoolid);
 
@@ -168,11 +147,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult GetItemCategories(long id)
+        public async Task<IActionResult> GetItemCategories(long id)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetItemCategories(id);
+            var result = await _dropdownData.GetItemCategoriesAsync(id);
 
             return Json(new
             {
@@ -181,11 +158,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult GetUnitCategories(string id)
+        public async Task<IActionResult> GetUnitCategories(string id)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetUnitCategories(id);
+            var result = await _dropdownData.GetUnitCategoriesAsync(id);
 
             return Json(new
             {
@@ -194,11 +169,9 @@ namespace TrackTap.Controllers
             });
         }
 
-        public IActionResult GetPriceCategories(string id)
+        public async Task<IActionResult> GetPriceCategories(string id)
         {
-            var result =
-                TrackTap.Data.DropdownData
-                    .GetPriceCategories(id);
+            var result =await _dropdownData.GetPriceCategoriesAsync(id);
 
             return Json(new
             {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackTap.ClassLibrary.Utility
+namespace TrackTap.Utility
 {
     class Common
     {

@@ -8,7 +8,7 @@ namespace TrackTap.Controllers
 {
     public class BaseController : Controller
     {
-        protected readonly SchoolDbContext _context;
+        protected readonly SchoolDbContext _Entities;
 
         protected readonly SchoolRepository _schoolRepository;
 
@@ -32,12 +32,12 @@ namespace TrackTap.Controllers
             new TbLogin();
 
         public BaseController(
-            SchoolDbContext context,
+            SchoolDbContext Entities,
             SchoolRepository schoolRepository,
             ParentRepository parentRepository,
             TeacherRepository teacherRepository)
         {
-            _context = context;
+            _Entities = Entities;
 
             _schoolRepository =
                 schoolRepository;
@@ -82,7 +82,7 @@ namespace TrackTap.Controllers
                             userSession))
                         {
                             var user =
-                                _context.TbLogins
+                                _Entities.TbLogins
                                 .FirstOrDefault(x =>
                                     x.UserId ==
                                     userId);
@@ -129,7 +129,7 @@ namespace TrackTap.Controllers
                             parentSession))
                         {
                             var parent =
-                                _context.TbParents
+                                _Entities.TbParents
                                 .FirstOrDefault(x =>
                                     x.ParentId ==
                                     parentId);

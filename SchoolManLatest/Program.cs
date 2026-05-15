@@ -1,3 +1,4 @@
+using MailKit;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using TrackTap.Models;
@@ -14,9 +15,9 @@ builder.Services.AddAuthentication(
     {
         options.LoginPath = "/Account/LoginPage";
     });
-
+builder.Services.AddHttpClient();
 builder.Services.AddSession();
-
+builder.Services.AddScoped<IMailService,MailService>();
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 

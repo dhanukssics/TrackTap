@@ -1,301 +1,1169 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using TrackTap.ClassLibrary;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
+using TrackTap.Models;
 
 namespace TrackTap.Data
 {
     public class DropdownData
     {
-        protected static tb_tracktapEntities _Entities = new tb_tracktapEntities();
-        protected tb_tracktapEntities Entities = new tb_tracktapEntities();
+        protected readonly SchoolDbContext _Entities;
+        public DropdownData(SchoolDbContext Entities)
+        {
+            _Entities = Entities;
+        }
+        public async Task<List<SelectListItem>>GetUnPublishedClassesAsync(long schoolId)
+        {
+            return await _Entities
+                .TbClasses
+                .Where(x =>
+                    x.IsActive
+                    && x.PublishStatus == false
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.ClassOrder)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Class,
 
-        public static List<SelectListItem> GetUnPublishedClasses(long schoolId)
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetOtherAcademicYearAsync()
         {
-            var input = _Entities.tb_Class.Where(z => z.IsActive && z.PublishStatus == false && z.SchoolId == schoolId).OrderBy(z => z.ClassOrder).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Class, Value = x.ClassId.ToString() }).ToList();
+            return await _Entities
+                .TbAcademicYears
+                .Where(x =>
+                    x.IsActive)
+                .OrderByDescending(x =>
+                    x.YearId)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.AcademicYear,
+
+                        Value =
+                            x.YearId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetClassesAsync(long schoolId)
+        {
+            return await _Entities
+                .TbClasses
+                .Where(x =>
+                    x.IsActive
+                    && x.PublishStatus
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.ClassOrder)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Class,
+
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetAllSchoolAsync()
+        {
+            return await _Entities
+                .TbSchools
+                .Where(x =>
+                    x.IsActive)
+                .OrderBy(x =>
+                    x.SchoolName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.SchoolName,
+
+                        Value =
+                            x.SchoolId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
 
-        public static List<SelectListItem> GetOtherAcademicYear()
+
+        public async Task<List<SelectListItem>>GetClassListAsync()
         {
-            var year = _Entities.tb_AcademicYear.ToList();
-            //var notYearId = year.FirstOrDefault().YearId;
-            var input = year.Where(z => z.IsActive).OrderByDescending(z => z.YearId).ToList();
-            return input.Select(x => new SelectListItem { Text = x.AcademicYear, Value = x.YearId.ToString() }).ToList();
+            return await _Entities
+                .TbClassLists
+                .Where(x =>
+                    x.IsActive)
+                .OrderBy(x =>
+                    x.OrderValue)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.ClassName,
+
+                        Value =
+                            x.OrderValue
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetClasses(long schoolId)
+        public async Task<List<SelectListItem>>GetDivisionAsync(long classId)
         {
-            var input = _Entities.tb_Class.Where(z => z.IsActive && z.PublishStatus && z.SchoolId == schoolId).OrderBy(z => z.ClassOrder).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Class, Value = x.ClassId.ToString() }).ToList();
+            return await _Entities
+                .TbDivisions
+                .Where(x =>
+                    x.IsActive
+                    && x.ClassId == classId)
+                .OrderBy(x =>
+                    x.Division)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Division,
+
+                        Value =
+                            x.DivisionId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetBusAsync(long schoolId)
+        {
+            return await _Entities
+                .TbBus
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.BusSpecialId)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.BusSpecialId,
+
+                        Value =
+                            x.BusId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetBusNameAsync(long schoolId)
+        {
+            return await _Entities
+                .TbBus
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.BusSpecialId)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.BusName,
+
+                        Value =
+                            x.BusId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetFreeSchoolDivisionAsync(long id,long schoolId)
+        {
+            var input =
+                await _Entities
+                    .UnassignedDivisionResults
+                    .FromSqlInterpolated(
+                        $@"EXEC SP_UnassignedDivisions
+                    @schoolId={schoolId},
+                    @classId={id}")
+                    .ToListAsync();
+
+            return input
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Division,
+
+                        Value =
+                            x.DivisionId
+                                .ToString()
+                    })
+                .ToList();
         }
 
-        public static List<SelectListItem> GetAllSchool()
+        public async Task<List<SelectListItem>>GetSchoolListAsync()
         {
-            var input = _Entities.tb_School.Where(z => z.IsActive == true).OrderBy(z => z.SchoolName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.SchoolName, Value = x.SchoolId.ToString() }).ToList();
+            return await _Entities
+                .TbLogins
+                .Include(x => x.School)
+                .Where(x =>
+                    x.IsActive
+                    && x.RoleId ==
+                        (int)UserRole.School)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.School.SchoolName,
+
+                        Value =
+                            x.SchoolId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
 
+        public async Task<List<SelectListItem>>GetSchoolPaymentGatwayListAsync()
+        {
+            return await _Entities
+                .TbLogins
+                .Include(x => x.School)
+                .Where(x =>
+                    x.IsActive
+                    && x.RoleId ==
+                        (int)UserRole.School
+                    && x.School != null
+                    && x.School.PaymentOption == true)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.School.SchoolName,
 
-
-        public static List<SelectListItem> GetClassList()
-        {
-            var input = _Entities.tb_ClassList.Where(z => z.IsActive).OrderBy(z => z.OrderValue).ToList();
-            return input.Select(x => new SelectListItem { Text = x.ClassName, Value = x.OrderValue.ToString() }).ToList();
-        }
-        public static List<SelectListItem> GetDivision(long classId)
-        {
-            var input = _Entities.tb_Division.Where(z => z.IsActive && z.ClassId == classId).OrderBy(z => z.Division).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Division, Value = x.DivisionId.ToString() }).ToList();
-        }
-        public static List<SelectListItem> GetBus(long schoolId)
-        {
-            var input = _Entities.tb_Bus.Where(z => z.IsActive && z.SchoolId == schoolId).OrderBy(z => z.BusSpecialId).ToList();
-            return input.Select(x => new SelectListItem { Text = x.BusSpecialId, Value = x.BusId.ToString() }).ToList();
-        }
-        public static List<SelectListItem> GetBusName(long schoolId)
-        {
-            var input = _Entities.tb_Bus.Where(z => z.IsActive && z.SchoolId == schoolId).OrderBy(z => z.BusSpecialId).ToList();
-            return input.Select(x => new SelectListItem { Text = x.BusName, Value = x.BusId.ToString() }).ToList();
-        }
-        public static List<SelectListItem> GetFreeSchoolDivision(long id, long schoolid)
-        {
-            var input = _Entities.SP_UnassignedDivisions(schoolid, id).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Division, Value = x.DivisionId.ToString() }).ToList();
-        }
-
-        public static List<SelectListItem> GetSchoolList()
-        {
-            var input = _Entities.tb_Login.Where(z => z.IsActive && z.RoleId == (int)UserRole.School).ToList();
-            return input.Select(x => new SelectListItem { Text = x.tb_School.SchoolName, Value = x.SchoolId.ToString() }).ToList();
-        }
-
-        public static List<SelectListItem> GetSchoolPaymentGatwayList()
-        {
-            var input = _Entities.tb_Login.Where(z => z.IsActive && z.RoleId == (int)UserRole.School && z.tb_School.PaymentOption==true).ToList();
-            return input.Select(x => new SelectListItem { Text = x.tb_School.SchoolName, Value = x.SchoolId.ToString() }).ToList();
+                        Value =
+                            x.SchoolId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
         //Non-Static
 
-        public List<SelectListItem> GetFreeClasses(long schoolId)
+        public async Task<List<SelectListItem>>GetFreeClassesAsync(long schoolId)
         {
-            //var teacherClass = _Entities.tb_TeacherClass.Where(z => z.tb_Class.SchoolId == schoolId).ToList().Select(z => z.DivisionId).ToList();
-            //var input = _Entities.tb_Division.Where(z => z.IsActive && !teacherClass.Contains(z.DivisionId) && z.tb_Class.SchoolId == schoolId).ToList().Select(z => z.ClassId).Distinct().ToList();
-            //return _Entities.tb_Class.Where(z => input.Contains(z.ClassId) && z.IsActive && z.SchoolId == schoolId).OrderBy(z => z.ClassOrder).ToList().Select(x => new SelectListItem { Text = x.Class, Value = x.ClassId.ToString() }).ToList();
-            return _Entities.SP_UnassignedTeachers(schoolId).ToList().Select(x => new SelectListItem { Text = x.ClassName, Value = x.ClassId.ToString() }).ToList();//Archana 
-        }
-        public List<SelectListItem> GetFreeDivision(long classId)
-        {
-            var teacherClass = _Entities.tb_TeacherClass.Where(z => z.tb_Class.ClassId == classId).ToList().Select(z => z.DivisionId).ToList();
-            var input = _Entities.tb_Division.Where(z => z.IsActive && !teacherClass.Contains(z.DivisionId) && z.tb_Class.ClassId == classId).OrderBy(z => z.tb_Class.ClassOrder).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Division, Value = x.DivisionId.ToString() }).ToList();
-        }
-        public List<SelectListItem> RefreshClasses(long schoolId)
-        {
-            var input = _Entities.tb_Class.Where(z => z.IsActive && z.SchoolId == schoolId).OrderBy(z => z.ClassOrder).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Class, Value = x.ClassId.ToString() }).ToList();
-        }
-        public List<SelectListItem> RefreshClassesUnPublished(long schoolId)
-        {
-            var year = _Entities.tb_AcademicYear.FirstOrDefault();
-            var input = _Entities.tb_Class.Where(z => z.IsActive && z.SchoolId == schoolId && year.YearId != z.AcademicYearId).OrderBy(z => z.ClassOrder).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Class, Value = x.ClassId.ToString() }).ToList();
-        }
-        public List<SelectListItem> RefreshSchoolFees(long schoolId)
-        {
-            var input = Entities.tb_Fee.Where(z => z.IsActive && z.SchoolId == schoolId && z.FeeType == (int)FeeType.CommonFee).OrderBy(z => z.FeeId).ToList();
-            return input.Select(x => new SelectListItem { Text = x.FeesName, Value = x.FeeId.ToString() }).ToList();
-        }
-        public List<SelectListItem> SchoolSpecialFeesList(long schoolId)
-        {
-            var input = Entities.tb_Fee.Where(z => z.IsActive && z.SchoolId == schoolId && z.FeeType == (int)FeeType.SpecialFee).OrderBy(z => z.FeeId).ToList();
-            return input.Select(x => new SelectListItem { Text = x.FeesName, Value = x.FeeId.ToString() }).ToList();
-        }
-        public List<SelectListItem> GetFreeTeacherClasses(long schoolId, long teacherId)
-        {
-            var teacherClass = _Entities.tb_TeacherClass.Where(z => z.tb_Class.SchoolId == schoolId && z.TeacherId != teacherId).ToList().Select(z => z.DivisionId).ToList();
-            var input = _Entities.tb_Division.Where(z => z.IsActive && !teacherClass.Contains(z.DivisionId) && z.tb_Class.SchoolId == schoolId && z.tb_Class.PublishStatus == true && z.tb_Class.IsActive == true).ToList().Select(z => z.ClassId).Distinct().ToList();
-            return _Entities.tb_Class.Where(z => input.Contains(z.ClassId) && z.IsActive && z.SchoolId == schoolId).OrderBy(z => z.ClassOrder).ToList().Select(x => new SelectListItem { Text = x.Class, Value = x.ClassId.ToString() }).ToList();
-        }
-        public List<SelectListItem> GetFreeTeacherDivision(string ClassId, long teacherId)
-        {
-            long classId = Convert.ToInt64(ClassId);
-            var teacherClass = _Entities.tb_TeacherClass.Where(z => z.tb_Class.ClassId == classId && z.TeacherId != teacherId).ToList().Select(z => z.DivisionId).ToList();
-            var input = _Entities.tb_Division.Where(z => z.IsActive && !teacherClass.Contains(z.DivisionId) && z.tb_Class.ClassId == classId && z.tb_Class.PublishStatus==true && z.tb_Class.IsActive==true).OrderBy(z => z.tb_Class.ClassOrder).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Division, Value = x.DivisionId.ToString() }).ToList();
-        }
-        public static List<SelectListItem> GetTeacherDivision(long classId, long userId)
-        {
-            var teacher = _Entities.tb_Teacher.Where(x => x.UserId == userId).FirstOrDefault();
+            var classes =
+                await _Entities
+                    .UnassignedTeacherResults
+                    .FromSqlInterpolated(
+                        $@"EXEC SP_UnassignedTeachers
+                    @schoolId={schoolId}")
+                    .ToListAsync();
 
-            var teacherData = _Entities.tb_TeacherClass.Where(x => x.TeacherId == teacher.TeacherId && x.ClassId == classId).ToList();
-            return teacherData.Select(x => new SelectListItem { Text = x.tb_Division.Division, Value = x.DivisionId.ToString() }).ToList();
-        }
-        public static List<SelectListItem> GetTeacherClass(long userId)
-        {
-            var teacher = _Entities.tb_Teacher.Where(x => x.UserId == userId).FirstOrDefault();
+            return classes
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.ClassName,
 
-            var teacherData = _Entities.tb_TeacherClass.Where(x => x.TeacherId == teacher.TeacherId && x.tb_Class.PublishStatus == true).ToList();
-            return teacherData.Select(x => new SelectListItem { Text = x.tb_Class.Class, Value = x.ClassId.ToString() }).ToList();
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .ToList();
         }
-        public List<SelectListItem> GetBookCategory(long schoolId)
+        public async Task<List<SelectListItem>>GetFreeDivisionAsync(long classId)
         {
-            var input = Entities.tb_BookCategory.Where(z => z.IsActive && z.SchoolId == schoolId).OrderBy(z => z.Category).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Category, Value = x.CategoryId.ToString() }).ToList();
+            return await _Entities
+                .TbDivisions
+                .Where(d =>
+                    d.IsActive
+
+                    && d.Class.ClassId ==
+                        classId
+
+                    && !_Entities
+                        .TbTeacherClasses
+                        .Any(tc =>
+                            tc.DivisionId ==
+                                d.DivisionId))
+                .OrderBy(d =>
+                    d.Class.ClassOrder)
+                .Select(d =>
+                    new SelectListItem
+                    {
+                        Text =
+                            d.Division,
+
+                        Value =
+                            d.DivisionId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllExams(long classId, long divisionid, long schoolId)//Archana
+        public async Task<List<SelectListItem>> RefreshClassesAsync(long schoolId)
         {
-            var input = _Entities.tb_Exams.Where(x => x.ClassId == classId && x.DivisionId == divisionid && x.SchoolId == schoolId && x.IsActive).ToList();
-            return input.Select(x => new SelectListItem { Text = x.ExamName, Value = x.ExamId.ToString() }).ToList();
+            return await _Entities
+                .TbClasses
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.ClassOrder)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Class,
+
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllSubjects(long examId)//Archana
+        public async Task<List<SelectListItem>>RefreshClassesUnPublishedAsync(long schoolId)
         {
-            var input = _Entities.tb_ExamSubjects.Where(x => x.ExamId == examId && x.IsActive).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Subject, Value = x.SubId.ToString() }).ToList();
+            var year = await _Entities
+                .TbAcademicYears
+                .FirstOrDefaultAsync();
+
+            if (year == null)
+            {
+                return new List<SelectListItem>();
+            }
+
+            return await _Entities
+                .TbClasses
+                .Where(x =>
+                    x.IsActive
+
+                    && x.SchoolId ==
+                        schoolId
+
+                    && year.YearId !=
+                        x.AcademicYearId)
+                .OrderBy(x =>
+                    x.ClassOrder)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Class,
+
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllSchoolDivision(long id, long schoolid)
+        public async Task<List<SelectListItem>>RefreshSchoolFeesAsync(long schoolId)
         {
-            var input = _Entities.tb_Division.Where(x => x.ClassId == id && x.tb_Class.SchoolId == schoolid && x.IsActive).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Division, Value = x.DivisionId.ToString() }).ToList();
+            return await _Entities
+                .TbFees
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId
+                    && x.FeeType ==
+                        (int)FeeType.CommonFee)
+                .OrderBy(x =>
+                    x.FeesName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.FeesName,
+
+                        Value =
+                            x.FeeId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>SchoolSpecialFeesListAsync(long schoolId)
+        {
+            return await _Entities
+                .TbFees
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId
+                    && x.FeeType ==
+                        (int)FeeType.SpecialFee)
+                .OrderBy(x =>
+                    x.FeeId)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.FeesName,
+
+                        Value =
+                            x.FeeId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetFreeTeacherClassesAsync(long schoolId,long teacherId)
+        {
+            var assignedDivisionIds =
+                await _Entities
+                    .TbTeacherClasses
+                    .Where(x =>
+                        x.Class.SchoolId == schoolId
+                        && x.TeacherId != teacherId)
+                    .Select(x =>
+                        x.DivisionId)
+                    .ToListAsync();
+
+            var classIds =
+                await _Entities
+                    .TbDivisions
+                    .Where(x =>
+                        x.IsActive
+                        && !assignedDivisionIds
+                            .Contains(x.DivisionId)
+                        && x.Class.SchoolId == schoolId
+                        && x.Class.PublishStatus == true
+                        && x.Class.IsActive == true)
+                    .Select(x =>
+                        x.ClassId)
+                    .Distinct()
+                    .ToListAsync();
+
+            return await _Entities
+                .TbClasses
+                .Where(x =>
+                    classIds.Contains(x.ClassId)
+                    && x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.ClassOrder)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Class,
+
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetFreeTeacherDivisionAsync(string classIdValue,long teacherId)
+        {
+            long classId =
+                Convert.ToInt64(classIdValue);
+
+            var teacherDivisionIds =
+                await _Entities
+                    .TbTeacherClasses
+                    .Where(x =>
+                        x.Class.ClassId == classId
+                        && x.TeacherId != teacherId)
+                    .Select(x =>
+                        x.DivisionId)
+                    .ToListAsync();
+
+            return await _Entities
+                .TbDivisions
+                .Where(x =>
+                    x.IsActive
+                    && !teacherDivisionIds
+                        .Contains(x.DivisionId)
+                    && x.Class.ClassId == classId
+                    && x.Class.PublishStatus == true
+                    && x.Class.IsActive == true)
+                .OrderBy(x =>
+                    x.Class.ClassOrder)
+                .ThenBy(x =>
+                    x.Division)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Division,
+
+                        Value =
+                            x.DivisionId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetTeacherDivisionAsync(long classId,long userId)
+        {
+            var teacher =
+                await _Entities
+                    .TbTeachers
+                    .FirstOrDefaultAsync(x =>
+                        x.UserId == userId);
+
+            if (teacher == null)
+            {
+                return new List<SelectListItem>();
+            }
+
+            return await _Entities
+                .TbTeacherClasses
+                .Where(x =>
+                    x.TeacherId == teacher.TeacherId
+                    && x.ClassId == classId)
+                .OrderBy(x =>
+                    x.Division.Division)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Division.Division,
+
+                        Value =
+                            x.DivisionId
+                                .ToString()
+                    })
+                .Distinct()
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetTeacherClassAsync(long userId)
+        {
+            var teacher =
+                await _Entities
+                    .TbTeachers
+                    .FirstOrDefaultAsync(x =>
+                        x.UserId == userId);
+
+            if (teacher == null)
+            {
+                return new List<SelectListItem>();
+            }
+
+            return await _Entities
+                .TbTeacherClasses
+                .Where(x =>
+                    x.TeacherId == teacher.TeacherId
+                    && x.Class.PublishStatus == true)
+                .OrderBy(x =>
+                    x.Class.ClassOrder)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Class.Class,
+
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .Distinct()
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetBookCategoryAsync(long schoolId)
+        {
+            return await _Entities
+                .TbBookCategories
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.Category)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Category,
+
+                        Value =
+                            x.CategoryId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetAllExamsAsync(long classId,long divisionId,long schoolId)
+        {
+            return await _Entities
+                .TbExams
+                .Where(x =>
+                    x.ClassId == classId
+                    && x.DivisionId == divisionId
+                    && x.SchoolId == schoolId
+                    && x.IsActive)
+                .OrderBy(x =>
+                    x.ExamName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.ExamName,
+
+                        Value =
+                            x.ExamId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetAllSubjectsAsync(long examId)
+        {
+            return await _Entities
+                .TbExamSubjects
+                .Where(x =>
+                    x.ExamId == examId
+                    && x.IsActive)
+                .OrderBy(x =>
+                    x.Subject)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Subject,
+
+                        Value =
+                            x.SubId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+        public async Task<List<SelectListItem>>GetAllSchoolDivisionAsync(long id,long schoolId)
+        {
+            return await _Entities
+                .TbDivisions
+                .Where(x =>
+                    x.ClassId == id
+                    && x.Class.SchoolId == schoolId
+                    && x.IsActive)
+                .OrderBy(x =>
+                    x.Division)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Division,
+
+                        Value =
+                            x.DivisionId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
         //---------------- Add Sub ledger  05-Apr-2018
-        public static List<SelectListItem> GetAccountHeads(long schoolId)
+        public async Task<List<SelectListItem>>GetAccountHeadsAsync(long schoolId)
         {
-            var input = _Entities.tb_AccountHead.Where(x => x.IsActive && x.SchoolId == schoolId && (x.ForBill==false || x.ForBill==null)).OrderBy(x => x.AccHeadName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.AccHeadName, Value = x.AccountId.ToString() }).ToList();
+            return await _Entities
+                .TbAccountHeads
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId
+                    && x.ForBill != true)
+                .OrderBy(x =>
+                    x.AccHeadName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.AccHeadName,
+
+                        Value =
+                            x.AccountId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
         //-----------------Select subLedger corresponding to the account head 
-        public static List<SelectListItem> GetSubLedgerList(long AccHeadId)
+        public async Task<List<SelectListItem>>GetSubLedgerListAsync(long accHeadId)
         {
-            var input = _Entities.tb_SubLedgerData.Where(z => z.IsActive && z.AccHeadId == AccHeadId).OrderBy(z => z.SubLedgerName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.SubLedgerName, Value = x.LedgerId.ToString() }).ToList();
+            return await _Entities
+                .TbSubLedgerData
+                .Where(x =>
+                    x.IsActive
+                    && x.AccHeadId == accHeadId)
+                .OrderBy(x =>
+                    x.SubLedgerName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.SubLedgerName,
+
+                        Value =
+                            x.LedgerId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
         //--------------------Select full Bank details 
-        public static List<SelectListItem> GetBankLists(long schoolId)
+        public async Task<List<SelectListItem>>GetBankListsAsync(long schoolId)
         {
-            var input = _Entities.tb_Banks.Where(x => x.IsActive && x.SchoolId == schoolId).OrderBy(x => x.BankName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.BankName, Value = x.BankId.ToString() }).ToList();
+            return await _Entities
+                .TbBanks
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.BankName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.BankName,
+
+                        Value =
+                            x.BankId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAccountHeadLists(long schoolId)
+        public async Task<List<SelectListItem>>GetAccountHeadListsAsync(long schoolId)
         {
-            var headList = _Entities.sp_LedgerFilter(schoolId).ToList();
-            return headList.Select(x => new SelectListItem { Text = x.AccHeadName, Value = x.ValueId.ToString() }).ToList();
+            var headList =
+                await _Entities
+                    .LedgerFilterResults
+                    .FromSqlInterpolated(
+                        $@"EXEC sp_LedgerFilter
+                    @schoolId1={schoolId}")
+                    .AsNoTracking()
+                    .ToListAsync();
+
+            return headList
+                .OrderBy(x =>
+                    x.AccHeadName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.AccHeadName,
+
+                        Value =
+                            x.ValueId
+                    })
+                .ToList();
         }
-        public static List<SelectListItem> GetTeachers(long schoolId)
+        public async Task<List<SelectListItem>>GetTeachersAsync(long schoolId)
         {
-            var input = _Entities.tb_Teacher.Where(z => z.IsActive && z.SchoolId == schoolId).OrderBy(z => z.TeacherName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.TeacherName, Value = x.TeacherId.ToString() }).ToList();
+            return await _Entities
+                .TbTeachers
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.TeacherName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.TeacherName,
+
+                        Value =
+                            x.TeacherId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetSubjectss(long schoolId)
+        public async Task<List<SelectListItem>>GetSubjectsAsync(long schoolId)
         {
-            var input = _Entities.tb_Subjects.Where(z => z.IsActive && z.SchoolI == schoolId).OrderBy(z => z.SubjectName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.SubjectName, Value = x.SubId.ToString() }).ToList();
+            return await _Entities
+                .TbSubjects
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolI == schoolId)
+                .OrderBy(x =>
+                    x.SubjectName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.SubjectName,
+
+                        Value =
+                            x.SubId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetFeeses(long schoolId)
+        public async Task<List<SelectListItem>>GetFeesesAsync(long schoolId)
         {
-            var input = _Entities.tb_Fee.Where(z => z.IsActive  && z.SchoolId == schoolId).OrderBy(z => z.FeesName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.FeesName, Value = x.FeeId.ToString() }).ToList();
+            return await _Entities
+                .TbFees
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.FeesName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.FeesName,
+
+                        Value =
+                            x.FeeId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetLabCategories(long schoolId)
+        public async Task<List<SelectListItem>>GetLabCategoriesAsync(long schoolId)
         {
-            var input = _Entities.tb_LaboratoryCategory.Where(z => z.IsActive  && z.SchoolId == schoolId).OrderBy(z => z.LaboratoryName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.LaboratoryName, Value = x.CategoryId.ToString() }).ToList();
+            return await _Entities
+                .TbLaboratoryCategories
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.LaboratoryName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.LaboratoryName,
+
+                        Value =
+                            x.CategoryId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAccountHeadsWithFeeHead(long schoolId)
+        public async Task<List<SelectListItem>>GetAccountHeadsWithFeeHeadAsync(long schoolId)
         {
-            var input = _Entities.tb_AccountHead.Where(x => x.IsActive && x.SchoolId == schoolId ).OrderBy(x => x.AccHeadName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.AccHeadName, Value = x.AccountId.ToString() }).ToList();
+            return await _Entities
+                .TbAccountHeads
+                .Where(x =>
+                    x.IsActive
+                    && x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.AccHeadName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.AccHeadName,
+
+                        Value =
+                            x.AccountId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetCurrentAcademicYear()
+        public async Task<List<SelectListItem>>GetCurrentAcademicYearAsync()
         {
-            var year = _Entities.tb_AcademicYear.ToList();
-            //var notYearId = year.FirstOrDefault().YearId;
-            var input = year.Where(z => z.IsActive &&  z.CurrentYear==true).OrderBy(z => z.YearId).ToList();
-            return input.Select(x => new SelectListItem { Text = x.AcademicYear, Value = x.YearId.ToString() }).ToList();
+            return await _Entities
+                .TbAcademicYears
+                .Where(x =>
+                    x.IsActive
+                    && x.CurrentYear == true)
+                .OrderBy(x =>
+                    x.YearId)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.AcademicYear,
+
+                        Value =
+                            x.YearId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetClassAllList()
+        public async Task<List<SelectListItem>>GetClassAllListAsync()
         {
-            var input = _Entities.tb_ClassList.Where(z => z.IsActive).OrderBy(z => z.OrderValue).ToList();
-            return input.Select(x => new SelectListItem { Text = x.ClassName, Value = x.ClassName.ToString() }).ToList();
+            return await _Entities
+                .TbClassLists
+                .Where(x =>
+                    x.IsActive)
+                .OrderBy(x =>
+                    x.OrderValue)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.ClassName,
+
+                        Value =
+                            x.ClassName
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllClasses(long schoolId,long acYearId)
+        public async Task<List<SelectListItem>>GetAllClassesAsync(long schoolId,long acYearId)
         {
-            var input = _Entities.tb_Class.Where(x => x.AcademicYearId == acYearId && x.SchoolId == schoolId && x.IsActive).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Class, Value = x.ClassId.ToString() }).ToList();
+            return await _Entities
+                .TbClasses
+                .Where(x =>
+                    x.AcademicYearId == acYearId
+                    && x.SchoolId == schoolId
+                    && x.IsActive)
+                .OrderBy(x =>
+                    x.ClassOrder)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Class,
+
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllSchoolClassesWithAcademicYear(long academicYear, long schoolid)
+        public async Task<List<SelectListItem>>GetAllSchoolClassesWithAcademicYearAsync(long academicYear,long schoolId)
         {
-            var input = _Entities.tb_Class.Where(x => x.AcademicYearId == academicYear && x.SchoolId == schoolid && x.IsActive).OrderBy(x=>x.ClassOrder).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Class, Value = x.ClassId.ToString() }).ToList();
+            return await _Entities
+                .TbClasses
+                .Where(x =>
+                    x.AcademicYearId == academicYear
+                    && x.SchoolId == schoolId
+                    && x.IsActive)
+                .OrderBy(x =>
+                    x.ClassOrder)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Class,
+
+                        Value =
+                            x.ClassId
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllReligions()
+        public async Task<List<SelectListItem>>GetAllReligionsAsync()
         {
-            var input = _Entities.tb_Religion.Where(x => x.IsActive).ToList();
-            return input.Select(x => new SelectListItem { Text = x.ReligionName, Value = x.Id.ToString() }).ToList();
+            return await _Entities
+                .TbReligions
+                .Where(x =>
+                    x.IsActive)
+                .OrderBy(x =>
+                    x.ReligionName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.ReligionName,
+
+                        Value =
+                            x.Id
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllCategories()
+        public async Task<List<SelectListItem>>GetAllCategoriesAsync()
         {
-            var input = _Entities.tb_Category.Where(x => x.IsActive).ToList();
-            return input.Select(x => new SelectListItem { Text = x.CategoryName, Value = x.Id.ToString() }).ToList();
+            return await _Entities
+                .TbCategories
+                .Where(x =>
+                    x.IsActive)
+                .OrderBy(x =>
+                    x.CategoryName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.CategoryName,
+
+                        Value =
+                            x.Id
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllStaffUserTypesData(long schoolId)
+        public async Task<List<SelectListItem>>GetAllStaffUserTypesDataAsync(long schoolId)
         {
-            var input = _Entities.tb_UserModuleMain.Where(x => x.SchoolId == schoolId && x.IsActive && x.IsTeacher == false).OrderBy(x => x.UserTypeName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.UserTypeName, Value = x.Id.ToString() }).ToList();
+            return await _Entities
+                .TbUserModuleMains
+                .Where(x =>
+                    x.SchoolId == schoolId
+                    && x.IsActive
+                    && x.IsTeacher == false)
+                .OrderBy(x =>
+                    x.UserTypeName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.UserTypeName,
+
+                        Value =
+                            x.Id
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public static List<SelectListItem> GetAllTeacherUserTypeData(long schoolId)
+        public async Task<List<SelectListItem>>GetAllTeacherUserTypeDataAsync(long schoolId)
         {
-            var input = _Entities.tb_UserModuleMain.Where(x => x.SchoolId == schoolId && x.IsActive && x.IsTeacher == true).OrderBy(x => x.UserTypeName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.UserTypeName, Value = x.Id.ToString() }).ToList();
+            return await _Entities
+                .TbUserModuleMains
+                .Where(x =>
+                    x.SchoolId == schoolId
+                    && x.IsActive
+                    && x.IsTeacher == true)
+                .OrderBy(x =>
+                    x.UserTypeName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.UserTypeName,
+
+                        Value =
+                            x.Id
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public List<SelectListItem> GetAllTeacherUserTypeDataAdd(long schoolId)
+        public async Task<List<SelectListItem>>GetAllTeacherUserTypeDataAddAsync(long schoolId)
         {
-            var input = _Entities.tb_UserModuleMain.Where(x => x.SchoolId == schoolId && x.IsActive && x.IsTeacher == true).OrderBy(x => x.UserTypeName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.UserTypeName, Value = x.Id.ToString() }).ToList();
+            return await _Entities
+                .TbUserModuleMains
+                .Where(x =>
+                    x.SchoolId == schoolId
+                    && x.IsActive
+                    && x.IsTeacher == true)
+                .OrderBy(x =>
+                    x.UserTypeName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.UserTypeName,
+
+                        Value =
+                            x.Id
+                                .ToString()
+                    })
+                .ToListAsync();
         }
-        public List<SelectListItem> GetAllStaffUserTypesDataAdd(long schoolId)
+        public async Task<List<SelectListItem>>GetAllStaffUserTypesDataAddAsync(long schoolId)
         {
-            var input = _Entities.tb_UserModuleMain.Where(x => x.SchoolId == schoolId && x.IsActive && x.IsTeacher == false).OrderBy(x => x.UserTypeName).ToList();
-            return input.Select(x => new SelectListItem { Text = x.UserTypeName, Value = x.Id.ToString() }).ToList();
+            return await _Entities
+                .TbUserModuleMains
+                .Where(x =>
+                    x.SchoolId == schoolId
+                    && x.IsActive
+                    && x.IsTeacher == false)
+                .OrderBy(x =>
+                    x.UserTypeName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.UserTypeName,
+
+                        Value =
+                            x.Id
+                                .ToString()
+                    })
+                .ToListAsync();
         }
 
 
 
         // @jibin 9/14/2020
-        public static List<SelectListItem> GetLabCategoriesAll()
+        public async Task<List<SelectListItem>>GetLabCategoriesAllAsync()
         {
-            var input = _Entities.tb_LaboratoryCategory.ToList();
-            return input.Select(x => new SelectListItem { Text = x.LaboratoryName, Value = x.CategoryId.ToString() }).ToList();
+            return await _Entities
+                .TbLaboratoryCategories
+                .OrderBy(x =>
+                    x.LaboratoryName)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.LaboratoryName,
+
+                        Value =
+                            x.CategoryId
+                                .ToString()
+                    })
+                .ToListAsync();
+        }
+
+        public async Task<List<SelectListItem>>GetItemCategoriesAsync(long categoryId)
+        {
+            return await _Entities
+                .TbAddCategories
+                .Where(x =>
+                    x.CategoryId == categoryId)
+                .OrderBy(x =>
+                    x.Item)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Item,
+
+                        Value =
+                            x.Item
+                    })
+                .Distinct()
+                .ToListAsync();
         }
 
 
-        public static List<SelectListItem> GetItemCategories(long CategoryId)
+
+        public async Task<List<SelectListItem>>GetUnitCategoriesAsync(string id)
         {
-            var input = _Entities.tb_AddCategory.Where(x => x.CategoryId == CategoryId).OrderBy(x => x.Item).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Item, Value = x.Item.ToString() }).ToList();
+            return await _Entities
+                .TbAddCategories
+                .Where(x =>
+                    x.Item == id)
+                .OrderBy(x =>
+                    x.Item)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Unit,
+
+                        Value =
+                            x.Unit
+                    })
+                .Distinct()
+                .ToListAsync();
+        }
+
+        public async Task<List<SelectListItem>>GetAdmissionNumberBySchoolIdAsync(long schoolId)
+        {
+            return await _Entities
+                .TbStudents
+                .Where(x =>
+                    x.SchoolId == schoolId)
+                .OrderBy(x =>
+                    x.StudentSpecialId)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.StudentSpecialId,
+
+                        Value =
+                            x.StudentSpecialId
+                    })
+                .Distinct()
+                .ToListAsync();
         }
 
 
-
-        public static List<SelectListItem> GetUnitCategories(string id)
+        public async Task<List<SelectListItem>>GetPriceCategoriesAsync(string id)
         {
-            var input = _Entities.tb_AddCategory.Where(x => x.Item == id).OrderBy(x => x.Item).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Unit, Value = x.Unit.ToString() }).ToList();
-        }
+            return await _Entities
+                .TbStockUpdates
+                .Where(x =>
+                    x.Item == id)
+                .Select(x =>
+                    new SelectListItem
+                    {
+                        Text =
+                            x.Item,
 
-        public static List<SelectListItem> GetAdmissionNumberByschholID(long schoolId)
-        {
-            var input = _Entities.tb_Student.Where(x => x.SchoolId== schoolId).ToList();
-            return input.Select(x => new SelectListItem { Text = x.StudentSpecialId, Value = x.StudentSpecialId.ToString() }).ToList();
-        }
-
-
-        public static List<SelectListItem> GetPriceCategories(string id)
-        {
-            var input = _Entities.tb_StockUpdate.Where(x => x.Item == id).OrderBy(x => x.Item).ToList();
-            return input.Select(x => new SelectListItem { Text = x.Item, Value = x.Price.ToString() }).ToList();
+                        Value =
+                            x.Price
+                                .ToString()
+                    })
+                .Distinct()
+                .ToListAsync();
         }
 
         // @jibin 9/14/2020
